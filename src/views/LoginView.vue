@@ -1,136 +1,110 @@
 <template>
-  <div style="display:flex;min-height:85vh">
-    <div style="width:100%;display:flex;top:0px;margin:auto;">
-      <div style="margin:auto;">
-        <div style="width:300px;padding-top:20px">
-          <a-input
-            placeholder="Email"
-            v-model:value="loginAdmin.email"
-            size="large"
-            @change="emailChanged"
-          />
-          <a-input-password
-            style="margin-top:20px"
-            placeholder="Password"
-            v-model:value="loginAdmin.password"
-            size="large"
-            @change="emailChanged"
-          />
-
-          <a-checkbox style="margin-top:20px;" v-model:checked="isRemember">
-            Remember me
-          </a-checkbox>
-
-          <a-button
-            style="margin-top:10px;width:100%"
-            type="primary"
-            :disabled="disabled"
-            size="large"
-            :style="{ fontSize: '20px' }"
-            @click="handleLoginClick"
-          >
-            Log in
-          </a-button>
-
-          <div
-            style="background-color:#F0EFEF;height:1px;width:100%;margin-top:20px"
-          ></div>
-          <div
-            style="width:100%;margin-top:10px;text-align:center;cursor:pointer"
-          >
-            New here?
-            <font color="#CEB39A" @click="clickSignUp">Sign up</font>
+  <div>
+    <div class="d-flex h-100vh">
+      <div class="justify-center h-100 w-50">
+        <a-space direction="vertical" size="middle" class="w-100" style="max-width: 280px;">
+          <div>
+            <a-typography-title :level="2">
+              {{ trlang.welcome_back }}
+            </a-typography-title>
+            <div>
+              <a-typography-text class="fs-5">
+                {{ trlang.enter_detail }}
+              </a-typography-text>
+            </div>
           </div>
-          <div
-            style="width:100%;margin-top:10px;text-align:center;cursor:pointer"
-            @click="openForgotPassword"
-          >
-            Forgot password?
+          <div class="text-start">
+            <a-typography-text>{{ trlang.email }}</a-typography-text>
+            <a-input v-model:value="email" :placeholder="trlang.input_email" />
           </div>
-        </div>
+          <div class="text-start">
+            <a-typography-text>{{ trlang.password }}</a-typography-text>
+            <a-input-password v-model:value="password" :placeholder="trlang.input_password" />
+          </div>
+          <button class="w-100 pt-2 pb-2 mt-5 radius-2 cursor-pointer main-background text-white" @click="login">
+            {{ trlang.login }}
+          </button>
+          <div class="w-100 d-flex justify-between">
+            <a-checkbox v-model:checked="checked">{{ trlang.remember_me }}</a-checkbox>
+            <a href="/auth/register">
+              <button class="transparent-background border-0 text-main fs-5 cursor-pointer">
+                {{ trlang.forgot_password }}
+              </button>
+            </a>
+          </div>
+          <div class="d-flex text-center w-100 justify-center">
+            <a-typography-text class="fs-5">
+              {{ trlang.not_have_account }}
+            </a-typography-text>
+            <a href="/auth/register">
+              <button class="transparent-background border-0 text-main fs-5 cursor-pointer">
+                {{ trlang.register_now }}
+              </button>
+            </a>
+          </div>
+        </a-space>
       </div>
+      <div class="w-50">asdfasdf</div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { reactive, ref, onMounted } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-import { api } from '../helpers/Helpers'
+<script>
 
-// Store & Router
-const store = useStore()
-const router = useRouter()
+import { message } from 'ant-design-vue';
 
-// State
-const loginAdmin = reactive({
-  email: 'marcos.henrique@toptal.com',
-  password: 's3cr3tp4sswo4rd'
-})
-const isRemember = ref(false)
-const disabled = ref(false)
+import { checkValidEmail } from '@/helpers/commond';
+import { api } from '@/helpers/Api'
 
-// Methods
-function getUserPass() {
-  const passInfo = store.state.loginPassword
-  if (passInfo?.userEmail && passInfo?.password) {
-    loginAdmin.email = passInfo.userEmail
-    loginAdmin.password = passInfo.password
+export default {
+  name: 'LoginPage',
+  inject: ['langState'],
+  data() {
+    return {
+      email: "",
+      password: "",
+      loading: false
+    };
+  },
+  computed: {
+    trlang() {
+      return this.langState.translations
+    }
+  },
+  methods: {
+    async login() {
+      if (!this.email || !this.password) {
+        message.error(this.trlang.input_email_password)
+        return;
+      }
+
+      // check email style
+      if (!checkValidEmail(this.email)) {
+        message.error(this.trlang.not_correct_email)
+        return;
+      }
+
+      this.loading = true;
+      try {
+        let response = await api.login({
+          email: this.email,
+          password: this.password,
+        })
+
+        console.log('response :>> ', response);
+
+        // Example: store token in localStorage
+        localStorage.setItem("token", response.data.token);
+
+        // Redirect after login
+        this.$router.push("/");
+      } catch (error) {
+        console.log('error.response :>> ', error.response);
+        message.error('something went wrong')
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 }
-
-async function handleLoginClick() {
-  const res = await api.login(loginAdmin)
-  if (res) {
-    const userInfo = {
-      loginType: 'api',
-      api: {
-        auth: 'alyosha',
-        user: {
-          name: res.name,
-          email: loginAdmin.email,
-          profileImage: 'testurl',
-          accessToken: res.accessToken,
-          refreshToken: res.refreshToken
-        }
-      },
-      id: res.userId
-    }
-
-    store.commit('setLoginUser', userInfo)
-
-    if (isRemember.value) {
-      store.commit('setLoginPass', {
-        userEmail: loginAdmin.email,
-        password: loginAdmin.password
-      })
-    } else {
-      store.commit('setLoginPass', {
-        userEmail: '',
-        password: ''
-      })
-    }
-
-    router.push('/admin/users')
-  }
-}
-
-function emailChanged() {
-  disabled.value = !loginAdmin.email || !loginAdmin.password
-}
-
-function clickSignUp() {
-  router.push('/admin/signupview')
-}
-
-function openForgotPassword() {
-  router.push('/admin/forgotview')
-}
-
-// Lifecycle
-onMounted(() => {
-  getUserPass()
-  emailChanged()
-})
 </script>
