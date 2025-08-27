@@ -5,16 +5,24 @@
         <a-space direction="vertical" size="middle" class="w-100" style="max-width: 280px;">
           <div>
             <a-typography-title :level="2">
-              {{ trlang.forgot_password }}
+              {{ trlang.auth.forgot_password }}
             </a-typography-title>
           </div>
           <div class="text-start">
-            <a-typography-text>{{ trlang.email }}</a-typography-text>
-            <a-input v-model:value="email" :placeholder="trlang.input_email" />
+            <a-typography-text>{{ trlang.auth.email }}</a-typography-text>
+            <a-input v-model:value="email" :placeholder="trlang.auth.input_email" />
           </div>
-          <button class="w-100 pt-2 pb-2 radius-2 cursor-pointer main-background text-white" @click="login">
-            {{ trlang.login }}
+          <a-typography-text class="fs-5">{{ trlang.auth.you_will_get_verify_with_email }}</a-typography-text>
+          <button class="w-100 pt-2 pb-2 radius-2 cursor-pointer main-background text-white" @click="sendVerify">
+            {{ trlang.auth.send_verify }}
           </button>
+          <div class="text-end">
+            <a href="/auth/login">
+              <button class="transparent-background border-0 text-main fs-5 cursor-pointer">
+                {{ trlang.auth.back_to_login }}
+              </button>
+            </a>
+          </div>
         </a-space>
       </div>
       <div class="w-50 login-image"></div>
@@ -26,16 +34,17 @@
 
 import { message } from 'ant-design-vue';
 
-import { checkValidEmail } from '@/helpers/commond';
-import { api } from '@/helpers/Api'
+import { checkValidEmail } from '@/helpers/common';
+import { postData } from '@/helpers/Axios.js';
+import { apiLink } from '@/utils/api-link';
+import { routeLink } from '@/utils/route-link';
 
 export default {
-  name: 'LoginPage',
+  name: routeLink.forgot_password.name,
   inject: ['langState'],
   data() {
     return {
       email: "",
-      password: "",
       loading: false
     };
   },
@@ -45,35 +54,25 @@ export default {
     }
   },
   methods: {
-    async login() {
-      if (!this.email || !this.password) {
-        message.error(this.trlang.fill_email_password)
+    async sendVerify() {
+      if (!this.email) {
+        message.error(this.trlang.auth.fill_email)
         return;
       }
 
       // check email style
       if (!checkValidEmail(this.email)) {
-        message.error(this.trlang.not_correct_email)
+        message.error(this.trlang.auth.not_correct_email)
         return;
       }
 
       this.loading = true;
-      try {
-        let response = await api.login({
-          email: this.email,
-          password: this.password,
-        })
+      const res = await postData(apiLink.forgot_password, { email: this.email })
 
-        // Example: store token in localStorage
-        localStorage.setItem("token", response.data.token);
-
-        // Redirect after login
-        this.$router.push("/");
-      } catch (error) {
-        message.error(error.response.data.message)
-      } finally {
-        this.loading = false;
+      if (res.status) {
+        message.success(this.trlang.auth.sent_verification_link)
       }
+
     }
   }
 }

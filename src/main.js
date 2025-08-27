@@ -1,15 +1,13 @@
 import { createApp } from "vue";
 import Antd from "ant-design-vue";
-import "ant-design-vue/dist/reset.css";
 import App from "./App.vue";
-import "semantic-ui-css/semantic.css";
 import router from "./Router";
 import store from "./store";
+import "ant-design-vue/dist/reset.css";
+import "semantic-ui-css/semantic.css";
 
 import "./css/root.css";
 import "./css/common.css";
-import "./css/header.css";
-import "./css/customAntd.css";
 import "./css/custom.css";
 
 import VueLazyload from "vue3-lazyload";

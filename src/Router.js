@@ -1,23 +1,31 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-const LoginView = () => import("./views/LoginView.vue");
-const ForgotPasswordView = () => import("./views/ForgotPassword.vue");
+import { routeLink } from "./utils/route-link.js";
+
+const Login = () => import("@/views/Login.vue");
+const ForgotPassword = () => import("@/views/ForgotPassword.vue");
+const ResetPassword = () => import("@/views/ResetPassword.vue");
 
 const routes = [
   {
-    path: "/auth/loginview",
-    name: "LoginView",
-    component: LoginView,
+    path: routeLink.login.link,
+    name: routeLink.login.name,
+    component: Login,
   },
   {
-    path: "/auth/forgot-password",
-    name: "ForgotPasswordView",
-    component: ForgotPasswordView,
+    path: routeLink.forgot_password.link,
+    name: routeLink.forgot_password.name,
+    component: ForgotPassword,
+  },
+  {
+    path: routeLink.reset_password.link,
+    name: routeLink.reset_password.name,
+    component: ResetPassword,
   },
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory("/"),
   routes,
   linkActiveClass: "active",
 });

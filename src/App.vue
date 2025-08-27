@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <div v-if="isAuthPage">
-      <!-- Render login page only -->
       <router-view />
     </div>
     <a-layout v-else id="components-layout-demo-custom-trigger">
@@ -16,70 +15,33 @@
   </div>
 </template>
 
-<script>
-import { reactive, provide, onMounted } from 'vue'
-import LeftLayout from './components/LeftLayout.vue'
-import HeaderMenu from './components/HeaderMenu.vue'
-import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+<script setup>
+import { reactive, provide, onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
+import LeftLayout from "./components/LeftLayout.vue";
+import HeaderMenu from "./components/HeaderMenu.vue";
 
-export default {
-  name: 'App',
-  data() {
-    return {
-      currentLang: 'en',
-      translations: {}
-    }
-  },
-  components: {
-    LeftLayout,
-    HeaderMenu
-  },
-  setup() {
-    const route = useRoute()
+const route = useRoute();
+const isAuthPage = computed(() => route.path.startsWith("/auth"));
 
-    const isAuthPage = computed(() => route.path.startsWith('/auth'))
-
-    return { isAuthPage }
-  },
-  methods: {
-    async loadLanguage(lang) {
-      try {
-        const langmodule = await import(`@/lang/${lang}.js`);
-        this.translations = langmodule.default;
-      } catch (e) {
-        console.error(`Failed to load language ${lang}`, e)
-      }
-    }
-  },
-  provide() {
-    return {
-      langState: this // we provide `this` so children can access both currentLang and translations
-    }
-  },
-  mounted() {
-    this.loadLanguage(this.currentLang)
-  }
-};
-
+// language state
 const state = reactive({
-  currentLang: 'en',
+  currentLang: "en",
   translations: {}
-})
+});
 
 async function loadLanguage(lang) {
   try {
-    const langmodule = await import(`@/lang/${lang}.js`)
-    state.translations = langmodule.default
+    const langmodule = await import(`@/lang/${lang}.js`);
+    state.translations = langmodule.default;
   } catch (e) {
-    console.error(`Failed to load language ${lang}`, e)
+    console.error(`Failed to load language ${lang}`, e);
   }
 }
 
-provide('langState', state)
+provide("langState", state);
 
 onMounted(() => {
-  loadLanguage(state.currentLang)
-})
-
+  loadLanguage(state.currentLang);
+});
 </script>

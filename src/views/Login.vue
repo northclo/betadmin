@@ -1,0 +1,127 @@
+<template>
+  <div>
+    <div class="d-flex h-100vh">
+      <div class="justify-center h-100 w-50">
+        <a-space direction="vertical" size="middle" class="w-100" style="max-width: 280px;">
+          <div>
+            <a-typography-title :level="2">
+              {{ trlang.auth.welcome_back }}
+            </a-typography-title>
+            <div>
+              <a-typography-text>
+                {{ trlang.auth.enter_detail }}
+              </a-typography-text>
+            </div>
+          </div>
+          <div class="text-start">
+            <a-typography-text>{{ trlang.auth.email }}</a-typography-text>
+            <a-input v-model:value="email" :placeholder="trlang.auth.input_email" />
+          </div>
+          <div class="text-start">
+            <a-typography-text>{{ trlang.auth.password }}</a-typography-text>
+            <a-input-password v-model:value="password" :placeholder="trlang.auth.input_password" />
+          </div>
+          <div class="w-100 d-flex justify-between">
+            <a-checkbox v-model:checked="remember">{{ trlang.auth.remember_me }}</a-checkbox>
+            <a href="/auth/forgot-password">
+              <button class="transparent-background border-0 text-main fs-5 cursor-pointer">
+                {{ trlang.auth.forgot_password }}
+              </button>
+            </a>
+          </div>
+          <button class="w-100 pt-2 pb-2 radius-2 cursor-pointer main-background text-white" @click="login">
+            {{ trlang.auth.login }}
+          </button>
+          <div class="d-flex text-center w-100 justify-center">
+            <a-typography-text class="fs-5">
+              {{ trlang.auth.not_have_account }}
+            </a-typography-text>
+            <a href="/auth/register">
+              <button class="transparent-background border-0 text-main fs-5 cursor-pointer">
+                {{ trlang.auth.register_now }}
+              </button>
+            </a>
+          </div>
+        </a-space>
+      </div>
+      <div class="w-50 login-image"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+import { message } from 'ant-design-vue';
+
+import { checkValidEmail } from '@/helpers/common';
+import { postData } from '@/helpers/Axios';
+import { apiLink } from '@/utils/api-link';
+import { routeLink } from '@/utils/route-link';
+
+export default {
+  name: routeLink.login.name,
+  inject: ['langState'],
+  data() {
+    return {
+      email: "",
+      password: "",
+      checked: false,
+      loading: false
+    };
+  },
+  computed: {
+    trlang() {
+      return this.langState.translations
+    },
+  },
+  created() {
+    // get email and password from localstorage
+    let savedEmail = localStorage.getItem('email');
+    let savedPassword = localStorage.getItem('password');
+
+    // if exist email and password in localstorage, auto fill in email, password and remember
+    if (savedEmail && savedPassword) {
+      this.email = savedEmail;
+      this.password = savedPassword;
+      this.remember = true;
+    }
+  },
+  methods: {
+    async login() {
+      if (!this.email || !this.password) {
+        message.error(this.trlang.auth.fill_email_password)
+        return;
+      }
+
+      // check email style
+      if (!checkValidEmail(this.email)) {
+        message.error(this.trlang.auth.not_correct_email)
+        return;
+      }
+
+      this.loading = true;
+
+      let res = await postData(apiLink.login, {
+        email: this.email.toLowerCase(),
+        password: this.password,
+      })
+
+      if (res.status) {
+        // Example: store token in localStorage
+        localStorage.setItem("token", res.data.token);
+
+        if (this.remember) {
+          localStorage.setItem('email', this.email);
+          localStorage.setItem("password", this.password)
+        } else {
+          localStorage.removeItem('email');
+          localStorage.removeItem('password');
+        }
+
+        // Redirect after login
+        this.$router.push(routeLink.dashboard.link);
+      }
+    }
+  }
+}
+</script>
