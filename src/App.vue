@@ -38,7 +38,7 @@ export default {
   setup() {
     const route = useRoute()
 
-    const isAuthPage = computed(() => route.path.startsWith('/admin'))
+    const isAuthPage = computed(() => route.path.startsWith('/auth'))
 
     return { isAuthPage }
   },
