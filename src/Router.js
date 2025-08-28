@@ -5,6 +5,7 @@ import { routeLink } from "./utils/route-link.js";
 const Login = () => import("@/views/Login.vue");
 const ForgotPassword = () => import("@/views/ForgotPassword.vue");
 const ResetPassword = () => import("@/views/ResetPassword.vue");
+const MemberList = () => import("@/views/MemberList.vue");
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     path: routeLink.reset_password.link,
     name: routeLink.reset_password.name,
     component: ResetPassword,
+  },
+  {
+    path: routeLink.member_list.link,
+    name: routeLink.member_list.name,
+    component: MemberList,
   },
 ];
 

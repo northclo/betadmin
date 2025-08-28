@@ -5,23 +5,23 @@
         <a-space direction="vertical" size="middle" class="w-100" style="max-width: 280px;">
           <div>
             <a-typography-title :level="2">
-              {{ trlang.auth.forgot_password }}
+              {{ trlang.forgot_password }}
             </a-typography-title>
           </div>
           <div class="text-start">
-            <a-typography-text>{{ trlang.auth.email }}</a-typography-text>
-            <a-input v-model:value="email" :placeholder="trlang.auth.input_email" />
+            <a-typography-text>{{ trlang.email }}</a-typography-text>
+            <a-input v-model:value="email" :placeholder="trlang.input_email" />
           </div>
-          <a-typography-text class="fs-5">{{ trlang.auth.you_will_get_verify_with_email }}</a-typography-text>
+          <a-typography-text class="fs-5">{{ trlang.you_will_get_verify_with_email }}</a-typography-text>
           <button class="w-100 pt-2 pb-2 radius-2 cursor-pointer main-background text-white" @click="sendVerify">
-            {{ trlang.auth.send_verify }}
+            {{ trlang.send_verify }}
           </button>
           <div class="text-end">
-            <a href="/auth/login">
+            <router-link to="/auth/login">
               <button class="transparent-background border-0 text-main fs-5 cursor-pointer">
-                {{ trlang.auth.back_to_login }}
+                {{ trlang.back_to_login }}
               </button>
-            </a>
+            </router-link>
           </div>
         </a-space>
       </div>
@@ -56,13 +56,13 @@ export default {
   methods: {
     async sendVerify() {
       if (!this.email) {
-        message.error(this.trlang.auth.fill_email)
+        message.error(this.trlang.fill_email)
         return;
       }
 
       // check email style
       if (!checkValidEmail(this.email)) {
-        message.error(this.trlang.auth.not_correct_email)
+        message.error(this.trlang.not_correct_email)
         return;
       }
 
@@ -70,7 +70,7 @@ export default {
       const res = await postData(apiLink.forgot_password, { email: this.email })
 
       if (res.status) {
-        message.success(this.trlang.auth.sent_verification_link)
+        message.success(this.trlang.sent_verification_link)
       }
 
     }
