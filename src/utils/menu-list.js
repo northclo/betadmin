@@ -134,7 +134,7 @@ export const menuList = (trlang) => {
       children: [
         {
           key: "announcement",
-          label: trlang.value.announ,
+          label: trlang.value.announcement,
           to: "/announcement",
         },
         {

@@ -3,6 +3,8 @@ export default {
 
   // Common Setting
   currency: "¥",
+  add: "Add",
+  cancel: "Cancel",
 
   // Menu items
   main_page: "Main Page",
@@ -67,4 +69,22 @@ export default {
   confirm_password: "Confirm Password",
   wrong_password: "Password is wrong",
   password_reset_successful: "Password reset successful",
+  logout: "Logout",
+
+  //member
+  first_name: "First Name",
+  last_name: "Last Name",
+  user_name: "User Name",
+  company: "Company",
+  phone_number: "Phone Number",
+  add_member: 'Add Member',
+  delete_member: "Delete Member",
+  export_excel: "Export Excel",
+  first_name_required: "First Name is required",
+  last_name_required: "Last Name is required",
+  user_name_required: "User Name is required",
+  email_required: "Email is required",
+  password_required: "Password is required",
+  confirm_password_required: "Confirm Password is required",
+  member_added_successful: "Member added Successful"
 };
