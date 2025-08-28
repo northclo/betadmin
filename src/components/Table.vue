@@ -1,6 +1,6 @@
 <template>
-    <a-table row-selection="checkbox" :columns="columnsWithActions" :dataSource="dataSource" rowKey="key" class="w-100"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
+    <a-table :rowSelection="rowSelection" :columns="columnsWithActions" :dataSource="dataSource" rowKey="key"
+        class="w-100" :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
         @change="handleTableChange">
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'actions'">
@@ -8,7 +8,7 @@
                     <a-button type="default" size="small" class="border-0 text-main shadow-none transparent-background"
                         @click="editRow(record)">Edit</a-button>
                     <a-divider type="vertical" />
-                    <a-button type="default" size="small" class="border-0 text-main shadow-none transparent-background"
+                    <a-button type="default" size="small" class="border-0 text-red shadow-none transparent-background"
                         @click="deleteRow(record)">Delete</a-button>
                 </a-space>
             </template>
@@ -27,9 +27,12 @@ export default {
         editRow: { type: Function, required: true },
         deleteRow: { type: Function, required: true },
     },
-    setup(props) {
+    emits: ["update:selectedRows"],
+    setup(props, { emit }) {
         const currentPage = ref(1);
         const pageSize = ref(10);
+        const selectedRowKeys = ref([]);
+        const selectedRows = ref([])
 
         const paginationConfig = ref({
             current: currentPage.value,
@@ -46,6 +49,15 @@ export default {
             paginationConfig.value.pageSize = pagination.pageSize;
         };
 
+        const rowSelection = {
+            selectedRowKeys: selectedRowKeys.value,
+            onChange: (keys, rows) => {
+                selectedRowKeys.value = keys;
+                selectedRows.value = rows;
+                emit("update:selectedRows", rows);
+            },
+        };
+
         // Automatically add actions column if not exists
         const columnsWithActions = computed(() => {
             const hasActions = props.columns.some((col) => col.key === "actions");
@@ -58,6 +70,7 @@ export default {
             columnsWithActions,
             currentPage,
             pageSize,
+            rowSelection
         };
     },
 };

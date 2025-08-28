@@ -120,6 +120,10 @@ button {
   justify-content: end;
 }
 
+.align-center {
+  align-items: center;
+}
+
 /** flex css */
 .d-flex {
   display: flex !important;

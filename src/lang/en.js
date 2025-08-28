@@ -3,8 +3,11 @@ export default {
 
   // Common Setting
   currency: "¥",
-  add: "Add",
+  save: "Save",
   cancel: "Cancel",
+  added_successful: "Added successful",
+  changed_successful: "Changed successful",
+  deleted_successful: "Deleted successful",
 
   // Menu items
   main_page: "Main Page",
@@ -86,5 +89,4 @@ export default {
   email_required: "Email is required",
   password_required: "Password is required",
   confirm_password_required: "Confirm Password is required",
-  member_added_successful: "Member added Successful"
 };

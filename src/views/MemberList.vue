@@ -3,21 +3,38 @@
         {{ trlang.member_list }}
     </a-typography-title>
 
-    <a-layout-header class="white-background d-flex justify-end gap-2">
-        <a-button class="main-background text-white" @click="openModal">{{ trlang.add_member }}</a-button>
-        <a-button class="red-background text-white">{{ trlang.delete_member }}</a-button>
-        <a-button class="main-background text-white">{{ trlang.export_excel }}</a-button>
+    <a-layout-header class="white-background d-flex justify-end align-center gap-2">
+        <a-button class="main-background text-white" @click="openModal">
+            {{ trlang.add_member }}
+        </a-button>
+        <a-button class="red-background text-white" @click="deleteSelectedMembers">
+            {{ trlang.delete_member }}
+        </a-button>
+        <a-button class="main-background text-white" @click="exportMemberToExcel">
+            {{ trlang.export_excel }}
+        </a-button>
     </a-layout-header>
 
-    <a-modal v-model:open="open" title="Add Member" ok-text="Add" cancel-text="Cancel" @ok="addMember">
+    <a-layout-header class="white-background d-flex justify-end align-center gap-2">
+        <a-input v-model:value="search" placeholder="Search..." class="search-input" @change="searchMember">
+            <template #prefix>
+                <SearchOutlined />
+            </template>
+        </a-input>
+    </a-layout-header>
+
+    <a-modal v-model:open="open" :title="trlang.add_member" :ok-text="trlang.save" :cancel-text="trlang.cancel"
+        @ok="addMember">
         <a-layout class="d-flex gap-5 flex-row white-background mt-2">
             <a-input :addonBefore="trlang.first_name" v-model:value="firstName" placeholder="John*" />
             <a-input :addonBefore="trlang.last_name" v-model:value="lastName" placeholder="Smith*" />
         </a-layout>
+
         <a-layout class="d-flex gap-5 flex-row white-background mt-2">
             <a-input :addonBefore="trlang.user_name" v-model:value="userName" placeholder="John Smith*" />
             <a-input :addonBefore="trlang.company" v-model:value="company" placeholder="Apple" />
         </a-layout>
+
         <a-input :addonBefore="trlang.email" v-model:value="email" placeholder="johnsmith@gmail.com*" class="mt-2" />
         <a-input :addonBefore="trlang.password" v-model:value="password" placeholder="1111*" class="mt-2" />
         <a-input :addonBefore="trlang.confirm_password" v-model:value="confirmPassword" placeholder="1111*"
@@ -26,75 +43,156 @@
             class="mt-2" />
     </a-modal>
 
-    <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow" />
+    <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow"
+        v-model:selectedRows="checkedRows" />
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import BaseTable from '@/components/Table.vue';
-import { getData, deleteData, putData } from '@/helpers/Axios';
-import { checkValidEmail } from '@/helpers/common';
-import { apiLink } from '@/utils/api-link';
-import { routeLink } from '@/utils/route-link';
-import { memberListColumn } from '@/utils/table-column.js/member-list';
-import { message } from 'ant-design-vue';
+import { ref, onMounted, computed, inject } from "vue";
+import BaseTable from "@/components/Table.vue";
+import { SearchOutlined } from '@ant-design/icons-vue';
+import { getData, deleteData, putData, postData } from "@/helpers/Axios";
+import { checkValidEmail } from "@/helpers/common";
+import { exportExcel } from '@/helpers/common/export-excel';
+import { apiLink } from "@/utils/api-link";
+import { routeLink } from "@/utils/route-link";
+import { memberListColumn } from "@/utils/table-column.js/member-list";
+import { message } from "ant-design-vue";
 
 export default {
     name: routeLink.member_list.name,
-    components: { BaseTable },
-    inject: ['langState'],
-    data() {
-        return {
-            firstName: "",
-            lastName: "",
-            userName: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            company: "",
-            phoneNumber: ""
-        }
-    },
-    computed: {
-        trlang() {
-            return this.langState.translations;
-        },
-    },
+    components: { BaseTable, SearchOutlined },
     setup() {
+        const langState = inject("langState");
+        const trlang = computed(() => langState.translations);
+
         const dataSource = ref([]);
-        const open = ref(false)
+        const open = ref(false);
         const columns = memberListColumn;
+        const checkedRows = ref([]);
+
+        // form fields
+        const firstName = ref("");
+        const lastName = ref("");
+        const userName = ref("");
+        const email = ref("");
+        const password = ref("");
+        const confirmPassword = ref("");
+        const company = ref("");
+        const phoneNumber = ref("");
+        const modalState = ref(0); // add: 0, edit: 1
+        const updateId = ref('');
+        const search = ref('')
 
         const fetchData = async () => {
-            const res = await getData(apiLink.member_list);
+            const res = await getData(`${apiLink.member_list}?search=${search.value}`);
             if (res.status) {
-                dataSource.value = res.data.map((element, idx) => {
-                    return {
+                dataSource.value =
+                    res.data.map((element, idx) => ({
                         key: idx,
-                        ...element
-                    }
-                }) || [];
+                        ...element,
+                    })) || [];
             }
         };
 
         const editRow = (row) => {
-            console.log("Edit:", row);
+            firstName.value = row.firstName;
+            lastName.value = row.lastName;
+            userName.value = row.userName;
+            company.value = row.company;
+            email.value = row.email;
+            phoneNumber.value = row.phoneNumber;
+            updateId.value = row._id;
+            modalState.value = 1;
+
+            openModal()
         };
 
         const deleteRow = async (row) => {
             const res = await deleteData(`${apiLink.member_list}/${row._id}`);
-            fetchData()
+            await fetchData();
             if (res.status) {
-                message.success("Deleted user successful")
+                message.success(trlang.value.deleted_successful);
             }
         };
 
         const openModal = () => {
             open.value = true;
-        }
+        };
 
         const hideModal = () => {
+            modalState.value = 0;
             open.value = false;
+        };
+
+        const addMember = async () => {
+            if (!firstName.value)
+                return message.error(trlang.value.first_name_required);
+            if (!lastName.value)
+                return message.error(trlang.value.last_name_required);
+            if (!userName.value)
+                return message.error(trlang.value.user_name_required);
+            if (!email.value) return message.error(trlang.value.email_required);
+            if (!checkValidEmail(email.value))
+                return message.error(trlang.value.not_correct_email);
+            if (!password.value && modalState.value === 0)
+                return message.error(trlang.value.password_required);
+            if (!confirmPassword.value && modalState.value === 0)
+                return message.error(trlang.value.confirm_password_required);
+            if (password.value !== confirmPassword.value)
+                return message.error(trlang.value.wrong_password);
+
+            if (modalState.value === 0) {
+                let res = await putData(apiLink.member_list, {
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    userName: userName.value,
+                    email: email.value,
+                    password: password.value,
+                    company: company.value,
+                    phoneNumber: phoneNumber.value,
+                });
+
+                if (res.status) {
+                    message.success(trlang.value.added_successful);
+                    hideModal();
+                    fetchData();
+                }
+            } else {
+                let data = {
+                    _id: updateId.value,
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    userName: userName.value,
+                    email: email.value,
+                    company: company.value,
+                    phoneNumber: phoneNumber.value,
+                }
+
+                if (password.value) {
+                    data.password = password.value;
+                }
+
+                let res = await postData(apiLink.member_list, data);
+
+                if (res.status) {
+                    message.success(trlang.value.changed_successful);
+                    hideModal();
+                    fetchData();
+                }
+            }
+        };
+
+        const searchMember = () => {
+            fetchData();
+        }
+
+        const deleteSelectedMembers = () => {
+            console.log('checkedRows :>> ', checkedRows);
+        }
+
+        const exportMemberToExcel = () => {
+            exportExcel(dataSource.value, trlang.value.member_list, trlang.value.member_list)
         }
 
         onMounted(() => {
@@ -102,43 +200,30 @@ export default {
         });
 
         return {
+            trlang,
             dataSource,
             columns,
             open,
+            search,
             editRow,
             deleteRow,
             openModal,
             hideModal,
-            fetchData
+            fetchData,
+            addMember,
+            searchMember,
+            checkedRows,
+            deleteSelectedMembers,
+            exportMemberToExcel,
+            firstName,
+            lastName,
+            userName,
+            email,
+            password,
+            confirmPassword,
+            company,
+            phoneNumber,
         };
     },
-    methods: {
-        async addMember() {
-            if (!this.firstName) return message.error(this.trlang.first_name_required);
-            if (!this.lastName) return message.error(this.trlang.last_name_required);
-            if (!this.userName) return message.error(this.trlang.user_name_required);
-            if (!this.email) return message.error(this.trlang.email_required);
-            if (!checkValidEmail(this.email)) return message.error(this.trlang.not_correct_email)
-            if (!this.password) return message.error(this.trlang.password_required);
-            if (!this.confirmPassword) return message.error(this.trlang.confirm_password_required);
-            if (this.password !== this.confirmPassword) return message.error(this.trlang.wrong_password)
-
-            let res = await putData(apiLink.member_list, {
-                firstName: this.firstName,
-                lastName: this.lastName,
-                userName: this.userName,
-                email: this.email,
-                password: this.password,
-                company: this.company,
-                phoneNumber: this.phoneNumber
-            })
-
-            if (res.status) {
-                message.success(this.trlang.member_added_successful);
-                this.hideModal();
-                this.fetchData()
-            }
-        }
-    }
 };
 </script>

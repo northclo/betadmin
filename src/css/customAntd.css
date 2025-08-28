@@ -10,6 +10,11 @@
   border-radius: 6px !important;
 }
 
+.ant-input-group .ant-input-group-addon button {
+  border: none !important;
+  background: transparent !important;
+}
+
 .ant-modal {
   width: 50% !important;
   max-width: 800px !important;
