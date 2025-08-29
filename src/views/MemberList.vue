@@ -45,7 +45,7 @@
             class="mt-2" />
     </a-modal>
 
-    <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow"
+    <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow" :loading="loading"
         @update:selectedRows="onSelectedRows" @update:selectedRowKeys="onSelectedRowKeys" />
 </template>
 
@@ -72,7 +72,8 @@ export default {
         const columns = memberListColumn;
         const checkedRows = ref([]);
         const selectedMembers = ref([]);
-        const selectedMemberKeys = ref([])
+        const selectedMemberKeys = ref([]);
+        const loading = ref([true])
 
         // form fields
         const firstName = ref("");
@@ -88,6 +89,8 @@ export default {
         const search = ref('')
 
         const fetchData = async () => {
+            loading.value = true;
+
             const res = await getData(`${apiLink.member_list}?search=${search.value}`);
             if (res.status) {
                 dataSource.value =
@@ -95,6 +98,8 @@ export default {
                         key: idx,
                         ...element,
                     })) || [];
+
+                loading.value = false;
             }
         };
 
@@ -115,7 +120,7 @@ export default {
             const res = await deleteData(`${apiLink.member_list}/${row._id}`);
             await fetchData();
             if (res.status) {
-                message.success(trlang.value.deleted_successful);
+                message.success(trlang.value.common.deleted_successful);
             }
         };
 
@@ -157,7 +162,7 @@ export default {
                 });
 
                 if (res.status) {
-                    message.success(trlang.value.added_successful);
+                    message.success(trlang.value.common.added_successful);
                     hideModal();
                     fetchData();
                 }
@@ -179,7 +184,7 @@ export default {
                 let res = await postData(apiLink.member_list, data);
 
                 if (res.status) {
-                    message.success(trlang.value.changed_successful);
+                    message.success(trlang.value.common.changed_successful);
                     hideModal();
                     fetchData();
                 }
@@ -199,7 +204,7 @@ export default {
             const res = await deleteData(`${apiLink.member_list}/${deleteMemberIds.slice(1)}`);
             await fetchData();
             if (res.status) {
-                message.success(trlang.value.deleted_successful);
+                message.success(trlang.value.common.deleted_successful);
             }
         }
 
@@ -241,6 +246,7 @@ export default {
             exportMemberToExcel,
             onSelectedRowKeys,
             onSelectedRows,
+            loading,
             firstName,
             lastName,
             userName,

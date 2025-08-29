@@ -5,9 +5,14 @@ export default {
   currency: "¥",
   save: "Save",
   cancel: "Cancel",
-  added_successful: "Added successful",
-  changed_successful: "Changed successful",
-  deleted_successful: "Deleted successful",
+  common: {
+    edit: "Edit",
+    delete: "Delete",
+    no_data: "No Data",
+    added_successful: "Added successful",
+    changed_successful: "Changed successful",
+    deleted_successful: "Deleted successful",
+  },
 
   // Menu items
   main_page: "Main Page",
