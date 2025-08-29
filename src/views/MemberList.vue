@@ -1,7 +1,9 @@
 <template>
-    <a-typography-title :level="2" class="ps-5 pe-5 pt-5 pe-2 white-background mb-0 text-dark-grey">
-        {{ trlang.member_list }}
-    </a-typography-title>
+    <a-layout-header class="white-background align-center gap-2">
+        <a-typography-title :level="2" class="ps-5 pe-5 pt-5 pe-2 mb-0 text-dark-grey">
+            {{ trlang.member_list }}
+        </a-typography-title>
+    </a-layout-header>
 
     <a-layout-header class="white-background d-flex justify-end align-center gap-2">
         <a-button class="main-background text-white" @click="openModal">
@@ -52,8 +54,7 @@ import { ref, onMounted, computed, inject } from "vue";
 import BaseTable from "@/components/Table.vue";
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { getData, deleteData, putData, postData } from "@/helpers/Axios";
-import { checkValidEmail } from "@/helpers/common";
-import { exportExcel } from '@/helpers/common/export-excel';
+import { checkValidEmail, exportExcel } from '@/helpers/Common.js';
 import { apiLink } from "@/utils/api-link";
 import { routeLink } from "@/utils/route-link";
 import { memberListColumn } from "@/utils/table-column.js/member-list";
@@ -203,7 +204,11 @@ export default {
         }
 
         const exportMemberToExcel = () => {
-            exportExcel(dataSource.value, trlang.value.member_list, trlang.value.member_list)
+            if (selectedMembers.value.length === 0) {
+                exportExcel(dataSource.value, trlang.value.member_list, trlang.value.member_list)
+            } else {
+                exportExcel(selectedMembers.value, trlang.value.member_list, trlang.value.member_list)
+            }
         }
 
         const onSelectedRows = (rows) => {

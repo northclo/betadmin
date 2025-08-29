@@ -53,7 +53,7 @@
 
 import { message } from 'ant-design-vue';
 
-import { checkValidEmail } from '@/helpers/common';
+import { checkValidEmail } from '@/helpers/Common.js';
 import { postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';

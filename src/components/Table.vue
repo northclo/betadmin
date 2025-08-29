@@ -18,12 +18,6 @@
             </template>
         </template>
     </a-table>
-
-    <!-- Example: show selected rows -->
-    <div class="mt-3">
-        <strong>Selected Rows:</strong>
-        <pre>{{ selectedRows }}</pre>
-    </div>
 </template>
 
 <script>

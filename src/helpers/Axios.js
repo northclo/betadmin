@@ -28,7 +28,7 @@ const handleError =
             status: false,
           };
         } else {
-          message.error("Network error");
+          message.error("No response from server. Please check your network.");
           return {
             status: false,
           };

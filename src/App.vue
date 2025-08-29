@@ -19,7 +19,7 @@
 import { reactive, provide, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import LeftLayout from "./components/LeftLayout.vue";
-import HeaderMenu from "./components/Header.vue";
+import HeaderMenu from "./components/HeaderMenu.vue";
 
 const route = useRoute();
 const isAuthPage = computed(() => route.path.startsWith("/auth"));
