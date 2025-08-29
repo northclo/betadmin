@@ -44,7 +44,7 @@
     </a-modal>
 
     <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow"
-        v-model:selectedRows="checkedRows" />
+        @update:selectedRows="onSelectedRows" @update:selectedRowKeys="onSelectedRowKeys" />
 </template>
 
 <script>
@@ -70,6 +70,8 @@ export default {
         const open = ref(false);
         const columns = memberListColumn;
         const checkedRows = ref([]);
+        const selectedMembers = ref([]);
+        const selectedMemberKeys = ref([])
 
         // form fields
         const firstName = ref("");
@@ -187,12 +189,29 @@ export default {
             fetchData();
         }
 
-        const deleteSelectedMembers = () => {
-            console.log('checkedRows :>> ', checkedRows);
+        const deleteSelectedMembers = async () => {
+            let deleteMemberIds = ''
+            selectedMembers.value.forEach((element) => {
+                deleteMemberIds += ',' + element._id;
+            });
+
+            const res = await deleteData(`${apiLink.member_list}/${deleteMemberIds.slice(1)}`);
+            await fetchData();
+            if (res.status) {
+                message.success(trlang.value.deleted_successful);
+            }
         }
 
         const exportMemberToExcel = () => {
             exportExcel(dataSource.value, trlang.value.member_list, trlang.value.member_list)
+        }
+
+        const onSelectedRows = (rows) => {
+            selectedMembers.value = rows;
+        }
+
+        const onSelectedRowKeys = (keys) => {
+            selectedMemberKeys.value = keys
         }
 
         onMounted(() => {
@@ -215,6 +234,8 @@ export default {
             checkedRows,
             deleteSelectedMembers,
             exportMemberToExcel,
+            onSelectedRowKeys,
+            onSelectedRows,
             firstName,
             lastName,
             userName,

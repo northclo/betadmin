@@ -6,18 +6,28 @@
             <template v-if="column.key === 'actions'">
                 <a-space class="gap-0">
                     <a-button type="default" size="small" class="border-0 text-main shadow-none transparent-background"
-                        @click="editRow(record)">Edit</a-button>
+                        @click="editRow(record)">
+                        Edit
+                    </a-button>
                     <a-divider type="vertical" />
                     <a-button type="default" size="small" class="border-0 text-red shadow-none transparent-background"
-                        @click="deleteRow(record)">Delete</a-button>
+                        @click="deleteRow(record)">
+                        Delete
+                    </a-button>
                 </a-space>
             </template>
         </template>
     </a-table>
+
+    <!-- Example: show selected rows -->
+    <div class="mt-3">
+        <strong>Selected Rows:</strong>
+        <pre>{{ selectedRows }}</pre>
+    </div>
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 
 export default {
     name: "BaseTable",
@@ -27,12 +37,10 @@ export default {
         editRow: { type: Function, required: true },
         deleteRow: { type: Function, required: true },
     },
-    emits: ["update:selectedRows"],
+    emits: ['update:selectedRows', "update:selectedRowKeys"],
     setup(props, { emit }) {
         const currentPage = ref(1);
         const pageSize = ref(10);
-        const selectedRowKeys = ref([]);
-        const selectedRows = ref([])
 
         const paginationConfig = ref({
             current: currentPage.value,
@@ -49,14 +57,21 @@ export default {
             paginationConfig.value.pageSize = pagination.pageSize;
         };
 
-        const rowSelection = {
+        // ✅ row selection (reactive)
+        const selectedRowKeys = ref([]);
+        const selectedRows = ref([]);
+
+        const rowSelection = reactive({
             selectedRowKeys: selectedRowKeys.value,
             onChange: (keys, rows) => {
                 selectedRowKeys.value = keys;
+                rowSelection.selectedRowKeys = keys; // keep in sync
                 selectedRows.value = rows;
+
+                emit('update:selectedRowKeys', keys);
                 emit("update:selectedRows", rows);
             },
-        };
+        });
 
         // Automatically add actions column if not exists
         const columnsWithActions = computed(() => {
@@ -70,7 +85,9 @@ export default {
             columnsWithActions,
             currentPage,
             pageSize,
-            rowSelection
+            rowSelection,
+            selectedRowKeys,
+            selectedRows,
         };
     },
 };
