@@ -1,5 +1,5 @@
 <template>
-  <a-layout-header class="white-background d-flex">
+  <a-layout-header class="bg-white d-flex">
 
     <!-- Mobile Header -->
     <a-layout-content class="d-flex gap-5" v-if="isMobile">
@@ -71,67 +71,67 @@
 
     <!-- Desktop Header -->
     <a-layout-content class="d-flex gap-5" v-else>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">User-help money</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">User points</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Currnet Site Users</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Deposit</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0{{ trlang.currency }}</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Withdrawal</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0{{ trlang.currency }}</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center"
+      <a-layout-header class="bg-white justify-center"
         style="flex-direction: column; padding: 0px; padding-left: 20px;">
         <a-typography-text class="text-main text-bold">Game</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Bating gan</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Betting</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Hit</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Betting P</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Revenue</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center"
+      <a-layout-header class="bg-white justify-center"
         style="flex-direction: column; padding: 0px; padding-left: 20px;">
         <a-typography-text class="text-main text-bold">Mini Games</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Bating gan</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Hit</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Betting P</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>
-      <a-layout-header class="white-background justify-center" style="flex-direction: column; padding: 0px;">
+      <a-layout-header class="bg-white justify-center" style="flex-direction: column; padding: 0px;">
         <a-typography-text class="text-main text-bold">Revenue</a-typography-text>
         <a-typography-text class="text-dark-grey text-bold">0</a-typography-text>
       </a-layout-header>

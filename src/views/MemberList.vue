@@ -1,23 +1,23 @@
 <template>
-  <a-layout-header class="white-background align-center gap-2">
+  <a-layout-header class="bg-white items-center gap-2">
     <a-typography-title :level="2" class="ps-5 pe-5 pt-5 pe-2 mb-0 text-dark-grey">
       {{ trlang.member_list }}
     </a-typography-title>
   </a-layout-header>
 
-  <a-layout-header class="white-background d-flex justify-end align-center gap-2">
-    <a-button class="main-background text-white" @click="openModal">
+  <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
+    <a-button class="bg-main text-white" @click="openModal">
       {{ trlang.add_member }}
     </a-button>
-    <a-button class="red-background text-white" @click="deleteSelectedMembers">
+    <a-button class="bg-red text-white" @click="deleteSelectedMembers">
       {{ trlang.delete_member }}
     </a-button>
-    <a-button class="main-background text-white" @click="exportMemberToExcel">
+    <a-button class="bg-main text-white" @click="exportMemberToExcel">
       {{ trlang.export_excel }}
     </a-button>
   </a-layout-header>
 
-  <a-layout-header class="white-background d-flex justify-end align-center gap-2">
+  <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
     <a-input
       v-model:value="search"
       placeholder="Search..."
@@ -37,7 +37,7 @@
     :cancel-text="trlang.cancel"
     @ok="addMember"
   >
-    <a-layout class="d-flex gap-5 flex-row white-background mt-2">
+    <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
       <a-input
         :addonBefore="trlang.first_name"
         v-model:value="firstName"
@@ -50,7 +50,7 @@
       />
     </a-layout>
 
-    <a-layout class="d-flex gap-5 flex-row white-background mt-2">
+    <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
       <a-input
         :addonBefore="trlang.user_name"
         v-model:value="userName"

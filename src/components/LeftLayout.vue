@@ -1,7 +1,17 @@
 <template>
-  <a-layout-sider v-model:collapsed="collapsed" :trigger="null" collapsible class="h-100vh overflow-y-scroll">
-    <a-menu theme="dark" mode="inline" :default-selected-keys="[selNavItem]" :default-open-keys="[openNavItem]"
-      :inline-collapsed="collapsed">
+  <a-layout-sider
+    v-model:collapsed="collapsed"
+    :trigger="null"
+    collapsible
+    class="h-100vh overflow-y-scroll"
+  >
+    <a-menu
+      theme="dark"
+      mode="inline"
+      :default-selected-keys="[selNavItem]"
+      :default-open-keys="[openNavItem]"
+      :inline-collapsed="collapsed"
+    >
       <!-- Loop through menu config -->
       <template v-for="item in menuItems" :key="item.key">
         <!-- If submenu -->

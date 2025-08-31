@@ -19,7 +19,7 @@
           <a-button
             type="default"
             size="small"
-            class="border-0 text-main shadow-none transparent-background"
+            class="border-0 text-main shadow-none bg-none"
             @click="editRow(record)"
           >
             {{ trlang.edit }}
@@ -28,7 +28,7 @@
           <a-button
             type="default"
             size="small"
-            class="border-0 text-red shadow-none transparent-background"
+            class="border-0 text-red shadow-none bg-none"
             @click="deleteRow(record)"
           >
             {{ trlang.delete }}

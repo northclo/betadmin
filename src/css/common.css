@@ -12,31 +12,39 @@ button {
 }
 
 /** background color css */
-.main-background {
+.bg-main {
   background: var(--main-color) !important;
 }
 
-.pink-background {
+.bg-pink {
   background: var(--pink-color) !important;
 }
 
-.green-background {
+.bg-green {
   background: var(--green-color) !important;
 }
 
-.red-background {
+.bg-red {
   background: var(--red-color) !important;
 }
 
-.yellow-background {
+.bg-yellow {
   background: var(--yellow-color) !important;
 }
 
-.white-background {
+.bg-white {
   background: var(--white-color) !important;
 }
 
-.transparent-background {
+.bg-dark-gray {
+  background: var(--dark-gray-color) !important;
+}
+
+.bg-gray {
+  background: var(--gray) !important;
+}
+
+.bg-none {
   background: transparent;
 }
 
@@ -66,8 +74,12 @@ button {
   color: var(--red-color) !important;
 }
 
+.text-yellow {
+  color: var(--yellow-color) !important;
+}
+
 .text-dark-grey {
-  color: var(--dark-grey-color) !important;
+  color: var(--dark-gray-color) !important;
 }
 
 /** text css */
@@ -75,7 +87,19 @@ button {
   font-weight: bold;
 }
 
+.fw-400 {
+  font-weight: 400 !important;
+}
+
 /** font size css */
+.fs-1 {
+  font-size: 30px;
+}
+
+.fs-4 {
+  font-size: 16px;
+}
+
 .fs-5 {
   font-size: 12px;
 }
@@ -87,6 +111,10 @@ button {
 
 .w-50 {
   width: 50%;
+}
+
+.w-fit {
+  width: fit-content;
 }
 
 .min-w-100 {
@@ -120,8 +148,16 @@ button {
   justify-content: end;
 }
 
-.align-center {
+.items-start {
+  align-items: start;
+}
+
+.items-center {
   align-items: center;
+}
+
+.items-end {
+  align-items: end;
 }
 
 /** flex css */
@@ -143,6 +179,10 @@ button {
 
 .flex-column {
   flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .gap-0 {
@@ -182,9 +222,21 @@ button {
   margin-bottom: 8px;
 }
 
+.me-2 {
+  margin-right: 8px;
+}
+
 /** padding css */
 .p-2 {
   padding: 8px;
+}
+
+.p-5 {
+  padding: 20px;
+}
+
+.ps-2 {
+  padding-left: 8px;
 }
 
 .ps-5 {
@@ -207,9 +259,17 @@ button {
   padding-bottom: 8px;
 }
 
+.px-5 {
+  padding-inline: 20px !important;
+}
+
 /** border css */
 .border-0 {
   border: none;
+}
+
+.border {
+  border: 1px solid rgb(209, 209, 209);
 }
 
 .radius-2 {

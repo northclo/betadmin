@@ -32,3 +32,9 @@
 .search-input {
   width: 200px;
 }
+
+.setting-sider .ant-layout-sider-children {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
