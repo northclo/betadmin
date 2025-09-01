@@ -13,6 +13,8 @@ export default {
   deleted_successful: "Deleted successful",
   active: "Active",
   deactive: "Deactive",
+  activate: "Activate",
+  disable: "Disable",
 
   // Left Layout
   user_held_money: "User-held money",
@@ -175,4 +177,36 @@ export default {
   please_enter_the_charging_time_zone: "Please enter the [charging time zone].",
   charging_time_zone: "Charging time zone",
   notification_message_when_charging_is_complete: "Notification message when charging is complete",
+
+
+  // Admin Account
+  change_administrator_information: "Change Administrator Information",
+  change_administrator_password: "Chagne administrator password",
+  you_are_the_administrator: "You are the administrator.",
+  please_keep_your_password_secure: "Please keep your password secure.",
+  administrator_id: "Administrator ID",
+  administrator_password: "Administrator password",
+  confirm_administrator_password: "Confirm administrator password",
+  change_view_manager_password: "Change view manager password",
+  this_is_the_view_manager: "This is the view manager.",
+  view_manager_id: "View manager ID",
+  view_manager_password: "View manager password",
+  confirm_view_manager_password: "Confirm view manager password",
+
+  // Game Setting
+  game_settings_powerball_game: "Game Settings (Powerball Game)",
+  notification_message_when_inactive: "Notification message when inactive",
+  prevent_duplicate_betting: "Prevent duplicate betting",
+  when_same_round_same_pick_same_amount: "(When same round + same pick + same amount)",
+  no_duplicate_betting_within_the_first_second: "No duplicate betting within the first second",
+  division: "Division",
+  odd: "Odd",
+  even: "Even",
+  under: "Under",
+  over: "Over",
+  odd_under: "Odd + Under",
+  odd_over: "Odd + Over",
+  even_under: "Even + Under",
+  even_over: "Even + Over",
+  match_number: "Match Number",
 };

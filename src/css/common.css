@@ -6,11 +6,6 @@ button {
   border: none;
 }
 
-.main-container {
-  max-width: 1200px;
-  margin: auto;
-}
-
 /** background color css */
 .bg-main {
   background: var(--main-color) !important;
@@ -139,8 +134,6 @@ button {
 
 /** align css */
 .justify-center {
-  display: flex;
-  align-items: center;
   justify-content: center;
 }
 

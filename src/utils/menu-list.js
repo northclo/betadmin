@@ -30,7 +30,7 @@ export const menuList = () => {
         {
           key: "admin_acc_manage",
           label: "administrator_account_management",
-          to: "/basic/admin",
+          to: "/basic/account",
         },
         {
           key: "menu_manage",
@@ -52,7 +52,7 @@ export const menuList = () => {
         {
           key: "game_setting",
           label: "game_settings",
-          to: "/game-setting",
+          to: routeLink.game_setting.link
         },
       ],
     },
@@ -94,7 +94,7 @@ export const menuList = () => {
       key: "game_manage",
       label: "game_management",
       icon: SettingOutlined,
-      to: '/game/manage'
+      to: routeLink.game_setting.link
     },
     {
       key: "bet_list",

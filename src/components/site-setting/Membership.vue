@@ -27,7 +27,9 @@
       </a-layout-content>
     </a-layout>
     <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border justify-center p-2 setting-sider">
+      <a-layout-sider
+        class="bg-gray border d-flex justify-center items-center p-2 setting-sider"
+      >
         <a-typography-text class="text-white text-center">
           {{ trlang.whether_membership_registration_is_approved }}
         </a-typography-text>

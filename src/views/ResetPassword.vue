@@ -1,7 +1,7 @@
 <template>
   <a-row class="h-100vh">
     <!-- Left Panel -->
-    <a-col :span="12" class="d-flex justify-center items-center">
+    <a-col :span="12" class="d-flex justify-center items-center items-center">
       <a-space direction="vertical" size="middle" class="w-100 max-w-fit">
         <div>
           <a-typography-title level="2">{{ trlang.reset_password }}</a-typography-title>

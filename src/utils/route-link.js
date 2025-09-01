@@ -23,4 +23,12 @@ export const routeLink = {
     name: "MemberPage",
     link: "/member-list",
   },
+  admin_account: {
+    name: "AdminAccountPage",
+    link: "/basic/account"
+  },
+  game_setting: {
+    name: "GameSettingPage",
+    link: "/game/setting"
+  }
 };

@@ -7,6 +7,8 @@ const ForgotPassword = () => import("@/views/ForgotPassword.vue");
 const ResetPassword = () => import("@/views/ResetPassword.vue");
 const SiteSetting = () => import('@/views/SiteSetting.vue');
 const MemberList = () => import("@/views/MemberList.vue");
+const AdminAccount = () => import('@/views/AdminAccount.vue');
+const GameSetting = () => import('@/views/GameSetting.vue');
 
 const routes = [
   {
@@ -34,6 +36,16 @@ const routes = [
     name: routeLink.member_list.name,
     component: MemberList,
   },
+  {
+    path: routeLink.admin_account.link,
+    name: routeLink.admin_account.name,
+    component: AdminAccount
+  },
+  {
+    path: routeLink.game_setting.link,
+    name: routeLink.game_setting.name,
+    component: GameSetting
+  }
 ];
 
 const router = createRouter({

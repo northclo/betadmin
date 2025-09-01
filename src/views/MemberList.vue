@@ -108,7 +108,7 @@ import { getData, deleteData, putData, postData } from "@/helpers/Axios";
 import { checkValidEmail, exportExcel } from "@/helpers/Common.js";
 import { apiLink } from "@/utils/api-link";
 import { routeLink } from "@/utils/route-link";
-import { memberListColumn } from "@/utils/table-column.js/member-list";
+import { memberListColumn } from "@/utils/table-column/member-list";
 import { message } from "ant-design-vue";
 
 export default {
