@@ -4,17 +4,19 @@
       <a-typography-text class="text-dark-grey fs-1">
         {{ trlang.game_settings }}
       </a-typography-text>
-      <a-button class="bg-main text-white">{{ trlang.save }}</a-button>
+      <a-button class="bg-main text-white" @click="handleSave">{{
+        trlang.save
+      }}</a-button>
     </a-layout>
 
     <a-layout class="bg-white px-5">
-      <PowerballGame />
+      <PowerballGame ref="powerballRef" />
     </a-layout>
   </a-layout>
 </template>
 
 <script>
-import { computed, inject } from "vue";
+import { computed, inject, ref } from "vue";
 import { routeLink } from "@/utils/route-link";
 import PowerballGame from "@/components/game-setting/PowerballGame.vue";
 
@@ -25,7 +27,13 @@ export default {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
-    return { trlang };
+    const powerballRef = ref(null);
+
+    const handleSave = () => {
+      powerballRef.value.saveData();
+    };
+
+    return { trlang, handleSave, powerballRef };
   },
 };
 </script>

@@ -289,6 +289,15 @@ button {
   overflow-y: scroll;
 }
 
+/* Position CSS */
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
 /** cursor css */
 .cursor-pointer:hover {
   cursor: pointer;

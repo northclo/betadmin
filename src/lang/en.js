@@ -11,6 +11,7 @@ export default {
   added_successful: "Added successful",
   changed_successful: "Changed successful",
   deleted_successful: "Deleted successful",
+  saved_successful: "Saved successful",
   active: "Active",
   deactive: "Deactive",
   activate: "Activate",

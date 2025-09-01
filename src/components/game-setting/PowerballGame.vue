@@ -99,8 +99,11 @@
 </template>
 
 <script>
-import { computed, inject, onBeforeMount, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 import { RightCircleFilled } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { getData, postData } from "@/helpers/Axios.js";
+import { apiLink } from "@/utils/api-link.js";
 
 export default {
   name: "AdminAccountPassword",
@@ -113,94 +116,115 @@ export default {
     const inactiveMessage = ref("");
     const duplicateCheck = ref(true);
     const duplicate = ref(0);
-    const adminId = ref("");
-    const password = ref("");
-    const confirmPassword = ref("");
-
     const options = ref([]);
 
     const fetchData = async () => {
-      adminId.value = "Running Ball";
-      password.value = "Running";
-      confirmPassword.value = "@copywriter";
+      const res = await getData(`${apiLink.game_setting}?name=PowerballGame`);
+
+      activate.value = res.data.activate;
+      inactiveMessage.value = res.data.inactiveMessage;
+      duplicateCheck.value = res.data.duplicateBetting;
+      duplicate.value = res.data.duplicateBettingLimit;
+
+      options.value = [
+        {
+          name: trlang.value.odd,
+          valueA: res.data["odd"][0],
+          valueB: res.data["odd"][1],
+        },
+        {
+          name: trlang.value.even,
+          valueA: res.data["even"][0],
+          valueB: res.data["even"][1],
+        },
+        {
+          name: trlang.value.under,
+          valueA: res.data["under"][0],
+          valueB: res.data["under"][1],
+        },
+        {
+          name: trlang.value.over,
+          valueA: res.data["over"][0],
+          valueB: res.data["over"][1],
+        },
+        {
+          name: trlang.value.odd_under,
+          valueA: res.data["oddUnder"][0],
+          valueB: res.data["oddUnder"][1],
+        },
+        {
+          name: trlang.value.odd_over,
+          valueA: res.data["oddOver"][0],
+          valueB: res.data["oddOver"][1],
+        },
+        {
+          name: trlang.value.even_under,
+          valueA: res.data["evenUnder"][0],
+          valueB: res.data["evenUnder"][1],
+        },
+        {
+          name: trlang.value.even_over,
+          valueA: res.data["evenOver"][0],
+          valueB: res.data["evenOver"][1],
+        },
+        {
+          name: trlang.value.match_number + " (1 - 3)",
+          valueA: res.data["matchNumber1"][0],
+          valueB: res.data["matchNumber1"][1],
+        },
+        {
+          name: trlang.value.match_number + " (1 - 4)",
+          valueA: res.data["matchNumber2"][0],
+          valueB: res.data["matchNumber2"][1],
+        },
+        {
+          name: trlang.value.match_number + " (1 - 6)",
+          valueA: res.data["matchNumber3"][0],
+          valueB: res.data["matchNumber3"][1],
+        },
+      ];
+
+      return res;
+    };
+
+    const saveData = async () => {
+      const payload = {
+        activate: activate.value,
+        inactiveMessage: inactiveMessage.value,
+        duplicateBetting: duplicateCheck.value,
+        duplicateBettingLimit: duplicate.value,
+        odd: [options.value[0].valueA, options.value[0].valueB],
+        even: [options.value[1].valueA, options.value[1].valueB],
+        under: [options.value[2].valueA, options.value[2].valueB],
+        over: [options.value[3].valueA, options.value[3].valueB],
+        oddUnder: [options.value[4].valueA, options.value[4].valueB],
+        oddOver: [options.value[5].valueA, options.value[5].valueB],
+        evenUnder: [options.value[6].valueA, options.value[6].valueB],
+        evenOver: [options.value[7].valueA, options.value[7].valueB],
+        matchNumber1: [options.value[8].valueA, options.value[8].valueB],
+        matchNumber2: [options.value[9].valueA, options.value[9].valueB],
+        matchNumber3: [options.value[10].valueA, options.value[10].valueB],
+      };
+
+      const res = await postData(`${apiLink.game_setting}?name=PowerballGame`, payload);
+
+      if (res.status) {
+        message.success(trlang.value.saved_successful);
+      }
     };
 
     onMounted(() => {
       fetchData();
     });
 
-    onBeforeMount(() => {
-      options.value = [
-        {
-          name: trlang.value.odd,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.even,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.under,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.over,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.odd_under,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.odd_over,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.even_under,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.even_over,
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.match_number + " (1 - 3)",
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.match_number + " (1 - 4)",
-          valueA: 19,
-          valueB: 21,
-        },
-        {
-          name: trlang.value.match_number + " (1 - 6)",
-          valueA: 19,
-          valueB: 21,
-        },
-      ];
-
-      inactiveMessage.value = "The Game paused time is between 20.00 ~ 24.00";
-    });
-
     return {
       trlang,
-      adminId,
-      password,
-      confirmPassword,
       options,
       activate,
       inactiveMessage,
       duplicateCheck,
       duplicate,
+      saveData,
     };
   },
 };
