@@ -1,6 +1,8 @@
 <template>
   <a-layout class="bg-white pt-5 pb-5">
-    <a-layout class="bg-white d-flex flex-row justify-between items-center px-5">
+    <a-layout
+      class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+    >
       <a-typography-text class="text-dark-grey fs-1">
         {{ trlang.change_administrator_information }}
       </a-typography-text>

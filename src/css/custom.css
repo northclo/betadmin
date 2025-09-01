@@ -68,3 +68,13 @@
   align-items: center;
   line-height: 15px;
 }
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* stay above content */
+  border-bottom: 1px solid #ddd;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background: #fff;
+}

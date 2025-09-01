@@ -54,8 +54,8 @@ export default {
     const check = ref(true);
 
     const loadData = (data) => {
-      if (data && data.customerCenter) {
-        check.value = data.customerCenter.preventAdditional ?? true;
+      if (data) {
+        check.value = data.customerCenter ?? true;
       }
     };
 
@@ -69,7 +69,7 @@ export default {
     // Expose method to parent to get current state
     expose({
       getState: () => ({
-        preventAdditional: check.value,
+        check: check.value,
       }),
     });
 

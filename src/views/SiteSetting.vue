@@ -1,6 +1,9 @@
 <template>
   <a-layout class="bg-white pt-5 pb-5">
-    <a-layout class="bg-white d-flex flex-row justify-between items-center px-5">
+    <!-- Sticky Header -->
+    <a-layout
+      class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+    >
       <a-typography-text class="text-dark-grey fs-1">
         {{ trlang.site_setting }}
       </a-typography-text>
@@ -9,8 +12,8 @@
       </a-button>
     </a-layout>
 
+    <!-- Scrollable Content -->
     <a-layout class="bg-white px-5">
-      <!-- Only render SiteActivationSetting after dataSource is fetched -->
       <SiteActivationSetting
         v-if="dataSource"
         :dataSource="dataSource"
