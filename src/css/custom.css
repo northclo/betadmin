@@ -38,3 +38,26 @@
   justify-content: center;
   align-items: center;
 }
+
+.header-content {
+  height: 80px !important;
+  padding-inline: 0px !important;
+  padding-right: 50px !important;
+}
+
+.header-icon > svg {
+  width: 20px;
+  height: 20px;
+  color: var(--main-color);
+}
+
+.header-label {
+  width: 130px;
+  height: 35px !important;
+  text-align: center;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 15px;
+}

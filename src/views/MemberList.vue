@@ -1,103 +1,103 @@
 <template>
-  <a-layout-header class="bg-white items-center gap-2">
-    <a-typography-title :level="2" class="ps-5 pe-5 pt-5 pe-2 mb-0 text-dark-grey">
+  <a-layout class="bg-white p-5">
+    <a-typography-text class="text-dark-grey fs-1">
       {{ trlang.member_list }}
-    </a-typography-title>
-  </a-layout-header>
+    </a-typography-text>
 
-  <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
-    <a-button class="bg-main text-white" @click="openModal">
-      {{ trlang.add_member }}
-    </a-button>
-    <a-button class="bg-red text-white" @click="deleteSelectedMembers">
-      {{ trlang.delete_member }}
-    </a-button>
-    <a-button class="bg-main text-white" @click="exportMemberToExcel">
-      {{ trlang.export_excel }}
-    </a-button>
-  </a-layout-header>
+    <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
+      <a-button class="bg-main text-white" @click="openAddModal">
+        {{ trlang.add_member }}
+      </a-button>
+      <a-button class="bg-red text-white" @click="deleteSelectedMembers">
+        {{ trlang.delete_member }}
+      </a-button>
+      <a-button class="bg-main text-white" @click="exportMemberToExcel">
+        {{ trlang.export_excel }}
+      </a-button>
+    </a-layout-header>
 
-  <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
-    <a-input
-      v-model:value="search"
-      placeholder="Search..."
-      class="search-input"
-      @change="searchMember"
+    <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
+      <a-input
+        v-model:value="search"
+        placeholder="Search..."
+        class="search-input"
+        @change="searchMember"
+      >
+        <template #prefix>
+          <SearchOutlined />
+        </template>
+      </a-input>
+    </a-layout-header>
+
+    <a-modal
+      v-model:open="open"
+      :title="trlang.add_member"
+      :ok-text="trlang.save"
+      :cancel-text="trlang.cancel"
+      @ok="addMember"
     >
-      <template #prefix>
-        <SearchOutlined />
-      </template>
-    </a-input>
-  </a-layout-header>
+      <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+        <a-input
+          :addonBefore="trlang.first_name"
+          v-model:value="firstName"
+          placeholder="John*"
+        />
+        <a-input
+          :addonBefore="trlang.last_name"
+          v-model:value="lastName"
+          placeholder="Smith*"
+        />
+      </a-layout>
 
-  <a-modal
-    v-model:open="open"
-    :title="trlang.add_member"
-    :ok-text="trlang.save"
-    :cancel-text="trlang.cancel"
-    @ok="addMember"
-  >
-    <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+      <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+        <a-input
+          :addonBefore="trlang.user_name"
+          v-model:value="userName"
+          placeholder="John Smith*"
+        />
+        <a-input
+          :addonBefore="trlang.company"
+          v-model:value="company"
+          placeholder="Apple"
+        />
+      </a-layout>
+
       <a-input
-        :addonBefore="trlang.first_name"
-        v-model:value="firstName"
-        placeholder="John*"
+        :addonBefore="trlang.email"
+        v-model:value="email"
+        placeholder="johnsmith@gmail.com*"
+        class="mt-2"
       />
       <a-input
-        :addonBefore="trlang.last_name"
-        v-model:value="lastName"
-        placeholder="Smith*"
-      />
-    </a-layout>
-
-    <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
-      <a-input
-        :addonBefore="trlang.user_name"
-        v-model:value="userName"
-        placeholder="John Smith*"
+        :addonBefore="trlang.password"
+        v-model:value="password"
+        placeholder="1111*"
+        class="mt-2"
       />
       <a-input
-        :addonBefore="trlang.company"
-        v-model:value="company"
-        placeholder="Apple"
+        :addonBefore="trlang.confirm_password"
+        v-model:value="confirmPassword"
+        placeholder="1111*"
+        class="mt-2"
       />
-    </a-layout>
+      <a-input
+        :addonBefore="trlang.phone_number"
+        v-model:value="phoneNumber"
+        placeholder="+1231231231"
+        class="mt-2"
+      />
+    </a-modal>
 
-    <a-input
-      :addonBefore="trlang.email"
-      v-model:value="email"
-      placeholder="johnsmith@gmail.com*"
-      class="mt-2"
+    <BaseTable
+      :columns="columns"
+      :dataSource="dataSource"
+      :editRow="editRow"
+      :deleteRow="deleteRow"
+      :loading="loading"
+      @update:selectedRows="onSelectedRows"
+      @update:selectedRowKeys="onSelectedRowKeys"
     />
-    <a-input
-      :addonBefore="trlang.password"
-      v-model:value="password"
-      placeholder="1111*"
-      class="mt-2"
-    />
-    <a-input
-      :addonBefore="trlang.confirm_password"
-      v-model:value="confirmPassword"
-      placeholder="1111*"
-      class="mt-2"
-    />
-    <a-input
-      :addonBefore="trlang.phone_number"
-      v-model:value="phoneNumber"
-      placeholder="+1231231231"
-      class="mt-2"
-    />
-  </a-modal>
-
-  <BaseTable
-    :columns="columns"
-    :dataSource="dataSource"
-    :editRow="editRow"
-    :deleteRow="deleteRow"
-    :loading="loading"
-    @update:selectedRows="onSelectedRows"
-    @update:selectedRowKeys="onSelectedRowKeys"
-  />
+  </a-layout>
 </template>
 
 <script>
@@ -160,9 +160,25 @@ export default {
       userName.value = row.userName;
       company.value = row.company;
       email.value = row.email;
+      password.value = "";
+      confirmPassword.value = "";
       phoneNumber.value = row.phoneNumber;
       updateId.value = row._id;
       modalState.value = 1;
+
+      openModal();
+    };
+
+    const openAddModal = () => {
+      firstName.value = "";
+      lastName.value = "";
+      userName.value = "";
+      company.value = "";
+      email.value = "";
+      password.value = "";
+      confirmPassword.value = "";
+      phoneNumber.value = "";
+      modalState.value = 0;
 
       openModal();
     };
@@ -181,6 +197,7 @@ export default {
 
     const hideModal = () => {
       modalState.value = 0;
+      updateId.value = "";
       open.value = false;
     };
 
@@ -286,6 +303,7 @@ export default {
       columns,
       open,
       search,
+      checkedRows,
       editRow,
       deleteRow,
       openModal,
@@ -293,11 +311,11 @@ export default {
       fetchData,
       addMember,
       searchMember,
-      checkedRows,
       deleteSelectedMembers,
       exportMemberToExcel,
       onSelectedRowKeys,
       onSelectedRows,
+      openAddModal,
       loading,
       firstName,
       lastName,

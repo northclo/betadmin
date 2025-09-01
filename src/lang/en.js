@@ -14,6 +14,23 @@ export default {
   active: "Active",
   deactive: "Deactive",
 
+  // Left Layout
+  user_held_money: "User-held money",
+  user_points: "User Points",
+  current_site_users: "Current site users",
+  deposit: "Deposit",
+  withdrawal: "Withdrawal",
+  entire: "Entire",
+  the_entire_game: "The entire game",
+  minigames: "Minigames",
+  batting_gan: "Batting gan",
+  betting: "Betting",
+  hit: "Hit",
+  betting_p: "Betting P",
+  revenue: "Revenue",
+  total: "Total",
+  test_copy: "Test copy",
+
   // Menu items
   main_page: "Main Page",
   basic_management: "Basic Management",

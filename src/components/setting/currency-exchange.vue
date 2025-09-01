@@ -56,7 +56,10 @@
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="timezoneCheck" class="w-fit me-2" />
-              <a-typography-text class="d-flex item-center text-white">
+              <a-typography-text
+                class="d-flex item-center text-white"
+                style="width: 45px"
+              >
                 {{ timezoneCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
@@ -113,7 +116,10 @@
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="restrictionExchangeCheck" class="w-fit me-2" />
-              <a-typography-text class="d-flex item-center text-white">
+              <a-typography-text
+                class="d-flex item-center text-white"
+                style="width: 45px"
+              >
                 {{ restrictionExchangeCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
@@ -130,7 +136,10 @@
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="restrictionChargeCheck" class="w-fit me-2" />
-              <a-typography-text class="d-flex item-center text-white">
+              <a-typography-text
+                class="d-flex item-center text-white"
+                style="width: 45px"
+              >
                 {{ restrictionChargeCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
