@@ -35,24 +35,42 @@
 </template>
 
 <script>
-import { computed, inject, onMounted, ref } from "vue";
+import { computed, inject, ref, watch } from "vue";
 import { RightCircleFilled } from "@ant-design/icons-vue";
 
 export default {
   name: "CustomerCenterSetting",
   components: { RightCircleFilled },
-  setup() {
+  props: {
+    dataSource: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props, { expose }) {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
     const check = ref(true);
 
-    const fetchData = async () => {
-      check.value = true;
+    const loadData = (data) => {
+      if (data && data.customerCenter) {
+        check.value = data.customerCenter.preventAdditional ?? true;
+      }
     };
 
-    onMounted(() => {
-      fetchData();
+    // Watch for changes in parent dataSource
+    watch(
+      () => props.dataSource,
+      (newVal) => loadData(newVal),
+      { immediate: true }
+    );
+
+    // Expose method to parent to get current state
+    expose({
+      getState: () => ({
+        preventAdditional: check.value,
+      }),
     });
 
     return {

@@ -18,6 +18,7 @@
         <a-input v-model:value="siteName" />
       </a-layout-content>
     </a-layout>
+
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -28,6 +29,7 @@
         <a-input v-model:value="titlebarText" />
       </a-layout-content>
     </a-layout>
+
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -38,6 +40,7 @@
         <a-input v-model:value="bottomCopyText" />
       </a-layout-content>
     </a-layout>
+
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -51,6 +54,7 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
+
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -61,6 +65,7 @@
         <a-textarea :rows="4" v-model:value="depositInfo" allow-clear />
       </a-layout-content>
     </a-layout>
+
     <a-typography-text class="text-yellow">
       * {{ trlang.the_applicability_of_this_item_may_vary_depending_on_the_design }}
     </a-typography-text>
@@ -68,13 +73,19 @@
 </template>
 
 <script>
-import { computed, inject, onMounted, ref } from "vue";
+import { computed, inject, ref, watch } from "vue";
 import { RightCircleFilled } from "@ant-design/icons-vue";
 
 export default {
   name: "SiteTextSetting",
   components: { RightCircleFilled },
-  setup() {
+  props: {
+    dataSource: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props, { expose }) {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
@@ -84,26 +95,37 @@ export default {
     const topMessage = ref("");
     const depositInfo = ref("");
 
-    const fetchData = async () => {
-      siteName.value = "Running Ball";
-      titlebarText.value = "Running";
-      bottomCopyText.value = "@copywriter";
-      topMessage.value = "Hello";
-      depositInfo.value = "Deposit";
+    // Initialize from parent dataSource
+    const loadData = (data) => {
+      if (data && data.siteText) {
+        siteName.value = data.siteText.name || "";
+        titlebarText.value = data.siteText.titlebar || "";
+        bottomCopyText.value = data.siteText.copywriter || "";
+        topMessage.value = data.siteText.topNotificationMessage || "";
+        depositInfo.value = data.siteText.depositAccount || "";
+      }
     };
 
-    onMounted(() => {
-      fetchData();
+    watch(
+      () => props.dataSource,
+      (newVal) => {
+        loadData(newVal);
+      },
+      { immediate: true }
+    );
+
+    // Expose state to parent for saving
+    expose({
+      getState: () => ({
+        name: siteName.value,
+        titlebar: titlebarText.value,
+        copywriter: bottomCopyText.value,
+        topNotificationMessage: topMessage.value,
+        depositAccount: depositInfo.value,
+      }),
     });
 
-    return {
-      trlang,
-      siteName,
-      titlebarText,
-      bottomCopyText,
-      topMessage,
-      depositInfo,
-    };
+    return { trlang, siteName, titlebarText, bottomCopyText, topMessage, depositInfo };
   },
 };
 </script>

@@ -5,4 +5,5 @@ export const apiLink = {
   member_list: 'member/list',
   get_member_list: "member/list",
   game_setting: 'game-setting',
+  site_setting: 'site-setting'
 };

@@ -21,6 +21,7 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
+
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -34,11 +35,11 @@
           :class="item.key === displayKey ? 'bg-main text-white' : ''"
           @click="updateActivationDisplay(item.key)"
         >
-          <CheckOutlined v-if="item.key === displayKey" />
-          {{ item.text }}
+          <CheckOutlined v-if="item.key === displayKey" /> {{ item.text }}
         </a-button>
       </a-layout-content>
     </a-layout>
+
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -46,27 +47,33 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2">
-        <a-textarea :rows="4" v-model:value="message" allow-clear />
+        <a-textarea :rows="4" v-model:value="deactiveMessage" allow-clear />
       </a-layout-content>
     </a-layout>
   </a-layout>
 </template>
 
 <script>
-import { computed, inject, onBeforeMount, onMounted, ref } from "vue";
+import { computed, inject, onBeforeMount, ref, watch } from "vue";
 import { RightCircleFilled, CheckOutlined } from "@ant-design/icons-vue";
 
 export default {
   name: "SiteActivationSetting",
   components: { RightCircleFilled, CheckOutlined },
-  setup() {
+  props: {
+    dataSource: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props, { expose }) {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
     const check = ref(true);
     const display = ref([]);
-    const displayKey = ref(0);
-    const message = ref("It is Maintained between 6am ~ 9am");
+    const displayKey = ref(null);
+    const deactiveMessage = ref("");
 
     const getComponentData = () => {
       const _display = [
@@ -80,20 +87,33 @@ export default {
       }));
     };
 
-    const fetchData = async () => {
-      displayKey.value = 0;
-    };
-
     const updateActivationDisplay = (key) => {
       displayKey.value = key;
     };
 
-    onMounted(() => {
-      fetchData();
-    });
-
     onBeforeMount(() => {
       getComponentData();
+    });
+
+    // ✅ Watch for changes to props.dataSource
+    watch(
+      () => props.dataSource,
+      (newVal) => {
+        if (newVal) {
+          check.value = newVal.siteActivation.allow;
+          displayKey.value = newVal.siteActivation.disable;
+          deactiveMessage.value = newVal.siteActivation.deactiveMessage;
+        }
+      },
+      { immediate: true }
+    );
+
+    expose({
+      getState: () => ({
+        allow: check.value,
+        disable: displayKey.value,
+        deactiveMessage: deactiveMessage.value,
+      }),
     });
 
     return {
@@ -101,7 +121,7 @@ export default {
       check,
       display,
       displayKey,
-      message,
+      deactiveMessage,
       updateActivationDisplay,
     };
   },

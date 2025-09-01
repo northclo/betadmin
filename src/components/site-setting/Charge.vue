@@ -30,7 +30,7 @@
           v-model:value="maxAmount"
           style="width: 120px"
           @focus="focus"
-          @change="changeExchangeAmount"
+          @change="changeMaxAmount"
         >
           <a-select-option
             v-for="item in maxAmountOption"
@@ -108,13 +108,19 @@
 </template>
 
 <script>
-import { computed, inject, onBeforeMount, onMounted, ref } from "vue";
+import { computed, inject, onBeforeMount, watch, ref } from "vue";
 import { RightCircleFilled } from "@ant-design/icons-vue";
 
 export default {
   name: "ChargeSetting",
   components: { RightCircleFilled },
-  setup() {
+  props: {
+    dataSource: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props, { expose }) {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
@@ -148,23 +154,41 @@ export default {
       }));
     };
 
-    const fetchData = async () => {
-      minAmount.value = 10;
-      maxAmount.value = 10000 + " USD";
-      activeRestrictBtn.value = 0;
-      startTime.value = 6;
-      endTime.value = 22;
-      timezoneText.value = "Your location is not available";
-      completeMessage.value = "exchange successful";
+    const loadData = (data) => {
+      if (data && data.charge) {
+        minAmount.value = data.charge.minAmount ?? 0;
+        maxAmount.value =
+          data.charge.maxAmount + " USD" ?? maxAmountOption.value[0]?.amount;
+        timezoneCheck.value = data.charge.timezoneAvailable ?? true;
+        startTime.value = data.charge.startTime ?? 0;
+        endTime.value = data.charge.endTime ?? 0;
+        timezoneText.value = data.charge.impossibleMessage ?? "";
+        completeMessage.value = data.charge.completeMessage ?? "";
+      }
     };
 
-    const updateRestrictionBtn = (key) => {
-      activeRestrictBtn.value = key;
-    };
+    watch(
+      () => props.dataSource,
+      (newVal) => loadData(newVal),
+      { immediate: true }
+    );
 
-    onMounted(() => {
-      fetchData();
+    // Expose state to parent for saving
+    expose({
+      getState: () => ({
+        minAmount: minAmount.value,
+        maxAmount: maxAmount.value.slice(0, -4),
+        timezoneAvailable: timezoneCheck.value,
+        startTime: startTime.value,
+        endTime: endTime.value,
+        impossibleMessage: timezoneText.value,
+        completeMessage: completeMessage.value,
+      }),
     });
+
+    const changeMaxAmount = (e) => {
+      maxAmount.value = e;
+    };
 
     onBeforeMount(() => {
       getComponentData();
@@ -182,7 +206,7 @@ export default {
       restrictBtn,
       activeRestrictBtn,
       completeMessage,
-      updateRestrictionBtn,
+      changeMaxAmount,
     };
   },
 };

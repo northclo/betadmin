@@ -25,31 +25,42 @@
 </template>
 
 <script>
-import { computed, inject, onMounted, ref } from "vue";
+import { computed, inject, ref, watch } from "vue";
 import { RightCircleFilled } from "@ant-design/icons-vue";
-import { routeLink } from "@/utils/route-link";
 
 export default {
-  name: routeLink.site_setting.name,
+  name: "SiteSecuritySetting",
   components: { RightCircleFilled },
-  setup() {
+  props: {
+    dataSource: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props, { expose }) {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
     const check = ref(true);
 
-    const fetchData = async () => {
-      check.value = true;
-    };
+    // ✅ Watch for dataSource changes
+    watch(
+      () => props.dataSource,
+      (newVal) => {
+        if (newVal) {
+          check.value = newVal.siteSecurity;
+        }
+      },
+      { immediate: true }
+    );
 
-    onMounted(() => {
-      fetchData();
+    expose({
+      getState: () => ({
+        check: check.value,
+      }),
     });
 
-    return {
-      trlang,
-      check,
-    };
+    return { trlang, check };
   },
 };
 </script>
