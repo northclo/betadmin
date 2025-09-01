@@ -3,7 +3,7 @@
     v-model:collapsed="collapsed"
     :trigger="null"
     collapsible
-    class="h-100vh overflow-y-scroll p-2"
+    class="h-100vh overflow-y-scroll ps-2"
   >
     <div style="width: 100%; height: 100px"></div>
     <a-layout class="bg-none">

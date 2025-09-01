@@ -117,6 +117,7 @@ export default {
   set_site_text: "Set Site Text",
   site_security_setting: "Site Security Setting",
   membership_setting: "Membership Setting",
+  charge_setting: "Charge Setting",
   currency_exchange_setting: "Currency Exchange Setting",
   customer_center_setting: "Customer Center Setting",
   site_activation: "Site activation",
@@ -168,5 +169,10 @@ export default {
   prevent_further_inquiries_when_there_is_no_response: "Prevent further inquiries when there is no response",
   if_you_use_the_Prevent_Additional_Inquiries_feature_and_dont_respond_to_existing_inquiries_members_will_be_prevented_from_posting_additional_messages_to_the_customer_center:
     'If you use the "Prevent Additional Inquiries" feature and dont respond to existing inquiries, members will be prevented from posting additional messages to the customer center.',
-  please_keep_your_pending_inquiries_under_constant_review: "Please keep your pending inquiries under constant review"
+  please_keep_your_pending_inquiries_under_constant_review: "Please keep your pending inquiries under constant review",
+  recharge_amount: "Recharge amount",
+  rechargeable_with: "Rechargeable with",
+  please_enter_the_charging_time_zone: "Please enter the [charging time zone].",
+  charging_time_zone: "Charging time zone",
+  notification_message_when_charging_is_complete: "Notification message when charging is complete",
 };

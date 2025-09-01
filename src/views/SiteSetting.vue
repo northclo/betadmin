@@ -8,6 +8,7 @@
     <SiteSecuritySetting />
     <SiteTextSetting />
     <MembershipSetting />
+    <ChargeSetting />
     <CurrencyExchangeSetting />
     <CustomerCenterSetting />
   </a-layout>
@@ -20,6 +21,7 @@ import SiteActivationSetting from "@/components/setting/site-activation.vue";
 import SiteSecuritySetting from "@/components/setting/site-security.vue";
 import SiteTextSetting from "@/components/setting/site-text.vue";
 import MembershipSetting from "@/components/setting/membership.vue";
+import ChargeSetting from "@/components/setting/charge.vue";
 import CurrencyExchangeSetting from "@/components/setting/currency-exchange.vue";
 import CustomerCenterSetting from "@/components/setting/customer-center.vue";
 
@@ -30,6 +32,7 @@ export default {
     SiteSecuritySetting,
     SiteTextSetting,
     MembershipSetting,
+    ChargeSetting,
     CurrencyExchangeSetting,
     CustomerCenterSetting,
   },
