@@ -29,7 +29,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2">
-        <a-input v-model:value="password" />
+        <a-input-password v-model:value="password" />
       </a-layout-content>
     </a-layout>
     <a-layout class="bg-white">
@@ -39,7 +39,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2">
-        <a-input v-model:value="confirmPassword" />
+        <a-input-password v-model:value="confirmPassword" />
       </a-layout-content>
     </a-layout>
   </a-layout>
