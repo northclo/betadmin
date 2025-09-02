@@ -6,7 +6,10 @@
       <a-typography-text class="text-dark-grey fs-1">
         {{ trlang.change_administrator_information }}
       </a-typography-text>
-      <a-button class="bg-main text-white">{{ trlang.save }}</a-button>
+      <a-button class="bg-main text-white d-flex justify-center items-center">
+        <SaveOutlined />
+        {{ trlang.save }}
+      </a-button>
     </a-layout>
 
     <a-layout class="bg-white px-5">
@@ -19,12 +22,13 @@
 <script>
 import { computed, inject } from "vue";
 import { routeLink } from "@/utils/route-link";
+import { SaveOutlined } from "@ant-design/icons-vue";
 import AdminAccountPassword from "@/components/admin-account/Password.vue";
 import AdminAccountViewPassword from "@/components/admin-account/ViewPassword.vue";
 
 export default {
   name: routeLink.admin_account.name,
-  components: { AdminAccountPassword, AdminAccountViewPassword },
+  components: { SaveOutlined, AdminAccountPassword, AdminAccountViewPassword },
   setup() {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);

@@ -7,7 +7,11 @@
       <a-typography-text class="text-dark-grey fs-1">
         {{ trlang.site_setting }}
       </a-typography-text>
-      <a-button class="bg-main text-white" @click="saveData">
+      <a-button
+        class="bg-main text-white d-flex justify-center items-center"
+        @click="saveData"
+      >
+        <SaveOutlined />
         {{ trlang.save }}
       </a-button>
     </a-layout>
@@ -45,6 +49,7 @@
 import { computed, inject, onMounted, ref } from "vue";
 import { routeLink } from "@/utils/route-link";
 import { message } from "ant-design-vue";
+import { SaveOutlined } from "@ant-design/icons-vue";
 import SiteActivationSetting from "@/components/site-setting/SiteActivation.vue";
 import SiteSecuritySetting from "@/components/site-setting/SiteSecurity.vue";
 import SiteTextSetting from "@/components/site-setting/SiteText.vue";
@@ -58,6 +63,7 @@ import { getData, postData } from "@/helpers/Axios.js";
 export default {
   name: routeLink.site_setting.name,
   components: {
+    SaveOutlined,
     SiteActivationSetting,
     SiteSecuritySetting,
     SiteTextSetting,

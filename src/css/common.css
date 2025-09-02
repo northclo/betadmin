@@ -285,8 +285,8 @@ button {
   overflow: hidden;
 }
 
-.overflow-y-scroll {
-  overflow-y: scroll;
+.overflow-y-auto {
+  overflow-y: auto;
 }
 
 /* Position CSS */

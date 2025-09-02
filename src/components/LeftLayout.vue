@@ -3,7 +3,7 @@
     v-model:collapsed="collapsed"
     :trigger="null"
     collapsible
-    class="h-100vh overflow-y-scroll ps-2"
+    class="h-100vh overflow-y-auto left-sider"
   >
     <div style="width: 100%; height: 100px"></div>
     <a-layout class="bg-none">
@@ -31,13 +31,7 @@
     </a-layout>
     <a-layout class="mt-5 p-2">
       <a-layout class="d-flex flex-row justify-end">
-        <a-select
-          ref="select"
-          v-model:value="activeOption"
-          style="width: 70%"
-          @focus="focus"
-          @change="handleChange"
-        >
+        <a-select ref="select" v-model:value="activeOption" style="width: 70%">
           <a-select-option v-for="item in options" :key="item" :value="item">
             {{ item }}
           </a-select-option>

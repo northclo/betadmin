@@ -3,11 +3,11 @@
     <div v-if="isAuthPage">
       <router-view />
     </div>
-    <a-layout v-else class="v-100vh d-flex flex-row">
+    <a-layout v-else class="h-100vh d-flex flex-row">
       <LeftLayout class="flex-0 h-100vh" />
-      <a-layout class="flex-1 h-100vh">
+      <a-layout class="flex-1 h-100vh overflow-y-auto">
         <HeaderMenu />
-        <a-layout-content class="main-container px-2 w-100 min-w-100 max-w-fit">
+        <a-layout-content class="px-2 w-100 min-w-100 max-w-fit">
           <router-view />
         </a-layout-content>
       </a-layout>

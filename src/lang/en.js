@@ -114,6 +114,7 @@ export default {
   email_required: "Email is required",
   password_required: "Password is required",
   confirm_password_required: "Confirm Password is required",
+  please_select_members: "Please select members",
 
   // Site Setting Page
   site_activation_setting: "Site Activation Setting",

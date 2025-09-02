@@ -5,13 +5,25 @@
     </a-typography-text>
 
     <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
-      <a-button class="bg-main text-white" @click="openAddModal">
+      <a-button
+        class="bg-main text-white d-flex justify-center items-center"
+        @click="openAddModal"
+      >
+        <PlusOutlined />
         {{ trlang.add_member }}
       </a-button>
-      <a-button class="bg-red text-white" @click="deleteSelectedMembers">
+      <a-button
+        class="bg-red text-white d-flex justify-center items-center"
+        @click="deleteSelectedMembers"
+      >
+        <DeleteOutlined />
         {{ trlang.delete_member }}
       </a-button>
-      <a-button class="bg-main text-white" @click="exportMemberToExcel">
+      <a-button
+        class="bg-main text-white d-flex justify-center items-center"
+        @click="exportMemberToExcel"
+      >
+        <PrinterOutlined />
         {{ trlang.export_excel }}
       </a-button>
     </a-layout-header>
@@ -103,7 +115,12 @@
 <script>
 import { ref, onMounted, computed, inject } from "vue";
 import BaseTable from "@/components/Table.vue";
-import { SearchOutlined } from "@ant-design/icons-vue";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons-vue";
 import { getData, deleteData, putData, postData } from "@/helpers/Axios";
 import { checkValidEmail, exportExcel } from "@/helpers/Common.js";
 import { apiLink } from "@/utils/api-link";
@@ -113,7 +130,13 @@ import { message } from "ant-design-vue";
 
 export default {
   name: routeLink.member_list.name,
-  components: { BaseTable, SearchOutlined },
+  components: {
+    BaseTable,
+    SearchOutlined,
+    PlusOutlined,
+    DeleteOutlined,
+    PrinterOutlined,
+  },
   setup() {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
@@ -261,6 +284,9 @@ export default {
     };
 
     const deleteSelectedMembers = async () => {
+      if (selectedMembers.value.length === 0) {
+        return message.error(trlang.value.please_select_members);
+      }
       let deleteMemberIds = "";
       selectedMembers.value.forEach((element) => {
         deleteMemberIds += "," + element._id;
