@@ -30,5 +30,9 @@ export const routeLink = {
   game_setting: {
     name: "GameSettingPage",
     link: "/game/setting"
+  },
+  game_partner: {
+    name: "GamePartnerPage",
+    link: "/game/partner"
   }
 };

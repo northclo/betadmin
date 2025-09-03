@@ -1,6 +1,6 @@
 <template>
   <a-layout class="bg-white p-5">
-    <a-typography-text class="text-dark-grey fs-1">
+    <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.member_list }}
     </a-typography-text>
 
@@ -147,7 +147,7 @@ export default {
     const checkedRows = ref([]);
     const selectedMembers = ref([]);
     const selectedMemberKeys = ref([]);
-    const loading = ref([true]);
+    const loading = ref(true);
 
     // form fields
     const firstName = ref("");

@@ -1,13 +1,13 @@
 <template>
-  <a-layout class="bg-white mt-2">
-    <a-typography-text
-      class="text-dark-grey text-bold p-2 fs-4 mb-2"
-      style="border-bottom: 1px solid black"
-    >
-      <RightCircleFilled />
-      {{ trlang.currency_exchange_setting }}
-    </a-typography-text>
+  <a-collapse-panel class="bg-white">
+    <!-- Header -->
+    <template #header>
+      <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
+        {{ trlang.currency_exchange_setting }}
+      </a-typography-text>
+    </template>
 
+    <!-- Exchange Amount -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -26,10 +26,8 @@
           {{ trlang.one_use_or_more }}
         </a-typography-text>
         <a-select
-          ref="select"
           v-model:value="maxAmount"
           style="width: 120px"
-          @focus="focus"
           @change="changeMaxAmount"
         >
           <a-select-option
@@ -45,6 +43,8 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
+
+    <!-- Timezone -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -96,6 +96,8 @@
         </a-layout>
       </a-layout-content>
     </a-layout>
+
+    <!-- Restrictions -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -112,7 +114,9 @@
           <CheckOutlined v-if="item.key === activeRestrictBtn" />
           {{ item.text }}
         </a-button>
+
         <a-layout class="w-100">
+          <!-- Restriction by Exchange -->
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="restrictionExchangeCheck" class="w-fit me-2" />
@@ -133,6 +137,8 @@
               </a-typography-text>
             </a-layout-content>
           </a-layout>
+
+          <!-- Restriction by Charge -->
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="restrictionChargeCheck" class="w-fit me-2" />
@@ -156,6 +162,8 @@
         </a-layout>
       </a-layout-content>
     </a-layout>
+
+    <!-- Completion Message -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -166,132 +174,96 @@
         <a-textarea :rows="4" v-model:value="completeMessage" allow-clear />
       </a-layout-content>
     </a-layout>
-  </a-layout>
+  </a-collapse-panel>
 </template>
 
-<script>
-import { computed, inject, onBeforeMount, ref, watch } from "vue";
-import { RightCircleFilled, CheckOutlined } from "@ant-design/icons-vue";
+<script setup>
+import { ref, computed, inject, watch, onBeforeMount, defineExpose } from "vue";
+import { CheckOutlined } from "@ant-design/icons-vue";
 
-export default {
-  name: "CurrencyExchangeSetting",
-  components: { RightCircleFilled, CheckOutlined },
-  props: {
-    dataSource: {
-      type: Object,
-      required: true,
-    },
-  },
-  setup(props, { expose }) {
-    const langState = inject("langState");
-    const trlang = computed(() => langState.translations);
+/* Props */
+const props = defineProps({
+  dataSource: { type: Object, required: true },
+});
 
-    const minAmount = ref(0);
-    const maxAmount = ref("");
-    const maxAmountOption = ref([]);
-    const timezoneCheck = ref(true);
-    const timezoneText = ref("");
-    const startTime = ref(0);
-    const endTime = ref(0);
-    const restrictBtn = ref([]);
-    const activeRestrictBtn = ref(0);
-    const restrictionExchangeCheck = ref(true);
-    const restrictionExchangeAmount = ref(0);
-    const restrictionChargeCheck = ref(true);
-    const restrictionChargeAmount = ref(0);
-    const completeMessage = ref("");
+/* Translations */
+const langState = inject("langState");
+const trlang = computed(() => langState?.translations || {});
 
-    const getComponentData = () => {
-      const _restrictBtn = [
-        trlang.value
-          .additional_applications_are_not_possible_during_currency_exchange_application,
-        trlang.value.same_amount_cannot_be_requested_during_currency_exchange_application,
-        trlang.value.additional_applications_allowed_during_currency_exchange_application,
-      ];
-      restrictBtn.value = _restrictBtn.map((element, idx) => ({
-        key: idx,
-        text: element,
-      }));
+/* State */
+const minAmount = ref(0);
+const maxAmount = ref("");
+const maxAmountOption = ref([]);
+const timezoneCheck = ref(true);
+const timezoneText = ref("");
+const startTime = ref(0);
+const endTime = ref(0);
+const restrictBtn = ref([]);
+const activeRestrictBtn = ref(0);
+const restrictionExchangeCheck = ref(true);
+const restrictionExchangeAmount = ref(0);
+const restrictionChargeCheck = ref(true);
+const restrictionChargeAmount = ref(0);
+const completeMessage = ref("");
 
-      const _maxAmountOption = [1000, 10000, 100000];
-      maxAmountOption.value = _maxAmountOption.map((element, idx) => ({
-        key: idx,
-        amount: element + " USD",
-      }));
-    };
+/* Init Options */
+const getComponentData = () => {
+  restrictBtn.value = [
+    trlang.value
+      .additional_applications_are_not_possible_during_currency_exchange_application,
+    trlang.value.same_amount_cannot_be_requested_during_currency_exchange_application,
+    trlang.value.additional_applications_allowed_during_currency_exchange_application,
+  ].map((text, idx) => ({ key: idx, text }));
 
-    const loadData = (data) => {
-      if (data && data.exchange) {
-        minAmount.value = data.exchange.minAmount ?? 0;
-        maxAmount.value =
-          data.exchange.maxAmount + " USD" ?? maxAmountOption.value[0]?.amount;
-        timezoneCheck.value = data.exchange.timezoneAvailable ?? true;
-        startTime.value = data.exchange.startTime ?? 0;
-        endTime.value = data.exchange.endTime ?? 0;
-        timezoneText.value = data.exchange.impossibleMessage ?? "";
-        activeRestrictBtn.value = data.exchange.restriction ?? 0;
-        restrictionExchangeCheck.value = data.exchange.restrictionExchange ?? true;
-        restrictionExchangeAmount.value = data.exchange.restrictionExchangeLimit ?? 0;
-        restrictionChargeCheck.value = data.exchange.restrictionCharge ?? true;
-        restrictionChargeAmount.value = data.exchange.restrictionChargeLimit ?? 0;
-        completeMessage.value = data.exchange.completeMessage ?? "";
-      }
-    };
-
-    watch(
-      () => props.dataSource,
-      (newVal) => loadData(newVal),
-      { immediate: true }
-    );
-
-    const updateRestrictionBtn = (key) => {
-      activeRestrictBtn.value = key;
-    };
-
-    const changeMaxAmount = (e) => {
-      maxAmount.value = e;
-    };
-
-    expose({
-      getState: () => ({
-        minAmount: minAmount.value,
-        maxAmount: Number(maxAmount.value.slice(0, -4)),
-        timezoneAvailable: timezoneCheck.value,
-        startTime: startTime.value,
-        endTime: endTime.value,
-        impossibleMessage: timezoneText.value,
-        restriction: activeRestrictBtn.value,
-        restrictionExchange: restrictionExchangeCheck.value,
-        restrictionExchangeLimit: restrictionExchangeAmount.value,
-        restrictionCharge: restrictionChargeCheck.value,
-        restrictionChargeLimit: restrictionChargeAmount.value,
-        completeMessage: completeMessage.value,
-      }),
-    });
-
-    onBeforeMount(() => {
-      getComponentData();
-    });
-
-    return {
-      trlang,
-      minAmount,
-      maxAmount,
-      maxAmountOption,
-      timezoneCheck,
-      startTime,
-      endTime,
-      timezoneText,
-      restrictBtn,
-      activeRestrictBtn,
-      restrictionExchangeCheck,
-      restrictionExchangeAmount,
-      restrictionChargeCheck,
-      restrictionChargeAmount,
-      completeMessage,
-      updateRestrictionBtn,
-      changeMaxAmount,
-    };
-  },
+  maxAmountOption.value = [1000, 10000, 100000].map((amount, idx) => ({
+    key: idx,
+    amount: amount + " USD",
+  }));
 };
+
+/* Load from props */
+const loadData = (data) => {
+  if (!data?.exchange) return;
+  const ex = data.exchange;
+  minAmount.value = ex.minAmount ?? 0;
+  maxAmount.value = ex.maxAmount
+    ? ex.maxAmount + " USD"
+    : maxAmountOption.value[0]?.amount;
+  timezoneCheck.value = ex.timezoneAvailable ?? true;
+  startTime.value = ex.startTime ?? 0;
+  endTime.value = ex.endTime ?? 0;
+  timezoneText.value = ex.impossibleMessage ?? "";
+  activeRestrictBtn.value = ex.restriction ?? 0;
+  restrictionExchangeCheck.value = ex.restrictionExchange ?? true;
+  restrictionExchangeAmount.value = ex.restrictionExchangeLimit ?? 0;
+  restrictionChargeCheck.value = ex.restrictionCharge ?? true;
+  restrictionChargeAmount.value = ex.restrictionChargeLimit ?? 0;
+  completeMessage.value = ex.completeMessage ?? "";
+};
+
+watch(() => props.dataSource, loadData, { immediate: true });
+
+/* Actions */
+const updateRestrictionBtn = (key) => (activeRestrictBtn.value = key);
+const changeMaxAmount = (val) => (maxAmount.value = val);
+
+/* Expose to parent */
+defineExpose({
+  getState: () => ({
+    minAmount: minAmount.value,
+    maxAmount: Number(maxAmount.value.replace(" USD", "")),
+    timezoneAvailable: timezoneCheck.value,
+    startTime: startTime.value,
+    endTime: endTime.value,
+    impossibleMessage: timezoneText.value,
+    restriction: activeRestrictBtn.value,
+    restrictionExchange: restrictionExchangeCheck.value,
+    restrictionExchangeLimit: restrictionExchangeAmount.value,
+    restrictionCharge: restrictionChargeCheck.value,
+    restrictionChargeLimit: restrictionChargeAmount.value,
+    completeMessage: completeMessage.value,
+  }),
+});
+
+onBeforeMount(getComponentData);
 </script>

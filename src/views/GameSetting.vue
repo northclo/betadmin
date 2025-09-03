@@ -3,7 +3,7 @@
     <a-layout
       class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
     >
-      <a-typography-text class="text-dark-grey fs-1">
+      <a-typography-text class="text-dark-gray fs-1">
         {{ trlang.game_settings }}
       </a-typography-text>
       <a-button

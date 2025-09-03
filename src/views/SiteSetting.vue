@@ -4,7 +4,7 @@
     <a-layout
       class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
     >
-      <a-typography-text class="text-dark-grey fs-1">
+      <a-typography-text class="text-dark-gray fs-1">
         {{ trlang.site_setting }}
       </a-typography-text>
       <a-button
@@ -17,7 +17,7 @@
     </a-layout>
 
     <!-- Scrollable Content -->
-    <a-layout class="bg-white px-5">
+    <a-collapse class="bg-white px-5 border-0">
       <SiteActivationSetting
         v-if="dataSource"
         :dataSource="dataSource"
@@ -41,7 +41,7 @@
         :dataSource="dataSource"
         ref="customerCenterRef"
       />
-    </a-layout>
+    </a-collapse>
   </a-layout>
 </template>
 
@@ -53,8 +53,8 @@ import { SaveOutlined } from "@ant-design/icons-vue";
 import SiteActivationSetting from "@/components/site-setting/SiteActivation.vue";
 import SiteSecuritySetting from "@/components/site-setting/SiteSecurity.vue";
 import SiteTextSetting from "@/components/site-setting/SiteText.vue";
-import MembershipSetting from "@/components/site-setting/Membership.vue";
-import ChargeSetting from "@/components/site-setting/Charge.vue";
+import MembershipSetting from "@/components/site-setting/MembershipSetting.vue";
+import ChargeSetting from "@/components/site-setting/ChargeSetting.vue";
 import CurrencyExchangeSetting from "@/components/site-setting/CurrencyExchange.vue";
 import CustomerCenterSetting from "@/components/site-setting/CustomerCenter.vue";
 import { apiLink } from "@/utils/api-link";
@@ -102,7 +102,7 @@ export default {
       const customerCenterState = customerCenterRef.value?.getState();
       const payload = {
         siteActivation: activationState,
-        siteSecurity: securityState.check,
+        siteSecurity: securityState.isActive,
         siteText: siteTextState,
         membership: membershipState,
         charge: chargeState,

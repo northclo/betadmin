@@ -1,10 +1,5 @@
 <template>
-  <a-layout-sider
-    v-model:collapsed="collapsed"
-    :trigger="null"
-    collapsible
-    class="h-100vh overflow-y-auto left-sider"
-  >
+  <a-layout-sider :trigger="null" collapsible class="h-100vh overflow-y-auto left-sider">
     <div style="width: 100%; height: 100px"></div>
     <a-layout class="bg-none">
       <a-typography-text class="text-green text-center fs-4">
@@ -38,19 +33,19 @@
         </a-select>
       </a-layout>
       <a-layout class="d-flex flex-row justify-between mt-2">
-        <a-typography-text class="text-main text-bold">
+        <a-typography-text class="text-main font-bold">
           {{ trlang.deposit }}
         </a-typography-text>
         <a-typography-text>0</a-typography-text>
       </a-layout>
       <a-layout class="d-flex flex-row justify-between mb-2">
-        <a-typography-text class="text-green text-bold">
+        <a-typography-text class="text-green font-bold">
           {{ trlang.withdrawal }}
         </a-typography-text>
         <a-typography-text class="">0</a-typography-text>
       </a-layout>
-      <a-layout class="d-flex flex-row items-center gap-2 text-dark-grey">
-        <a-typography-text class="text-dark-grey text-bold">
+      <a-layout class="d-flex flex-row items-center gap-2 text-dark-gray">
+        <a-typography-text class="text-dark-gray font-bold">
           -{{ trlang.the_entire_game }}
         </a-typography-text>
       </a-layout>
@@ -74,8 +69,8 @@
         <a-typography-text class="">{{ trlang.revenue }}</a-typography-text>
         <a-typography-text class="">0</a-typography-text>
       </a-layout>
-      <a-layout class="d-flex flex-row items-center gap-2 text-dark-grey mt-2">
-        <a-typography-text class="text-dark-grey text-bold">
+      <a-layout class="d-flex flex-row items-center gap-2 text-dark-gray mt-2">
+        <a-typography-text class="text-dark-gray font-bold">
           -{{ trlang.minigames }}
         </a-typography-text>
       </a-layout>
@@ -110,7 +105,7 @@
 </template>
 
 <script>
-import { ref, inject, computed } from "vue";
+import { ref, inject, computed, onMounted } from "vue";
 
 export default {
   name: "LeftLayout",
@@ -119,16 +114,17 @@ export default {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
-    const options = ref([trlang.value.entire, trlang.value.minigames]);
+    const options = ref([]);
     const activeOption = ref(trlang.value.entire);
 
-    const collapsed = ref(false);
+    onMounted(() => {
+      options.value = [trlang.value.entire, trlang.value.minigames];
+    });
 
     return {
       trlang,
       options,
       activeOption,
-      collapsed,
     };
   },
 };

@@ -28,3 +28,8 @@
 .ant-modal-footer {
   margin-top: 20px !important;
 }
+
+.ant-collapse-header {
+  background: var(--white-color) !important;
+  align-items: center !important;
+}

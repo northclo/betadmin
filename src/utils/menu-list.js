@@ -47,7 +47,7 @@ export const menuList = () => {
         {
           key: "partner_manage",
           label: "partner_management",
-          to: "/partner",
+          to: routeLink.game_partner.link,
         },
         {
           key: "game_setting",

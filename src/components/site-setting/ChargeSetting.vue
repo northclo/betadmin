@@ -1,13 +1,13 @@
 <template>
-  <a-layout class="bg-white mt-2">
-    <a-typography-text
-      class="text-dark-grey text-bold p-2 fs-4 mb-2"
-      style="border-bottom: 1px solid black"
-    >
-      <RightCircleFilled />
-      {{ trlang.charge_setting }}
-    </a-typography-text>
+  <a-collapse-panel class="bg-white">
+    <!-- Header -->
+    <template #header>
+      <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
+        {{ trlang.charge_setting }}
+      </a-typography-text>
+    </template>
 
+    <!-- Recharge Amount -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -25,13 +25,7 @@
         <a-typography-text class="d-flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
-        <a-select
-          ref="select"
-          v-model:value="maxAmount"
-          style="width: 120px"
-          @focus="focus"
-          @change="changeMaxAmount"
-        >
+        <a-select v-model:value="maxAmount" style="width: 120px">
           <a-select-option
             v-for="item in maxAmountOption"
             :key="item.key"
@@ -45,6 +39,8 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
+
+    <!-- Charging Time Zone -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -94,6 +90,8 @@
         </a-layout>
       </a-layout-content>
     </a-layout>
+
+    <!-- Completion Message -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -104,110 +102,68 @@
         <a-textarea :rows="4" v-model:value="completeMessage" allow-clear />
       </a-layout-content>
     </a-layout>
-  </a-layout>
+  </a-collapse-panel>
 </template>
 
-<script>
-import { computed, inject, onBeforeMount, watch, ref } from "vue";
-import { RightCircleFilled } from "@ant-design/icons-vue";
+<script setup>
+import { ref, computed, inject, watch, onBeforeMount, defineExpose } from "vue";
 
-export default {
-  name: "ChargeSetting",
-  components: { RightCircleFilled },
-  props: {
-    dataSource: {
-      type: Object,
-      required: true,
-    },
-  },
-  setup(props, { expose }) {
-    const langState = inject("langState");
-    const trlang = computed(() => langState.translations);
+/* Props */
+const props = defineProps({
+  dataSource: { type: Object, required: true },
+});
 
-    const minAmount = ref(0);
-    const maxAmount = ref(0);
-    const maxAmountOption = ref([]);
-    const timezoneCheck = ref(true);
-    const timezoneText = ref("");
-    const startTime = ref(0);
-    const endTime = ref(0);
-    const restrictBtn = ref([]);
-    const activeRestrictBtn = ref(0);
-    const completeMessage = ref("");
+/* Translations */
+const langState = inject("langState");
+const trlang = computed(() => langState?.translations || {});
 
-    const getComponentData = () => {
-      const _restrictBtn = [
-        trlang.value
-          .additional_applications_are_not_possible_during_currency_exchange_application,
-        trlang.value.same_amount_cannot_be_requested_during_currency_exchange_application,
-        trlang.value.additional_applications_allowed_during_currency_exchange_application,
-      ];
-      restrictBtn.value = _restrictBtn.map((element, idx) => ({
-        key: idx,
-        text: element,
-      }));
+/* State */
+const minAmount = ref(0);
+const maxAmount = ref("");
+const maxAmountOption = ref([]);
+const timezoneCheck = ref(true);
+const timezoneText = ref("");
+const startTime = ref(0);
+const endTime = ref(0);
+const completeMessage = ref("");
 
-      const _maxAmountOption = [1000, 10000, 100000];
-      maxAmountOption.value = _maxAmountOption.map((element, idx) => ({
-        key: idx,
-        amount: element + " USD",
-      }));
-    };
-
-    const loadData = (data) => {
-      if (data && data.charge) {
-        minAmount.value = data.charge.minAmount ?? 0;
-        maxAmount.value =
-          data.charge.maxAmount + " USD" ?? maxAmountOption.value[0]?.amount;
-        timezoneCheck.value = data.charge.timezoneAvailable ?? true;
-        startTime.value = data.charge.startTime ?? 0;
-        endTime.value = data.charge.endTime ?? 0;
-        timezoneText.value = data.charge.impossibleMessage ?? "";
-        completeMessage.value = data.charge.completeMessage ?? "";
-      }
-    };
-
-    watch(
-      () => props.dataSource,
-      (newVal) => loadData(newVal),
-      { immediate: true }
-    );
-
-    // Expose state to parent for saving
-    expose({
-      getState: () => ({
-        minAmount: minAmount.value,
-        maxAmount: maxAmount.value.slice(0, -4),
-        timezoneAvailable: timezoneCheck.value,
-        startTime: startTime.value,
-        endTime: endTime.value,
-        impossibleMessage: timezoneText.value,
-        completeMessage: completeMessage.value,
-      }),
-    });
-
-    const changeMaxAmount = (e) => {
-      maxAmount.value = e;
-    };
-
-    onBeforeMount(() => {
-      getComponentData();
-    });
-
-    return {
-      trlang,
-      minAmount,
-      maxAmount,
-      maxAmountOption,
-      timezoneCheck,
-      startTime,
-      endTime,
-      timezoneText,
-      restrictBtn,
-      activeRestrictBtn,
-      completeMessage,
-      changeMaxAmount,
-    };
-  },
+/* Init select options */
+const initOptions = () => {
+  maxAmountOption.value = [1000, 10000, 100000].map((amt, idx) => ({
+    key: idx,
+    amount: amt + " USD",
+  }));
 };
+
+/* Load from props */
+const loadData = (data) => {
+  if (!data?.charge) return;
+  const ch = data.charge;
+  minAmount.value = ch.minAmount ?? 0;
+  maxAmount.value = ch.maxAmount
+    ? ch.maxAmount + " USD"
+    : maxAmountOption.value[0]?.amount;
+  timezoneCheck.value = ch.timezoneAvailable ?? true;
+  startTime.value = ch.startTime ?? 0;
+  endTime.value = ch.endTime ?? 0;
+  timezoneText.value = ch.impossibleMessage ?? "";
+  completeMessage.value = ch.completeMessage ?? "";
+};
+
+watch(() => props.dataSource, loadData, { immediate: true });
+
+/* Expose state to parent */
+defineExpose({
+  getState: () => ({
+    minAmount: minAmount.value,
+    maxAmount: Number(maxAmount.value.replace(" USD", "")),
+    timezoneAvailable: timezoneCheck.value,
+    startTime: startTime.value,
+    endTime: endTime.value,
+    impossibleMessage: timezoneText.value,
+    completeMessage: completeMessage.value,
+  }),
+});
+
+onBeforeMount(initOptions);
 </script>

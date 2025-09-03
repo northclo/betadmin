@@ -16,6 +16,8 @@ export default {
   deactive: "Deactive",
   activate: "Activate",
   disable: "Disable",
+  expand_all: "Expand all",
+  search: 'search',
 
   // Left Layout
   user_held_money: "User-held money",
@@ -211,4 +213,27 @@ export default {
   even_under: "Even + Under",
   even_over: "Even + Over",
   match_number: "Match Number",
+
+  // Game Partner
+  id_or_nickname: "ID or nickname",
+  add_a_branch_office: "Add a branch office",
+  head_office: "Head office",
+  branch_office: "Branch Office",
+  regional_office: "Regional Office",
+  agency: "Agency",
+  distributor: "Distributor",
+  store: "Store",
+  users: "Users",
+  nickname: "Nickname",
+  money: "Money",
+  benefit: "Benefit",
+  number_of_members: "Number of members",
+  total_member_holdings: "Total member holdings",
+  function: "Function",
+  full_message: "Full message",
+  member_registration: "Member registration",
+  cash_increase_decrease: "Cash increase/decrease",
+  setting: "Setting",
+  group_message: "Group message",
+  add_sub: "Add sub"
 };

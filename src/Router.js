@@ -9,6 +9,7 @@ const SiteSetting = () => import('@/views/SiteSetting.vue');
 const MemberList = () => import("@/views/MemberList.vue");
 const AdminAccount = () => import('@/views/AdminAccount.vue');
 const GameSetting = () => import('@/views/GameSetting.vue');
+const GamePartner = () => import('@/views/GamePartner.vue');
 
 const routes = [
   {
@@ -45,6 +46,11 @@ const routes = [
     path: routeLink.game_setting.link,
     name: routeLink.game_setting.name,
     component: GameSetting
+  },
+  {
+    path: routeLink.game_partner.link,
+    name: routeLink.game_partner.name,
+    component: GamePartner
   }
 ];
 

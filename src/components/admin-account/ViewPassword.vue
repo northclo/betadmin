@@ -1,7 +1,7 @@
 <template>
   <a-layout class="bg-white mt-5">
     <a-typography-text
-      class="text-dark-grey text-bold p-2 fs-4 mb-2"
+      class="text-dark-gray font-bold p-2 fs-4 mb-2"
       style="border-bottom: 1px solid black"
     >
       <RightCircleFilled />

@@ -7,7 +7,7 @@
           @click="clickMenu(menu.to)"
         >
           <component :is="menu.icon" class="header-icon" />
-          <a-typography-text class="header-label text-main text-bold">
+          <a-typography-text class="header-label text-main font-bold">
             {{ trlang[menu.label] }}
           </a-typography-text>
         </div>
@@ -21,7 +21,7 @@
       </a-dropdown>
     </a-layout>
     <a-dropdown>
-      <a class="ant-dropdown-link text-bold text-main" @click.prevent>
+      <a class="ant-dropdown-link font-bold text-main" @click.prevent>
         <a-avatar>
           <template #icon>
             <UserOutlined />

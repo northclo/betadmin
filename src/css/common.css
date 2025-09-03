@@ -15,8 +15,16 @@ button {
   background: var(--pink-color) !important;
 }
 
+.bg-light-pink {
+  background: var(--light-pink-color) !important;
+}
+
 .bg-green {
   background: var(--green-color) !important;
+}
+
+.bg-light-green {
+  background: var(--light-green-color) !important;
 }
 
 .bg-red {
@@ -69,6 +77,10 @@ button {
   color: var(--red-color) !important;
 }
 
+.text-pink {
+  color: var(--pink-color) !important;
+}
+
 .text-yellow {
   color: var(--yellow-color) !important;
 }
@@ -77,12 +89,12 @@ button {
   color: var(--green-color) !important;
 }
 
-.text-dark-grey {
+.text-dark-gray {
   color: var(--dark-gray-color) !important;
 }
 
 /** text css */
-.text-bold {
+.font-bold {
   font-weight: bold;
 }
 
@@ -101,6 +113,11 @@ button {
 
 .fs-5 {
   font-size: 12px;
+}
+
+/* line height css */
+.leading-0 {
+  line-height: 0px !important;
 }
 
 /** width & height css */
@@ -223,11 +240,19 @@ button {
   margin-bottom: 20px;
 }
 
+.ms-5 {
+  margin-left: 16px;
+}
+
 .me-2 {
   margin-right: 8px;
 }
 
 /** padding css */
+.p-1 {
+  padding: 4px;
+}
+
 .p-2 {
   padding: 8px;
 }

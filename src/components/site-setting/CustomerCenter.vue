@@ -1,13 +1,13 @@
 <template>
-  <a-layout class="bg-white mt-2">
-    <a-typography-text
-      class="text-dark-grey text-bold p-2 fs-4 mb-2"
-      style="border-bottom: 1px solid black"
-    >
-      <RightCircleFilled />
-      {{ trlang.customer_center_setting }}
-    </a-typography-text>
+  <a-collapse-panel class="bg-white">
+    <!-- Header -->
+    <template #header>
+      <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
+        {{ trlang.customer_center_setting }}
+      </a-typography-text>
+    </template>
 
+    <!-- Prevent Further Inquiries -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -15,12 +15,14 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2 d-flex flex-column">
-        <a-layout class="bg-white d-flex flex-row gap-2">
+        <a-layout class="bg-white d-flex flex-row gap-2 items-center">
           <a-switch v-model:checked="check" class="w-fit" />
-          <a-typography-text class="d-flex item-center">
+          <a-typography-text>
             {{ check ? trlang.use : trlang.no_use }}
           </a-typography-text>
         </a-layout>
+
+        <!-- Helper Notes -->
         <a-typography-text class="text-yellow mt-2">
           {{
             trlang.if_you_use_the_Prevent_Additional_Inquiries_feature_and_dont_respond_to_existing_inquiries_members_will_be_prevented_from_posting_additional_messages_to_the_customer_center
@@ -31,52 +33,37 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
-  </a-layout>
+  </a-collapse-panel>
 </template>
 
-<script>
-import { computed, inject, ref, watch } from "vue";
-import { RightCircleFilled } from "@ant-design/icons-vue";
+<script setup>
+import { ref, computed, inject, watch, defineExpose } from "vue";
 
-export default {
-  name: "CustomerCenterSetting",
-  components: { RightCircleFilled },
-  props: {
-    dataSource: {
-      type: Object,
-      required: true,
-    },
-  },
-  setup(props, { expose }) {
-    const langState = inject("langState");
-    const trlang = computed(() => langState.translations);
+/* Props */
+const props = defineProps({
+  dataSource: { type: Object, required: true },
+});
 
-    const check = ref(true);
+/* Translations */
+const langState = inject("langState");
+const trlang = computed(() => langState?.translations || {});
 
-    const loadData = (data) => {
-      if (data) {
-        check.value = data.customerCenter ?? true;
-      }
-    };
+/* Reactive state */
+const check = ref(true);
 
-    // Watch for changes in parent dataSource
-    watch(
-      () => props.dataSource,
-      (newVal) => loadData(newVal),
-      { immediate: true }
-    );
-
-    // Expose method to parent to get current state
-    expose({
-      getState: () => ({
-        check: check.value,
-      }),
-    });
-
-    return {
-      trlang,
-      check,
-    };
-  },
+// Load data from parent
+const loadData = (data) => {
+  if (!data) return;
+  check.value = data.customerCenter ?? true;
 };
+
+// Watch for changes in parent dataSource
+watch(() => props.dataSource, loadData, { immediate: true });
+
+// Expose state to parent
+defineExpose({
+  getState: () => ({
+    check: check.value,
+  }),
+});
 </script>
