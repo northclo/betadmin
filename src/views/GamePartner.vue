@@ -7,11 +7,10 @@
       </a-typography-text>
     </a-layout>
 
+    <!-- Search and Actions -->
     <a-layout class="bg-white pt-5 pb-5 d-flex flex-row justify-between items-center">
       <a-layout-content class="d-flex items-center gap-2">
-        <a-typography-text>
-          {{ trlang.id_or_nickname }}
-        </a-typography-text>
+        <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
         <a-input v-model:value="search" placeholder="Search..." class="search-input">
           <template #prefix>
             <SearchOutlined />
@@ -20,19 +19,19 @@
         <a-button class="bg-gray text-white ms-2" @click="searchPartner">{{
           trlang.search
         }}</a-button>
-        <a-typography-text class="ms-5 me-2">
-          {{ trlang.expand_all }}
-        </a-typography-text>
+        <a-typography-text class="ms-5 me-2">{{ trlang.expand_all }}</a-typography-text>
         <a-checkbox v-model:checked="checked"></a-checkbox>
       </a-layout-content>
       <a-layout-content class="d-flex justify-end">
-        <a-button class="bg-gray text-white">
+        <a-button class="bg-gray text-white" @click="registerGamePartner">
           <CheckCircleOutlined />{{ trlang.add_a_branch_office }}
         </a-button>
       </a-layout-content>
     </a-layout>
 
+    <!-- Table -->
     <a-layout class="bg-white" style="overflow: auto">
+      <!-- Table Header -->
       <a-layout-content class="bg-white d-flex flex-row" style="min-width: 1500px">
         <a-typography-text
           v-for="item in columns"
@@ -44,14 +43,16 @@
           {{ item.label }}
         </a-typography-text>
       </a-layout-content>
+
+      <!-- Table Rows -->
       <a-layout-content
-        v-for="item in dataSource"
-        :key="item.key"
+        v-for="(row, rowIndex) in dataSource"
+        :key="rowIndex"
         class="bg-white d-flex flex-row"
         style="min-width: 1500px"
       >
         <a-typography-text
-          v-for="subItem in item"
+          v-for="subItem in row"
           :key="subItem.key"
           :class="[
             'border text-center justify-center d-flex p-1',
@@ -63,6 +64,7 @@
           ]"
           :style="{ width: subItem.key === 'function' ? 'auto' : subItem.width }"
         >
+          <!-- Function Buttons -->
           <template v-if="subItem.key === 'function'">
             <a-button
               v-for="btnInfo in subItem.label"
@@ -79,14 +81,25 @@
               {{ btnInfo.label }}
             </a-button>
           </template>
+
+          <!-- Other Columns -->
           <template v-else>
-            <a-typography-text
-              v-for="label in subItem.label"
-              :key="label"
-              :class="label.color ? 'text-' + label.color : ''"
-            >
-              {{ label.value }}
-            </a-typography-text>
+            <template v-if="subItem.key === 'benefit'">
+              <span v-for="(labelPiece, index) in subItem.label" :key="index">
+                <span>{{ trlang[labelPiece.key] }}: </span>
+                <span class="text-yellow">{{ labelPiece.value }}</span>
+                <span v-if="index !== subItem.label.length - 1">&nbsp;</span>
+              </span>
+            </template>
+            <template v-else>
+              <a-typography-text
+                v-for="label in subItem.label"
+                :key="label.value"
+                :class="label.color ? 'text-' + label.color : ''"
+              >
+                {{ label.value }}
+              </a-typography-text>
+            </template>
           </template>
         </a-typography-text>
       </a-layout-content>
@@ -94,249 +107,115 @@
   </a-layout>
 </template>
 
-<script>
-import { computed, inject, onMounted, ref } from "vue";
+<script setup>
+import { ref, inject, onMounted, computed } from "vue";
 import {
   SearchOutlined,
   CheckCircleOutlined,
   UserAddOutlined,
 } from "@ant-design/icons-vue";
-import { routeLink } from "@/utils/route-link";
-import { partnerManagementColumns } from "@/utils/table-column/partner-management";
 import { message } from "ant-design-vue";
+import { partnerManagementColumns } from "@/utils/table-column/partner-management";
+import { useRouter } from "vue-router";
+import { routeLink } from "../utils/route-link";
 
-export default {
-  name: routeLink.site_setting.name,
-  components: { SearchOutlined, CheckCircleOutlined, UserAddOutlined },
-  setup() {
-    const langState = inject("langState");
-    const trlang = computed(() => langState.translations);
+/* Translations */
+const langState = inject("langState");
+const trlang = computed(() => langState?.translations || {});
 
-    const checked = ref(true);
-    const search = ref("");
-    const columns = ref([]);
-    const dataSource = ref([]);
+const router = useRouter();
 
-    const fetchData = () => {
-      columns.value = partnerManagementColumns(trlang);
+/* Reactive states */
+const checked = ref(true);
+const search = ref("");
+const columns = ref([]);
+const dataSource = ref([]);
 
-      dataSource.value = [
-        [
-          {
-            key: "head_office",
-            label: [
-              {
-                key: "",
-                value: trlang.value.head_office,
-              },
-            ],
-            width: "720px",
-          },
-          {
-            key: "nickname",
-            label: [
-              {
-                key: "",
-                value: "-",
-              },
-            ],
-            width: "90px",
-          },
-          {
-            key: "money",
-            label: [
-              {
-                color: "yellow",
-                value: "0USD",
-              },
-              {
-                value: "0P",
-              },
-            ],
-            width: "80px",
-          },
-          { key: "benefit", label: [], width: "120px" },
-          {
-            key: "number_of_members",
-            label: [
-              {
-                value: "1 person",
-              },
-            ],
-            width: "100px",
-          },
-          {
-            key: "total_member_holdings",
-            label: [
-              {
-                value: "0USD",
-              },
-            ],
-            width: "100px",
-          },
-          {
-            key: "function",
-            label: [
-              { key: "full_message", label: trlang.value.full_message },
-              { key: "member_registration", label: trlang.value.member_registration },
-            ],
-            width: "120px",
-          },
+/* Fetch columns and table data */
+const fetchData = () => {
+  columns.value = partnerManagementColumns(trlang);
+
+  dataSource.value = [
+    // First row
+    [
+      {
+        key: "head_office",
+        label: [{ value: trlang.value.head_office }],
+        width: "720px",
+      },
+      { key: "nickname", label: [{ value: "-" }], width: "90px" },
+      {
+        key: "money",
+        label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
+        width: "80px",
+      },
+      { key: "benefit", label: [], width: "120px" },
+      { key: "number_of_members", label: [{ value: "1 person" }], width: "100px" },
+      { key: "total_member_holdings", label: [{ value: "0USD" }], width: "100px" },
+      {
+        key: "function",
+        label: [
+          { key: "full_message", label: trlang.value.full_message },
+          { key: "member_registration", label: trlang.value.member_registration },
         ],
-        [
-          {
-            key: "branch_office",
-            bg_color: "light-pink",
-            label: [
-              {
-                value: "BuBonsa",
-              },
-              {
-                color: "dark-gray",
-                value: "(BuBonsa)",
-              },
-            ],
-            width: "120px",
-          },
-          {
-            key: "regional_office",
-            label: [
-              {
-                color: "main",
-                value: "1",
-              },
-            ],
-            width: "120px",
-          },
-          {
-            key: "agency",
-            label: [],
-            width: "120px",
-          },
-          {
-            key: "distributor",
-            label: [],
-            width: "120px",
-          },
-          {
-            key: "store",
-            label: [],
-            width: "120px",
-          },
-          {
-            key: "users",
-            label: [
-              {
-                color: "pink",
-                value: 1,
-              },
-            ],
-            width: "120px",
-          },
-          {
-            key: "nickname",
-            label: [
-              {
-                key: "",
-                value: "BuBonsa",
-              },
-            ],
-            width: "90px",
-          },
-          {
-            key: "money",
-            label: [
-              {
-                color: "yellow",
-                value: "0USD",
-              },
-              {
-                value: "0P",
-              },
-            ],
-            width: "80px",
-          },
-          {
-            key: "benefit",
-            label: [
-              {
-                value: "OEUO: 3.5%",
-              },
-              {
-                value: "Combined: 3.5%",
-              },
-              {
-                value: "Number: 3.5%",
-              },
-            ],
-            width: "120px",
-          },
-          {
-            key: "number_of_members",
-            label: [
-              {
-                value: "2 people",
-              },
-            ],
-            width: "100px",
-          },
-          {
-            key: "total_member_holdings",
-            label: [
-              {
-                color: "yellow",
-                value: "0USD",
-              },
-              {
-                value: "0P",
-              },
-            ],
-            width: "100px",
-          },
-          {
-            key: "function",
-            label: [
-              { key: "setting", label: trlang.value.setting },
-              {
-                key: "cash_increase_decrease",
-                label: trlang.value.cash_increase_decrease,
-              },
-              {
-                key: "group_message",
-                label: trlang.value.group_message,
-                onclick: saveData,
-              },
-              { key: "delete", label: trlang.value.delete },
-              { key: "add_sub", label: trlang.value.add_sub },
-              { key: "member_registration", label: trlang.value.member_registration },
-            ],
-            width: "120px",
-          },
+        width: "120px",
+      },
+    ],
+    // Second row
+    [
+      {
+        key: "branch_office",
+        bg_color: "light-pink",
+        label: [{ value: "BuBonsa" }, { value: "(BuBonsa)", color: "dark-gray" }],
+        width: "120px",
+      },
+      { key: "regional_office", label: [{ value: "1", color: "main" }], width: "120px" },
+      { key: "agency", label: [], width: "120px" },
+      { key: "distributor", label: [], width: "120px" },
+      { key: "store", label: [], width: "120px" },
+      { key: "users", label: [{ value: 1, color: "pink" }], width: "120px" },
+      { key: "nickname", label: [{ value: "BuBonsa" }], width: "90px" },
+      {
+        key: "money",
+        label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
+        width: "80px",
+      },
+      {
+        key: "benefit",
+        label: [
+          { key: "oeuo", value: "3.5%" },
+          { key: "combined", value: "3.5%" },
+          { key: "number", value: "3.5%" },
         ],
-      ];
-    };
-
-    const saveData = () => {
-      message.success("message success");
-    };
-
-    const searchPartner = () => {
-      message.success(search.value);
-    };
-
-    onMounted(() => {
-      fetchData();
-    });
-
-    return {
-      trlang,
-      checked,
-      search,
-      searchPartner,
-      columns,
-      dataSource,
-      saveData,
-    };
-  },
+        width: "120px",
+      },
+      { key: "number_of_members", label: [{ value: "2 people" }], width: "100px" },
+      {
+        key: "total_member_holdings",
+        label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
+        width: "100px",
+      },
+      {
+        key: "function",
+        label: [
+          { key: "setting", label: trlang.value.setting },
+          { key: "cash_increase_decrease", label: trlang.value.cash_increase_decrease },
+          { key: "group_message", label: trlang.value.group_message, onclick: saveData },
+          { key: "delete", label: trlang.value.delete },
+          { key: "add_sub", label: trlang.value.add_sub },
+          { key: "member_registration", label: trlang.value.member_registration },
+        ],
+        width: "120px",
+      },
+    ],
+  ];
 };
+
+/* Actions */
+const saveData = () => message.success("message success");
+const searchPartner = () => message.success(search.value);
+const registerGamePartner = () => router.push(routeLink.game_partner_add_branch.link);
+
+/* Load data on mount */
+onMounted(() => fetchData());
 </script>

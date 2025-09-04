@@ -5,6 +5,7 @@ export default {
   currency: "¥",
   save: "Save",
   cancel: "Cancel",
+  add: "Add",
   edit: "Edit",
   delete: "Delete",
   no_data: "No Data",
@@ -18,6 +19,8 @@ export default {
   disable: "Disable",
   expand_all: "Expand all",
   search: 'search',
+  name: "Name",
+  operation: "Operation",
 
   // Left Layout
   user_held_money: "User-held money",
@@ -125,6 +128,7 @@ export default {
   membership_setting: "Membership Setting",
   charge_setting: "Charge Setting",
   currency_exchange_setting: "Currency Exchange Setting",
+  bank_card_setting: 'Bank Card Setting',
   customer_center_setting: "Customer Center Setting",
   site_activation: "Site activation",
   how_to_display_when_site_is_disabled: "How to display when site is disabled",
@@ -235,5 +239,8 @@ export default {
   cash_increase_decrease: "Cash increase/decrease",
   setting: "Setting",
   group_message: "Group message",
-  add_sub: "Add sub"
+  add_sub: "Add sub",
+  oeuo: "OEUO",
+  combined: "Combined",
+  number: "Number"
 };

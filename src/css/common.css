@@ -1,12 +1,26 @@
+/* 
+===========================================
+Global App Styles & Utility Classes
+This file defines utility-first CSS classes 
+(similar to Bootstrap/Tailwind) for quick styling.
+Each class has a single responsibility.
+===========================================
+*/
+
 #app {
-  min-height: 100vh;
+  min-height: 100vh; /* Ensure app container fills full viewport height */
 }
 
 button {
-  border: none;
+  border: none; /* Remove default button border */
 }
 
-/** background color css */
+/* ================================
+   BACKGROUND COLOR UTILITIES
+   Uses CSS custom properties (variables).
+   Each class applies a specific background.
+================================= */
+
 .bg-main {
   background: var(--main-color) !important;
 }
@@ -48,12 +62,15 @@ button {
 }
 
 .bg-none {
-  background: transparent;
+  background: transparent; /* No background */
 }
 
-/** text align css */
+/* ================================
+   TEXT ALIGNMENT UTILITIES
+================================= */
+
 .text-start {
-  text-align: start;
+  text-align: start; /* Left in LTR, Right in RTL */
 }
 
 .text-center {
@@ -61,10 +78,13 @@ button {
 }
 
 .text-end {
-  text-align: end;
+  text-align: end; /* Right in LTR, Left in RTL */
 }
 
-/** text color css */
+/* ================================
+   TEXT COLOR UTILITIES
+================================= */
+
 .text-white {
   color: var(--white-color) !important;
 }
@@ -93,34 +113,46 @@ button {
   color: var(--dark-gray-color) !important;
 }
 
-/** text css */
+/* ================================
+   FONT WEIGHT UTILITIES
+================================= */
+
 .font-bold {
   font-weight: bold;
 }
 
 .fw-400 {
-  font-weight: 400 !important;
+  font-weight: 400 !important; /* Normal weight */
 }
 
-/** font size css */
+/* ================================
+   FONT SIZE UTILITIES
+================================= */
+
 .fs-1 {
-  font-size: 30px;
+  font-size: 30px; /* Large heading */
 }
 
 .fs-4 {
-  font-size: 16px;
+  font-size: 16px; /* Base size */
 }
 
 .fs-5 {
-  font-size: 12px;
+  font-size: 12px; /* Small text */
 }
 
-/* line height css */
+/* ================================
+   LINE HEIGHT UTILITIES
+================================= */
+
 .leading-0 {
-  line-height: 0px !important;
+  line-height: 0px !important; /* Collapsed line height */
 }
 
-/** width & height css */
+/* ================================
+   WIDTH & HEIGHT UTILITIES
+================================= */
+
 .w-100 {
   width: 100%;
 }
@@ -130,15 +162,15 @@ button {
 }
 
 .w-fit {
-  width: fit-content;
+  width: fit-content; /* Shrinks to content width */
 }
 
 .min-w-100 {
-  min-width: 100%;
+  min-width: 100%; /* At least full width */
 }
 
 .max-w-fit {
-  max-width: fit-content;
+  max-width: fit-content; /* Restrict to content width */
 }
 
 .h-100 {
@@ -146,10 +178,14 @@ button {
 }
 
 .h-100vh {
-  height: 100vh;
+  height: 100vh; /* Full viewport height */
 }
 
-/** align css */
+/* ================================
+   FLEX & ALIGNMENT UTILITIES
+   For flexbox containers & children
+================================= */
+
 .justify-center {
   justify-content: center;
 }
@@ -174,17 +210,16 @@ button {
   align-items: end;
 }
 
-/** flex css */
 .d-flex {
   display: flex !important;
 }
 
 .flex-0 {
-  flex: none;
+  flex: none; /* Prevent flex growth/shrink */
 }
 
 .flex-1 {
-  flex: 1;
+  flex: 1; /* Take up remaining space */
 }
 
 .flex-row {
@@ -196,7 +231,7 @@ button {
 }
 
 .flex-wrap {
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allow wrapping */
 }
 
 .gap-0 {
@@ -211,7 +246,11 @@ button {
   gap: 20px !important;
 }
 
-/** margin css */
+/* ================================
+   MARGIN UTILITIES
+   Uses spacing scale (0, 2 = 8px, 5 = 20px, etc.)
+================================= */
+
 .m-2 {
   margin: 8px;
 }
@@ -248,7 +287,11 @@ button {
   margin-right: 8px;
 }
 
-/** padding css */
+/* ================================
+   PADDING UTILITIES
+   Uses spacing scale like margin
+================================= */
+
 .p-1 {
   padding: 4px;
 }
@@ -290,31 +333,41 @@ button {
 }
 
 .px-5 {
-  padding-inline: 20px !important;
+  padding-inline: 20px !important; /* Equal padding left & right */
 }
 
-/** border css */
+/* ================================
+   BORDER & RADIUS UTILITIES
+================================= */
+
 .border-0 {
   border: none;
 }
 
 .border {
-  border: 1px solid rgb(209, 209, 209);
+  border: 1px solid rgb(209, 209, 209); /* Light gray border */
 }
 
 .radius-2 {
-  border-radius: 8px;
+  border-radius: 8px; /* Rounded corners */
 }
+
+/* ================================
+   OVERFLOW UTILITIES
+================================= */
 
 .overflow-hidden {
   overflow: hidden;
 }
 
 .overflow-y-auto {
-  overflow-y: auto;
+  overflow-y: auto; /* Vertical scrollbar if needed */
 }
 
-/* Position CSS */
+/* ================================
+   POSITION UTILITIES
+================================= */
+
 .absolute {
   position: absolute;
 }
@@ -323,15 +376,18 @@ button {
   position: relative;
 }
 
-/** cursor css */
+/* ================================
+   CURSOR & TRANSITION UTILITIES
+================================= */
+
 .cursor-pointer:hover {
-  cursor: pointer;
+  cursor: pointer; /* Show pointer on hover */
 }
 
 .transition {
-  transition: all 2s;
+  transition: all 2s; /* Smooth transition for all properties */
 }
 
 .shadow-none {
-  box-shadow: none;
+  box-shadow: none; /* Remove shadow */
 }

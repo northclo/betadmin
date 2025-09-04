@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import { routeLink } from "./utils/route-link.js";
 
-const Login = () => import("@/views/Login.vue");
+const LoginPage = () => import("@/views/LoginPage.vue");
 const ForgotPassword = () => import("@/views/ForgotPassword.vue");
 const ResetPassword = () => import("@/views/ResetPassword.vue");
 const SiteSetting = () => import('@/views/SiteSetting.vue');
@@ -15,7 +15,7 @@ const routes = [
   {
     path: routeLink.login.link,
     name: routeLink.login.name,
-    component: Login,
+    component: LoginPage,
   },
   {
     path: routeLink.forgot_password.link,

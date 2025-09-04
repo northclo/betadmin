@@ -1,7 +1,7 @@
 <template>
   <a-row class="h-100vh">
     <!-- Left Panel -->
-    <a-col :span="12" class="d-flex justify-center items-center items-center">
+    <a-col :span="12" class="d-flex justify-center items-center">
       <a-space direction="vertical" size="middle" class="w-100 max-w-fit">
         <div>
           <a-typography-title level="2">{{ trlang.welcome_back }}</a-typography-title>
@@ -32,7 +32,7 @@
         </a-row>
 
         <!-- Login Button -->
-        <a-button type="primary" class="w-100" @click="login" :loading="loading">
+        <a-button type="primary" class="w-100" @click="login">
           {{ trlang.login }}
         </a-button>
 
@@ -53,78 +53,68 @@
   </a-row>
 </template>
 
-<script>
+<script setup>
+import { ref, inject, onMounted, computed } from "vue";
 import { message } from "ant-design-vue";
-
-import { checkValidEmail } from "@/helpers/Common.js";
+import { useRouter } from "vue-router";
 import { postData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 import { routeLink } from "@/utils/route-link";
+import { checkValidEmail } from "@/helpers/Common.js";
 
-export default {
-  name: routeLink.login.name,
-  inject: ["langState"],
-  data() {
-    return {
-      email: "",
-      password: "",
-      checked: false,
-      loading: false,
-    };
-  },
-  computed: {
-    trlang() {
-      return this.langState.translations;
-    },
-  },
-  created() {
-    // get email and password from localstorage
-    let savedEmail = localStorage.getItem("email");
-    let savedPassword = localStorage.getItem("password");
+/* Router */
+const router = useRouter();
 
-    // if exist email and password in localstorage, auto fill in email, password and remember
-    if (savedEmail && savedPassword) {
-      this.email = savedEmail;
-      this.password = savedPassword;
-      this.remember = true;
+/* Inject translations */
+const langState = inject("langState");
+const trlang = computed(() => langState?.translations || {});
+
+/* Reactive states */
+const email = ref("");
+const password = ref("");
+const remember = ref(false);
+
+/* Load saved email/password on mount */
+onMounted(() => {
+  const savedEmail = localStorage.getItem("email");
+  const savedPassword = localStorage.getItem("password");
+
+  if (savedEmail && savedPassword) {
+    email.value = savedEmail;
+    password.value = savedPassword;
+    remember.value = true;
+  }
+});
+
+/* Login method */
+const login = async () => {
+  if (!email.value || !password.value) {
+    message.error(trlang.value.fill_email_password);
+    return;
+  }
+
+  if (!checkValidEmail(email.value)) {
+    message.error(trlang.value.not_correct_email);
+    return;
+  }
+
+  const res = await postData(apiLink.login, {
+    email: email.value.toLowerCase(),
+    password: password.value,
+  });
+
+  if (res.status) {
+    localStorage.setItem("token", res.data.token);
+
+    if (remember.value) {
+      localStorage.setItem("email", email.value);
+      localStorage.setItem("password", password.value);
+    } else {
+      localStorage.removeItem("email");
+      localStorage.removeItem("password");
     }
-  },
-  methods: {
-    async login() {
-      if (!this.email || !this.password) {
-        message.error(this.trlang.fill_email_password);
-        return;
-      }
 
-      // check email style
-      if (!checkValidEmail(this.email)) {
-        message.error(this.trlang.not_correct_email);
-        return;
-      }
-
-      this.loading = true;
-
-      let res = await postData(apiLink.login, {
-        email: this.email.toLowerCase(),
-        password: this.password,
-      });
-
-      if (res.status) {
-        // Example: store token in localStorage
-        localStorage.setItem("token", res.data.token);
-
-        if (this.remember) {
-          localStorage.setItem("email", this.email);
-          localStorage.setItem("password", this.password);
-        } else {
-          localStorage.removeItem("email");
-          localStorage.removeItem("password");
-        }
-
-        // Redirect after login
-        this.$router.push(routeLink.dashboard.link);
-      }
-    },
-  },
+    router.push(routeLink.dashboard.link);
+  }
 };
 </script>
