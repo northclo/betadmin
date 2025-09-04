@@ -4,6 +4,7 @@ export const apiLink = {
   reset_password: "auth/reset-password",
   member_list: 'member/list',
   get_member_list: "member/list",
-  game_setting: 'game-setting',
-  site_setting: 'site-setting'
+  game_setting: 'game-partner/setting',
+  site_setting: 'site-setting',
+  game_partner: 'game-partner/partner',
 };

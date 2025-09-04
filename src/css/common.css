@@ -279,6 +279,10 @@ button {
   margin-bottom: 20px;
 }
 
+.ms-2 {
+  margin-left: 8px;
+}
+
 .ms-5 {
   margin-left: 16px;
 }

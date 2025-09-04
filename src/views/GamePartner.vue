@@ -16,9 +16,9 @@
             <SearchOutlined />
           </template>
         </a-input>
-        <a-button class="bg-gray text-white ms-2" @click="searchPartner">{{
-          trlang.search
-        }}</a-button>
+        <a-button class="bg-gray text-white ms-2" @click="searchPartner">
+          {{ trlang.search }}
+        </a-button>
         <a-typography-text class="ms-5 me-2">{{ trlang.expand_all }}</a-typography-text>
         <a-checkbox v-model:checked="checked"></a-checkbox>
       </a-layout-content>
@@ -68,13 +68,13 @@
           <template v-if="subItem.key === 'function'">
             <a-button
               v-for="btnInfo in subItem.label"
-              :key="btnInfo.label"
+              :key="btnInfo.key"
               :class="
                 btnInfo.key === 'member_registration'
                   ? 'bg-green text-white'
                   : 'bg-gray text-white'
               "
-              @click="btnInfo.onclick"
+              @click="btnInfo.onclick || (() => {})"
             >
               <UserAddOutlined v-if="btnInfo.key === 'member_registration'" />
               <CheckCircleOutlined v-else />
@@ -82,24 +82,24 @@
             </a-button>
           </template>
 
+          <!-- Benefit Column -->
+          <template v-else-if="subItem.key === 'benefit'">
+            <span v-for="(labelPiece, index) in subItem.label" :key="index">
+              <span class="text-dark-gray">{{ trlang[labelPiece.key] }}: </span>
+              <span class="text-yellow">{{ labelPiece.value }}</span>
+              <span v-if="index !== subItem.label.length - 1">&nbsp;</span>
+            </span>
+          </template>
+
           <!-- Other Columns -->
           <template v-else>
-            <template v-if="subItem.key === 'benefit'">
-              <span v-for="(labelPiece, index) in subItem.label" :key="index">
-                <span>{{ trlang[labelPiece.key] }}: </span>
-                <span class="text-yellow">{{ labelPiece.value }}</span>
-                <span v-if="index !== subItem.label.length - 1">&nbsp;</span>
-              </span>
-            </template>
-            <template v-else>
-              <a-typography-text
-                v-for="label in subItem.label"
-                :key="label.value"
-                :class="label.color ? 'text-' + label.color : ''"
-              >
-                {{ label.value }}
-              </a-typography-text>
-            </template>
+            <a-typography-text
+              v-for="label in subItem.label"
+              :key="label.value"
+              :class="label.color ? 'text-' + label.color : ''"
+            >
+              {{ label.value }}
+            </a-typography-text>
           </template>
         </a-typography-text>
       </a-layout-content>
@@ -118,6 +118,8 @@ import { message } from "ant-design-vue";
 import { partnerManagementColumns } from "@/utils/table-column/partner-management";
 import { useRouter } from "vue-router";
 import { routeLink } from "../utils/route-link";
+import { getData } from "@/helpers/Axios.js";
+import { apiLink } from "../utils/api-link";
 
 /* Translations */
 const langState = inject("langState");
@@ -132,88 +134,124 @@ const columns = ref([]);
 const dataSource = ref([]);
 
 /* Fetch columns and table data */
-const fetchData = () => {
+const fetchData = async () => {
+  const gamePartner = await getData(apiLink.game_partner + "?search=" + search.value);
   columns.value = partnerManagementColumns(trlang);
 
-  dataSource.value = [
-    // First row
-    [
-      {
-        key: "head_office",
-        label: [{ value: trlang.value.head_office }],
-        width: "720px",
-      },
-      { key: "nickname", label: [{ value: "-" }], width: "90px" },
-      {
-        key: "money",
-        label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
-        width: "80px",
-      },
-      { key: "benefit", label: [], width: "120px" },
-      { key: "number_of_members", label: [{ value: "1 person" }], width: "100px" },
-      { key: "total_member_holdings", label: [{ value: "0USD" }], width: "100px" },
-      {
-        key: "function",
-        label: [
-          { key: "full_message", label: trlang.value.full_message },
-          { key: "member_registration", label: trlang.value.member_registration },
-        ],
-        width: "120px",
-      },
-    ],
-    // Second row
-    [
-      {
-        key: "branch_office",
-        bg_color: "light-pink",
-        label: [{ value: "BuBonsa" }, { value: "(BuBonsa)", color: "dark-gray" }],
-        width: "120px",
-      },
-      { key: "regional_office", label: [{ value: "1", color: "main" }], width: "120px" },
-      { key: "agency", label: [], width: "120px" },
-      { key: "distributor", label: [], width: "120px" },
-      { key: "store", label: [], width: "120px" },
-      { key: "users", label: [{ value: 1, color: "pink" }], width: "120px" },
-      { key: "nickname", label: [{ value: "BuBonsa" }], width: "90px" },
-      {
-        key: "money",
-        label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
-        width: "80px",
-      },
-      {
-        key: "benefit",
-        label: [
-          { key: "oeuo", value: "3.5%" },
-          { key: "combined", value: "3.5%" },
-          { key: "number", value: "3.5%" },
-        ],
-        width: "120px",
-      },
-      { key: "number_of_members", label: [{ value: "2 people" }], width: "100px" },
-      {
-        key: "total_member_holdings",
-        label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
-        width: "100px",
-      },
-      {
-        key: "function",
-        label: [
-          { key: "setting", label: trlang.value.setting },
-          { key: "cash_increase_decrease", label: trlang.value.cash_increase_decrease },
-          { key: "group_message", label: trlang.value.group_message, onclick: saveData },
-          { key: "delete", label: trlang.value.delete },
-          { key: "add_sub", label: trlang.value.add_sub },
-          { key: "member_registration", label: trlang.value.member_registration },
-        ],
-        width: "120px",
-      },
-    ],
-  ];
+  let _dataSource = [];
+
+  // First row
+  _dataSource.push([
+    { key: "head_office", label: [{ value: trlang.value.head_office }], width: "720px" },
+    { key: "nickname", label: [{ value: "-" }], width: "90px" },
+    {
+      key: "money",
+      label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
+      width: "80px",
+    },
+    { key: "benefit", label: [], width: "120px" },
+    { key: "number_of_members", label: [{ value: "1 person" }], width: "100px" },
+    { key: "total_member_holdings", label: [{ value: "0USD" }], width: "100px" },
+    {
+      key: "function",
+      label: [
+        { key: "full_message", label: trlang.value.full_message },
+        { key: "member_registration", label: trlang.value.member_registration },
+      ],
+      width: "120px",
+    },
+  ]);
+
+  // Branch offices
+  gamePartner.data.forEach((element) => {
+    if (element.type === "branch_office") {
+      let _money = element.money.map((m) => ({
+        value: m.amount + m.type,
+        color: m.type === "USD" ? "yellow" : "",
+      }));
+
+      let _holding = element.holding.map((h) => ({
+        value: h.amount + h.type,
+        color: h.type === "USD" ? "yellow" : "",
+      }));
+
+      _dataSource.push([
+        {
+          key: "branch_office",
+          bg_color: "light-pink",
+          label: [
+            { value: element.nickname },
+            { value: `(${element.partnerId})`, color: "dark-gray" },
+          ],
+          width: "120px",
+        },
+        {
+          key: "regional_office",
+          label: element.sub.length ? [{ value: element.sub.length, color: "main" }] : [],
+          width: "120px",
+        },
+        { key: "agency", label: [], width: "120px" },
+        { key: "distributor", label: [], width: "120px" },
+        { key: "store", label: [], width: "120px" },
+        {
+          key: "users",
+          label: element.member.length
+            ? [{ value: element.member.length, color: "pink" }]
+            : [],
+          width: "120px",
+        },
+        { key: "nickname", label: [{ value: element.nickname }], width: "90px" },
+        { key: "money", label: _money, width: "80px" },
+        {
+          key: "benefit",
+          label: [
+            { key: "oeuo", value: element.benefit.oeuo + "%" },
+            { key: "combined", value: element.benefit.combined + "%" },
+            { key: "number", value: element.benefit.number + "%" },
+          ],
+          width: "120px",
+        },
+        {
+          key: "number_of_members",
+          label: element.member.length
+            ? [
+                {
+                  value:
+                    element.member.length === 1
+                      ? "1 person"
+                      : element.member.length + " people",
+                },
+              ]
+            : [],
+          width: "100px",
+        },
+        { key: "total_member_holdings", label: _holding, width: "100px" },
+        {
+          key: "function",
+          label: [
+            { key: "setting", label: trlang.value.setting },
+            { key: "cash_increase_decrease", label: trlang.value.cash_increase_decrease },
+            {
+              key: "group_message",
+              label: trlang.value.group_message,
+              onclick: saveData,
+            },
+            { key: "delete", label: trlang.value.delete },
+            { key: "add_sub", label: trlang.value.add_sub },
+            { key: "member_registration", label: trlang.value.member_registration },
+          ],
+          width: "120px",
+        },
+      ]);
+    }
+  });
+
+  dataSource.value = _dataSource;
 };
 
 /* Actions */
 const saveData = () => message.success("message success");
-const searchPartner = () => message.success(search.value);
+const searchPartner = () => fetchData();
 const registerGamePartner = () => router.push(routeLink.game_partner_add_branch.link);
 
 /* Load data on mount */

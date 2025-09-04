@@ -120,6 +120,7 @@ export default {
 
     const fetchData = async () => {
       const res = await getData(`${apiLink.game_setting}?name=PowerballGame`);
+      console.log("res :>> ", res);
 
       activate.value = res.data.activate;
       inactiveMessage.value = res.data.inactiveMessage;

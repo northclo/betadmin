@@ -4,36 +4,71 @@
       class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
     >
       <a-typography-text class="text-dark-gray fs-1">
-        {{ trlang.change_administrator_information }}
+        {{ trlang.partner_registration }}
       </a-typography-text>
-      <a-button class="bg-main text-white d-flex justify-center items-center">
-        <SaveOutlined />
-        {{ trlang.save }}
-      </a-button>
     </a-layout>
+  </a-layout>
 
-    <a-layout class="bg-white px-5">
-      <AdminAccountPassword />
-      <AdminAccountViewPassword />
-    </a-layout>
+  <a-collapse class="bg-white px-5 border-0">
+    <PartnerMemberInformation
+      v-if="dataSource"
+      :dataSource="dataSource"
+      ref="memberInformationRef"
+    />
+    <CurrencyRollingSetting />
+    <PartnerRateSetting />
+    <PartnerPermissionSetting />
+    <PartnerGameSetting />
+  </a-collapse>
+
+  <a-layout class="bg-white p-5 d-flex flex-row justify-center items-center gap-2">
+    <a-button class="bg-dark-gray text-white">
+      <CheckCircleOutlined />
+      {{ trlang.register }}
+    </a-button>
+    <a-button class="bg-dark-gray text-white" @click="closeRegister">
+      <CloseCircleOutlined />
+      {{ trlang.close }}
+    </a-button>
   </a-layout>
 </template>
 
 <script>
-import { computed, inject } from "vue";
+import { computed, inject, ref } from "vue";
 import { routeLink } from "@/utils/route-link";
-import { SaveOutlined } from "@ant-design/icons-vue";
-import AdminAccountPassword from "@/components/admin-account/Password.vue";
-import AdminAccountViewPassword from "@/components/admin-account/ViewPassword.vue";
+import { useRouter } from "vue-router";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons-vue";
+import PartnerMemberInformation from "@/components/partner/registration/PartnerMemberInformation.vue";
+import CurrencyRollingSetting from "@/components/partner/registration/CurrencyRollingSetting.vue";
+import PartnerRateSetting from "@/components/partner/registration/PartnerRateSetting.vue";
+import PartnerPermissionSetting from "@/components/partner/registration/PartnerPermissionSetting.vue";
+import PartnerGameSetting from "@/components/partner/registration/PartnerGameSetting.vue";
 
 export default {
-  name: routeLink.admin_account.name,
-  components: { SaveOutlined, AdminAccountPassword, AdminAccountViewPassword },
+  name: routeLink.game_partner_add_branch.name,
+  components: {
+    PartnerMemberInformation,
+    CurrencyRollingSetting,
+    PartnerRateSetting,
+    PartnerPermissionSetting,
+    PartnerGameSetting,
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+  },
   setup() {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
-    return { trlang };
+    const router = useRouter();
+
+    const dataSource = ref([]);
+    const memberInformationRef = ref(null);
+
+    const closeRegister = () => {
+      router.push(routeLink.game_partner.link);
+    };
+
+    return { trlang, dataSource, closeRegister, memberInformationRef };
   },
 };
 </script>
