@@ -1,0 +1,96 @@
+::-webkit-scrollbar {
+  width: 2px; /* scrollbar width */
+  height: 2px; /* for horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0; /* track color */
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* handle color */
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* hover effect */
+}
+
+.login-image {
+  background-image: url(/public/images/auth.png);
+  background-size: cover;
+  background-position: center center;
+}
+
+.logo {
+  height: 64px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.search-input {
+  width: 200px;
+}
+
+.setting-sider .ant-layout-sider-children {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-content {
+  height: 80px !important;
+  padding-inline: 0px !important;
+  padding-right: 50px !important;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #ddd;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background: #fff;
+}
+
+.header-icon > svg {
+  width: 20px;
+  height: 20px;
+  color: var(--main-color);
+}
+
+.header-label {
+  width: 130px;
+  height: 35px !important;
+  text-align: center;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 15px;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 80px;
+  z-index: 1000; /* stay above content */
+  border-bottom: 1px solid #ddd;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background: #fff;
+}
+
+.left-sider > div {
+  padding-inline: 8px;
+}
+
+.input-sm {
+  width: 80px;
+}
+
+.input-md {
+  width: 120px;
+}
+
+.input-lg {
+  width: 200px;
+}
