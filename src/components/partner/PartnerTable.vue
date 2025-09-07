@@ -14,6 +14,10 @@
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
+        <a-layout v-if="record.role === 'headquater'" class="bg-none headquater-content">
+          <a-typography-text> {{ record.nickname }} </a-typography-text>
+          <a-typography-text>({{ record.id }})</a-typography-text>
+        </a-layout>
       </template>
       <template v-if="column.key === 'regional_office' && record.role !== 'user'">
         <a-layout v-if="record.role === 'regionalOffice'" class="bg-light-pink">
@@ -56,13 +60,19 @@
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
-        <a-typography-text v-else class="text-pink">
+        <a-typography-text v-else class="text-dark-brown">
           {{ record.members === 0 ? "" : record.members }}
         </a-typography-text>
       </template>
+      <template v-if="column.key === 'nickname'">
+        <a-typography-text v-if="record.role === 'headquater'" class="bg-none">
+          -
+        </a-typography-text>
+        <a-typography-text v-else> {{ record.nickname }} </a-typography-text>
+      </template>
       <template v-if="column.key === 'money'">
         <a-layout class="bg-none text-end">
-          <a-typography-text class="text-yellow text-end">
+          <a-typography-text class="text-dark-brown text-end">
             {{ record.money }}{{ record.betMoneyUnit }}
           </a-typography-text>
           <a-typography-text>{{ record.point }}P</a-typography-text>
@@ -72,15 +82,15 @@
         <a-layout class="bg-none">
           <a-typography-text>
             {{ trlang.oeuo }}
-            <span class="text-yellow">{{ record.simpleBetRate }}%</span>
+            <span class="text-dark-brown">{{ record.simpleBetRate }}%</span>
           </a-typography-text>
           <a-typography-text>
             {{ trlang.combined }}
-            <span class="text-yellow">{{ record.combinedBetRate }}%</span>
+            <span class="text-dark-brown">{{ record.combinedBetRate }}%</span>
           </a-typography-text>
           <a-typography-text>
             {{ trlang.number }}
-            <span class="text-yellow">{{ record.matchNumberBetRate }}%</span>
+            <span class="text-dark-brown">{{ record.matchNumberBetRate }}%</span>
           </a-typography-text>
         </a-layout>
       </template>
@@ -95,7 +105,7 @@
       </template>
       <template v-if="column.key === 'total_member_holdings'">
         <a-layout class="bg-none text-end">
-          <a-typography-text class="text-yellow text-end">
+          <a-typography-text class="text-dark-brown text-end">
             {{ record.holdingMoney }}{{ record.betMoneyUnit }}
           </a-typography-text>
           <a-typography-text>{{ record.holdingPoint }}P</a-typography-text>
@@ -149,7 +159,7 @@
           </a-button>
           <a-button
             v-if="record.role !== 'user'"
-            class="bg-main text-white"
+            class="bg-green text-white"
             @click="$emit('openRegisterUser')"
           >
             <UserAddOutlined /> {{ trlang.member_registration }}
@@ -173,4 +183,8 @@ defineProps({
   dataSource: Array,
   loading: Boolean,
 });
+
+const saveData = () => {
+  console.log("-------------");
+};
 </script>

@@ -348,6 +348,10 @@ button {
   padding-bottom: 20px;
 }
 
+.px-2 {
+  padding-inline: 8px !important;
+}
+
 .px-5 {
   padding-inline: 20px !important; /* Equal padding left & right */
 }
