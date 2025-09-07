@@ -94,3 +94,30 @@
 .input-lg {
   width: 200px;
 }
+
+.partner-table table {
+  border-bottom: 1px solid rgb(209, 209, 209);
+}
+
+.partner-table thead > tr > th {
+  background: var(--gray) !important;
+  border-radius: unset !important;
+  border: 1px solid rgb(209, 209, 209);
+  color: var(--white-color) !important;
+  text-align: center !important;
+}
+
+.partner-table thead > tr > th::before {
+  display: none;
+}
+
+.partner-table tbody > tr > td {
+  border: 1px solid rgb(209, 209, 209);
+  border-top: 1px solid rgb(209, 209, 209) !important;
+  border-bottom: 1px solid rgb(209, 209, 209) !important;
+  text-align: center;
+}
+
+.partner-table tbody > tr > td:has(> .bg-light-pink) {
+  background-color: var(--light-pink-color) !important;
+}

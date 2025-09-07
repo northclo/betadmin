@@ -27,6 +27,8 @@ export default {
   test: "Test",
   possible: "Possible",
   no_possible: "No possible",
+  person: "person",
+  people: "people",
 
   // Left Layout
   user_held_money: "User-held money",
@@ -308,5 +310,8 @@ export default {
   exposure: "Exposure",
   odev: "OdEv",
   unov: "UnOv",
-  match: "Match"
+  match: "Match",
+  member_settings: "Member settings",
+  note: "Note",
+  register_user: "Register user"
 };

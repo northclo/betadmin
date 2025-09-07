@@ -12,9 +12,7 @@
       <a-layout-content class="d-flex items-center gap-2">
         <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
         <a-input v-model:value="search" placeholder="Search..." class="search-input">
-          <template #prefix>
-            <SearchOutlined />
-          </template>
+          <template #prefix> <SearchOutlined /> </template>
         </a-input>
         <a-button class="bg-gray text-white ms-2" @click="searchPartner">
           {{ trlang.search }}
@@ -29,84 +27,223 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Table -->
-    <a-layout class="bg-white" style="overflow: auto">
-      <!-- Table Header -->
-      <a-layout-content class="bg-white d-flex flex-row" style="min-width: 1500px">
-        <a-typography-text
-          v-for="item in columns"
-          :key="item.key"
-          class="bg-gray text-white border text-center d-flex justify-center items-center p-2"
-          :class="item.key === 'function' ? 'flex-1' : ''"
-          :style="{ width: item.key === 'function' ? 'auto' : item.width }"
-        >
-          {{ item.label }}
-        </a-typography-text>
-      </a-layout-content>
-
-      <!-- Table Rows -->
-      <a-layout-content
-        v-for="(row, rowIndex) in dataSource"
-        :key="rowIndex"
-        class="bg-white d-flex flex-row"
-        style="min-width: 1500px"
-      >
-        <a-typography-text
-          v-for="subItem in row"
-          :key="subItem.key"
-          :class="[
-            'border text-center justify-center d-flex p-1',
-            subItem.key === 'function' ? 'flex-1 flex-wrap gap-2' : 'flex-column',
-            subItem.bg_color ? 'bg-' + subItem.bg_color : '',
-            subItem.key === 'money' || subItem.key === 'total_member_holdings'
-              ? 'items-end'
-              : 'items-center',
-          ]"
-          :style="{ width: subItem.key === 'function' ? 'auto' : subItem.width }"
-        >
-          <!-- Function Buttons -->
-          <template v-if="subItem.key === 'function'">
-            <a-button
-              v-for="btnInfo in subItem.label"
-              :key="btnInfo.key"
-              :class="
-                btnInfo.key === 'member_registration'
-                  ? 'bg-green text-white'
-                  : 'bg-gray text-white'
-              "
-              @click="btnInfo.onclick || (() => {})"
-            >
-              <UserAddOutlined v-if="btnInfo.key === 'member_registration'" />
-              <CheckCircleOutlined v-else />
-              {{ btnInfo.label }}
-            </a-button>
-          </template>
-
-          <!-- Benefit Column -->
-          <template v-else-if="subItem.key === 'benefit'">
-            <span v-for="(labelPiece, index) in subItem.label" :key="index">
-              <span class="text-dark-gray">{{ trlang[labelPiece.key] }}: </span>
-              <span class="text-yellow">{{ labelPiece.value }}</span>
-              <span v-if="index !== subItem.label.length - 1">&nbsp;</span>
-            </span>
-          </template>
-
-          <!-- Other Columns -->
-          <template v-else>
-            <a-typography-text
-              v-for="label in subItem.label"
-              :key="label.value"
-              :class="label.color ? 'text-' + label.color : ''"
-            >
-              {{ label.value }}
+    <!-- table -->
+    <a-table
+      :columns="columns"
+      :data-source="dataSource"
+      :pagination="false"
+      class="partner-table"
+    >
+      <template #emptyText>
+        <a-spin v-if="loading" /> <span v-else>{{ trlang.no_data }}</span>
+      </template>
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'branch_office'">
+          <a-layout v-if="record.role === 'branchOffice'" class="bg-light-pink">
+            <a-typography-text> {{ record.nickname }} </a-typography-text>
+            <a-typography-text>({{ record.id }})</a-typography-text>
+          </a-layout>
+        </template>
+        <template v-if="column.key === 'regional_office' && record.role !== 'user'">
+          <a-layout v-if="record.role === 'regionalOffice'" class="bg-light-pink">
+            <a-typography-text> {{ record.nickname }} </a-typography-text>
+            <a-typography-text>({{ record.id }})</a-typography-text>
+          </a-layout>
+          <a-typography-text v-if="record.role === 'branchOffice'" class="text-main">
+            {{ record.subs === 0 ? "" : record.subs }}
+          </a-typography-text>
+        </template>
+        <template v-if="column.key === 'agency' && record.role !== 'user'">
+          <a-layout v-if="record.role === 'agency'" class="bg-light-pink">
+            <a-typography-text> {{ record.nickname }} </a-typography-text>
+            <a-typography-text>({{ record.id }})</a-typography-text>
+          </a-layout>
+          <a-typography-text v-if="record.role === 'regionalOffice'" class="text-main">
+            {{ record.subs === 0 ? "" : record.subs }}
+          </a-typography-text>
+        </template>
+        <template v-if="column.key === 'distributor' && record.role !== 'user'">
+          <a-layout v-if="record.role === 'distributor'" class="bg-light-pink">
+            <a-typography-text> {{ record.nickname }} </a-typography-text>
+            <a-typography-text>({{ record.id }})</a-typography-text>
+          </a-layout>
+          <a-typography-text v-if="record.role === 'agency'" class="text-main">
+            {{ record.subs === 0 ? "" : record.subs }}
+          </a-typography-text>
+        </template>
+        <template v-if="column.key === 'store' && record.role !== 'user'">
+          <a-layout v-if="record.role === 'store'" class="bg-light-pink">
+            <a-typography-text> {{ record.nickname }} </a-typography-text>
+            <a-typography-text>({{ record.id }})</a-typography-text>
+          </a-layout>
+          <a-typography-text v-if="record.role === 'distributor'" class="text-main">
+            {{ record.subs === 0 ? "" : record.subs }}
+          </a-typography-text>
+        </template>
+        <template v-if="column.key === 'users'">
+          <a-layout v-if="record.role === 'user'" class="bg-light-pink">
+            <a-typography-text> {{ record.nickname }} </a-typography-text>
+            <a-typography-text>({{ record.id }})</a-typography-text>
+          </a-layout>
+          <a-typography-text v-else class="text-pink">
+            {{ record.members === 0 ? "" : record.members }}
+          </a-typography-text>
+        </template>
+        <template v-if="column.key === 'money'">
+          <a-layout class="bg-none text-end">
+            <a-typography-text class="text-yellow text-end">
+              {{ record.money }}{{ record.betMoneyUnit }}
             </a-typography-text>
-          </template>
-        </a-typography-text>
-      </a-layout-content>
-    </a-layout>
+            <a-typography-text>{{ record.point }}P</a-typography-text>
+          </a-layout>
+        </template>
+        <template v-if="column.key === 'benefit'">
+          <a-layout class="bg-none">
+            <a-typography-text>
+              {{ trlang.oeuo }}
+              <span class="text-yellow">{{ record.simpleBetRate }}%</span>
+            </a-typography-text>
+            <a-typography-text>
+              {{ trlang.combined }}
+              <span class="text-yellow">{{ record.combinedBetRate }}%</span>
+            </a-typography-text>
+            <a-typography-text>
+              {{ trlang.number }}
+              <span class="text-yellow">{{ record.matchNumberBetRate }}%</span>
+            </a-typography-text>
+          </a-layout>
+        </template>
+        <template v-if="column.key === 'number_of_members'">
+          <a-typography-text>
+            {{
+              record.members === 0
+                ? "1" + trlang.person
+                : record.members + 1 + trlang.people
+            }}
+          </a-typography-text>
+        </template>
+        <template v-if="column.key === 'total_member_holdings'">
+          <a-layout class="bg-none text-end">
+            <a-typography-text class="text-yellow text-end">
+              {{ record.holdingMoney }}{{ record.betMoneyUnit }}
+            </a-typography-text>
+            <a-typography-text>{{ record.holdingPoint }}P</a-typography-text>
+          </a-layout>
+        </template>
+        <template v-if="column.key === 'function'">
+          <a-layout
+            class="bg-none d-flex flex-row justify-center items-center flex-wrap gap-2"
+          >
+            <a-button v-if="record.role === 'headquater'" class="bg-gray text-white">
+              <CheckCircleOutlined /> {{ trlang.full_message }}
+            </a-button>
+            <a-button
+              v-if="record.role !== 'headquater' && record.role !== 'user'"
+              class="bg-gray text-white"
+              @click="saveData"
+            >
+              <CheckCircleOutlined /> {{ trlang.setting }}
+            </a-button>
+            <a-button v-if="record.role === 'user'" class="bg-gray text-white">
+              <CheckCircleOutlined /> {{ trlang.member_settings }}
+            </a-button>
+            <a-button v-if="record.role !== 'headquater'" class="bg-gray text-white">
+              <CheckCircleOutlined /> {{ trlang.cash_increase_decrease }}
+            </a-button>
+            <a-button
+              v-if="record.role !== 'headquater' && record.role !== 'user'"
+              class="bg-gray text-white"
+            >
+              <CheckCircleOutlined /> {{ trlang.group_message }}
+            </a-button>
+            <a-button v-if="record.role !== 'headquater'" class="bg-gray text-white">
+              <CheckCircleOutlined /> {{ trlang.delete }}
+            </a-button>
+            <a-button
+              v-if="
+                record.role !== 'headquater' &&
+                record.role !== 'store' &&
+                record.role !== 'user'
+              "
+              class="bg-gray text-white"
+            >
+              <CheckCircleOutlined /> {{ trlang.add_sub }}
+            </a-button>
+            <a-button v-if="record.role === 'user'" class="bg-gray text-white">
+              <CheckCircleOutlined /> {{ trlang.note }}
+            </a-button>
+            <a-button
+              v-if="record.role !== 'user'"
+              class="bg-main text-white"
+              @click="openRegisterUserModal"
+            >
+              <UserAddOutlined /> {{ trlang.member_registration }}
+            </a-button>
+          </a-layout>
+        </template>
+      </template>
+    </a-table>
   </a-layout>
-</template>
 
+  <a-modal
+    v-model:open="openRegisterUser"
+    :title="trlang.register_user"
+    :ok-text="trlang.save"
+    :cancel-text="trlang.cancel"
+    @ok="addMember"
+  >
+    <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+      <a-input
+        :addonBefore="trlang.first_name"
+        v-model:value="firstName"
+        placeholder="John*"
+      />
+      <a-input
+        :addonBefore="trlang.last_name"
+        v-model:value="lastName"
+        placeholder="Smith*"
+      />
+    </a-layout>
+
+    <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+      <a-input
+        :addonBefore="trlang.user_name"
+        v-model:value="userName"
+        placeholder="John Smith*"
+      />
+      <a-input
+        :addonBefore="trlang.company"
+        v-model:value="company"
+        placeholder="Apple"
+      />
+    </a-layout>
+
+    <a-input
+      :addonBefore="trlang.email"
+      v-model:value="email"
+      placeholder="johnsmith@gmail.com*"
+      class="mt-2"
+    />
+    <a-input
+      :addonBefore="trlang.password"
+      v-model:value="password"
+      placeholder="1111*"
+      class="mt-2"
+    />
+    <a-input
+      :addonBefore="trlang.confirm_password"
+      v-model:value="confirmPassword"
+      placeholder="1111*"
+      class="mt-2"
+    />
+    <a-input
+      :addonBefore="trlang.phone_number"
+      v-model:value="phoneNumber"
+      placeholder="+1231231231"
+      class="mt-2"
+    />
+  </a-modal>
+</template>
 <script setup>
 import { ref, inject, onMounted, computed } from "vue";
 import {
@@ -132,124 +269,26 @@ const checked = ref(true);
 const search = ref("");
 const columns = ref([]);
 const dataSource = ref([]);
+const loading = ref(true);
+const openRegisterUser = ref(false);
 
 /* Fetch columns and table data */
 const fetchData = async () => {
-  const gamePartner = await getData(apiLink.game_partner + "?search=" + search.value);
-  columns.value = partnerManagementColumns(trlang);
-
-  let _dataSource = [];
-
-  // First row
-  _dataSource.push([
-    { key: "head_office", label: [{ value: trlang.value.head_office }], width: "720px" },
-    { key: "nickname", label: [{ value: "-" }], width: "90px" },
-    {
-      key: "money",
-      label: [{ value: "0USD", color: "yellow" }, { value: "0P" }],
-      width: "80px",
-    },
-    { key: "benefit", label: [], width: "120px" },
-    { key: "number_of_members", label: [{ value: "1 person" }], width: "100px" },
-    { key: "total_member_holdings", label: [{ value: "0USD" }], width: "100px" },
-    {
-      key: "function",
-      label: [
-        { key: "full_message", label: trlang.value.full_message },
-        { key: "member_registration", label: trlang.value.member_registration },
-      ],
-      width: "120px",
-    },
-  ]);
-
-  // Branch offices
-  gamePartner.data.forEach((element) => {
-    if (element.type === "branch_office") {
-      let _money = element.money.map((m) => ({
-        value: m.amount + m.type,
-        color: m.type === "USD" ? "yellow" : "",
-      }));
-
-      let _holding = element.holding.map((h) => ({
-        value: h.amount + h.type,
-        color: h.type === "USD" ? "yellow" : "",
-      }));
-
-      _dataSource.push([
-        {
-          key: "branch_office",
-          bg_color: "light-pink",
-          label: [
-            { value: element.nickname },
-            { value: `(${element.partnerId})`, color: "dark-gray" },
-          ],
-          width: "120px",
-        },
-        {
-          key: "regional_office",
-          label: element.sub.length ? [{ value: element.sub.length, color: "main" }] : [],
-          width: "120px",
-        },
-        { key: "agency", label: [], width: "120px" },
-        { key: "distributor", label: [], width: "120px" },
-        { key: "store", label: [], width: "120px" },
-        {
-          key: "users",
-          label: element.member.length
-            ? [{ value: element.member.length, color: "pink" }]
-            : [],
-          width: "120px",
-        },
-        { key: "nickname", label: [{ value: element.nickname }], width: "90px" },
-        { key: "money", label: _money, width: "80px" },
-        {
-          key: "benefit",
-          label: [
-            { key: "oeuo", value: element.benefit.oeuo + "%" },
-            { key: "combined", value: element.benefit.combined + "%" },
-            { key: "number", value: element.benefit.number + "%" },
-          ],
-          width: "120px",
-        },
-        {
-          key: "number_of_members",
-          label: element.member.length
-            ? [
-                {
-                  value:
-                    element.member.length === 1
-                      ? "1 person"
-                      : element.member.length + " people",
-                },
-              ]
-            : [],
-          width: "100px",
-        },
-        { key: "total_member_holdings", label: _holding, width: "100px" },
-        {
-          key: "function",
-          label: [
-            { key: "setting", label: trlang.value.setting },
-            { key: "cash_increase_decrease", label: trlang.value.cash_increase_decrease },
-            {
-              key: "group_message",
-              label: trlang.value.group_message,
-              onclick: saveData,
-            },
-            { key: "delete", label: trlang.value.delete },
-            { key: "add_sub", label: trlang.value.add_sub },
-            { key: "member_registration", label: trlang.value.member_registration },
-          ],
-          width: "120px",
-        },
-      ]);
-    }
-  });
-
-  dataSource.value = _dataSource;
+  try {
+    loading.value = true;
+    columns.value = partnerManagementColumns(trlang);
+    let partners = await getData(apiLink.game_partner + "?search=" + search.value);
+    dataSource.value = partners.data;
+    loading.value = false;
+  } catch {
+    loading.value = false;
+  }
 };
 
-/* Actions */
+const openRegisterUserModal = () => {
+  openRegisterUser.value = true;
+};
+
 const saveData = () => message.success("message success");
 const searchPartner = () => fetchData();
 const registerGamePartner = () => router.push(routeLink.game_partner_add_branch.link);

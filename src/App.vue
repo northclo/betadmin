@@ -7,7 +7,7 @@
       <LeftLayout class="flex-0 h-100vh" />
       <a-layout class="flex-1 h-100vh overflow-y-auto">
         <HeaderMenu />
-        <a-layout-content class="p-2 w-100 min-w-100 max-w-fit">
+        <a-layout-content class="w-100 min-w-100 max-w-fit">
           <router-view />
         </a-layout-content>
       </a-layout>

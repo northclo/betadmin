@@ -1,49 +1,47 @@
 <template>
-  <a-layout class="bg-white pt-5 pb-5">
-    <!-- Sticky Header -->
-    <a-layout
-      class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+  <!-- Sticky Header -->
+  <a-layout
+    class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+  >
+    <a-typography-text class="text-dark-gray fs-1">
+      {{ trlang.site_setting }}
+    </a-typography-text>
+    <a-button
+      class="bg-main text-white d-flex justify-center items-center"
+      @click="saveData"
     >
-      <a-typography-text class="text-dark-gray fs-1">
-        {{ trlang.site_setting }}
-      </a-typography-text>
-      <a-button
-        class="bg-main text-white d-flex justify-center items-center"
-        @click="saveData"
-      >
-        <SaveOutlined />
-        {{ trlang.save }}
-      </a-button>
-    </a-layout>
-
-    <!-- Scrollable Content -->
-    <a-collapse class="bg-white px-5 border-0">
-      <SiteActivationSetting
-        v-if="dataSource"
-        :dataSource="dataSource"
-        ref="siteActivationRef"
-      />
-      <SiteSecuritySetting
-        v-if="dataSource"
-        :dataSource="dataSource"
-        ref="siteSecurityRef"
-      />
-      <SiteTextSetting v-if="dataSource" :dataSource="dataSource" ref="siteTextRef" />
-      <MembershipSetting v-if="dataSource" :dataSource="dataSource" ref="membershipRef" />
-      <ChargeSetting v-if="dataSource" :dataSource="dataSource" ref="chargeRef" />
-      <CurrencyExchangeSetting
-        v-if="dataSource"
-        :dataSource="dataSource"
-        ref="exchangeRef"
-      />
-      <BankCardSetting v-if="dataSource" :dataSource="dataSource" ref="bankCardRef" />
-      <CustomerCenterSetting
-        v-if="dataSource"
-        :dataSource="dataSource"
-        ref="customerCenterRef"
-      />
-    </a-collapse>
+      <SaveOutlined />
+      {{ trlang.save }}
+    </a-button>
   </a-layout>
+
+  <!-- Scrollable Content -->
+  <a-collapse class="d-flex flex-column gap-2 p-2 border-0">
+    <SiteActivationSetting
+      v-if="dataSource"
+      :dataSource="dataSource"
+      ref="siteActivationRef"
+    />
+    <SiteSecuritySetting
+      v-if="dataSource"
+      :dataSource="dataSource"
+      ref="siteSecurityRef"
+    />
+    <SiteTextSetting v-if="dataSource" :dataSource="dataSource" ref="siteTextRef" />
+    <MembershipSetting v-if="dataSource" :dataSource="dataSource" ref="membershipRef" />
+    <ChargeSetting v-if="dataSource" :dataSource="dataSource" ref="chargeRef" />
+    <CurrencyExchangeSetting
+      v-if="dataSource"
+      :dataSource="dataSource"
+      ref="exchangeRef"
+    />
+    <BankCardSetting v-if="dataSource" :dataSource="dataSource" ref="bankCardRef" />
+    <CustomerCenterSetting
+      v-if="dataSource"
+      :dataSource="dataSource"
+      ref="customerCenterRef"
+    />
+  </a-collapse>
 </template>
 
 <script setup>
