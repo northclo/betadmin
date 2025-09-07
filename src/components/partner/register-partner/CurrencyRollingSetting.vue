@@ -1,13 +1,11 @@
 <template>
-  <a-collapse-panel key="2" class="bg-white">
+  <a-layout class="bg-white mt-5">
     <!-- Header -->
-    <template #header>
-      <a-typography-text class="text-dark-gray font-bold fs-4 lh-0">
-        {{ trlang.currency_rolling_settings }}
-      </a-typography-text>
-    </template>
+    <a-typography-text class="text-dark-gray fs-3">
+      {{ trlang.currency_rolling_settings }}
+    </a-typography-text>
 
-    <a-layout class="bg-white">
+    <a-layout class="bg-white mt-2">
       <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-switch v-model:checked="isActive" class="w-fit" />
@@ -17,7 +15,7 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 d-flex items-center flex-wrap gap-2">
         <a-typography-text>
           {{ trlang.the_last_deposit_approved_amount }}
         </a-typography-text>
@@ -30,7 +28,7 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
-  </a-collapse-panel>
+  </a-layout>
 </template>
 
 <script setup>

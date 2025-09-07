@@ -1,13 +1,11 @@
 <template>
-  <a-collapse-panel class="bg-white">
+  <a-layout class="bg-white">
     <!-- Header -->
-    <template #header>
-      <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
-        {{ trlang.partner_member_information }}
-      </a-typography-text>
-    </template>
+    <a-typography-text class="text-dark-gray fs-3">
+      {{ trlang.partner_member_information }}
+    </a-typography-text>
 
-    <a-layout class="bg-white">
+    <a-layout class="bg-white mt-2">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.partner_distiction }}
@@ -172,7 +170,7 @@
         </a-layout>
       </a-layout-content>
     </a-layout>
-  </a-collapse-panel>
+  </a-layout>
 </template>
 
 <script setup>

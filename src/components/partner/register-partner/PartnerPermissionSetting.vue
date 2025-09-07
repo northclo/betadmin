@@ -1,13 +1,11 @@
 <template>
-  <a-collapse-panel key="2" class="bg-white">
+  <a-layout class="bg-white mt-5">
     <!-- Header -->
-    <template #header>
-      <a-typography-text class="text-dark-gray font-bold fs-4 lh-0">
-        {{ trlang.partner_permissions_settings }}
-      </a-typography-text>
-    </template>
+    <a-typography-text class="text-dark-gray fs-3">
+      {{ trlang.partner_permissions_settings }}
+    </a-typography-text>
 
-    <a-layout class="bg-white">
+    <a-layout class="bg-white mt-2">
       <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white">{{
@@ -91,7 +89,7 @@
         </a-typography-text>
       </a-layout-content>
     </a-layout>
-  </a-collapse-panel>
+  </a-layout>
 </template>
 
 <script setup>

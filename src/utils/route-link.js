@@ -35,8 +35,4 @@ export const routeLink = {
     name: "GamePartnerPage",
     link: "/game/partner"
   },
-  game_partner_add_branch: {
-    name: "GamePartnerRegisterPage",
-    link: "/game/partner/add-branch"
-  }
 };

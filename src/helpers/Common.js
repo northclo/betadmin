@@ -46,3 +46,8 @@ export const exportExcel = (data, title, fileName) => {
     });
     saveAs(blob, `${fileName}.xlsx`);
 };
+
+export const testEnglishNumberNoSpecialCharacter = (min, max, text) => {
+    const regex = new RegExp(`^[a-zA-Z0-9]{${min},${max}}$`);
+    return regex.test(text);
+}

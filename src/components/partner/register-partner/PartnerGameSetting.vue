@@ -1,13 +1,11 @@
 <template>
-  <a-collapse-panel key="2" class="bg-white">
+  <a-layout class="bg-white mt-5">
     <!-- Header -->
-    <template #header>
-      <a-typography-text class="text-dark-gray font-bold fs-4 lh-0">
-        {{ trlang.partner_game_settings }}
-      </a-typography-text>
-    </template>
+    <a-typography-text class="text-dark-gray fs-3">
+      {{ trlang.partner_game_settings }}
+    </a-typography-text>
 
-    <a-typography-text class="text-yellow">
+    <a-typography-text class="text-yellow mt-2">
       {{ trlang.a_blank_or_0_in_the_amount_field_will_be_treated_as_unused }}
     </a-typography-text>
 
@@ -25,7 +23,7 @@
           <a-select
             ref="select"
             v-model:value="value1"
-            style="width: 120px"
+            class="input-md"
             :options="options1"
             @focus="focus"
             @change="handleChange"
@@ -240,22 +238,24 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
-        <a-layout-sider class="bg-gray border p-2 setting-sider">
-          <a-switch v-model:checked="isActive" class="w-fit" />
-          <a-typography-text class="d-flex items-center text-white ms-2">
-            {{ isActive ? trlang.use : trlang.no_use }}
-          </a-typography-text>
-        </a-layout-sider>
-        <a-layout-content class="d-flex items-center gap-2">
-          <a-typography-text>
-            {{ trlang.in_a_3_combination_game_per_round }}
-          </a-typography-text>
-          <a-input v-model:value="value" class="input-sm" />
-          <a-typography-text>
-            {{ trlang.allowed_up_to_dog_holes }}
-          </a-typography-text>
-        </a-layout-content>
+      <a-layout-content class="border p-2">
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray border p-2 setting-sider">
+            <a-switch v-model:checked="isActive" class="w-fit" />
+            <a-typography-text class="d-flex items-center text-white ms-2">
+              {{ isActive ? trlang.use : trlang.no_use }}
+            </a-typography-text>
+          </a-layout-sider>
+          <a-layout-content class="d-flex items-center flex-wrap gap-2 p-2">
+            <a-typography-text>
+              {{ trlang.in_a_3_combination_game_per_round }}
+            </a-typography-text>
+            <a-input v-model:value="value" class="input-sm" />
+            <a-typography-text>
+              {{ trlang.allowed_up_to_dog_holes }}
+            </a-typography-text>
+          </a-layout-content>
+        </a-layout>
       </a-layout-content>
     </a-layout>
 
@@ -269,146 +269,110 @@
 
       <!-- Main content -->
       <a-layout-content class="border p-2">
-        <a-layout>
-          <a-layout-sider class="bg-gray p-2 d-flex items-center justify-center border">
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
-              {{ trlang.division }}
+              {{ trlang.bet_type }}
             </a-typography-text>
           </a-layout-sider>
           <a-layout-content class="bg-gray p-2 d-flex items-center justify-center border">
-            <a-typography-text class="text-white">
-              {{ trlang.maximum_winning_amount_per_round_per_hole }}
+            <a-typography-text class="text-white text-center">
+              {{ trlang.all_rounds_bet_max_per_slot }}
             </a-typography-text>
           </a-layout-content>
-          <a-layout-sider class="bg-gray p-2 d-flex items-center justify-center border">
+          <a-layout-content class="bg-gray p-2 d-flex items-center justify-center border">
             <a-typography-text class="text-white">
               {{ trlang.exposure }}
             </a-typography-text>
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
-        <a-layout>
-          <a-layout-sider
-            class="bg-gray p-2 d-flex items-center justify-center border setting-sider"
-          >
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
-              {{ trlang.odev }}
+              {{ trlang.oedv }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content
-            class="bg-white border p-2 d-flex items-center justify-end gap-2"
-          >
-            <a-input v-model:value="value" class="input-md" />
+          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+            <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-sider
-            class="bg-white p-2 d-flex items-center justify-center border setting-sider"
-          >
+          <a-layout-content class="p-2 border d-flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
-        <a-layout>
-          <a-layout-sider
-            class="bg-gray p-2 d-flex items-center justify-center border setting-sider"
-          >
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.unov }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content
-            class="bg-white border p-2 d-flex items-center justify-end gap-2"
-          >
-            <a-input v-model:value="value" class="input-md" />
+          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+            <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-sider
-            class="bg-white p-2 d-flex items-center justify-center border setting-sider"
-          >
+          <a-layout-content class="p-2 border d-flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
-        <a-layout>
-          <a-layout-sider
-            class="bg-gray p-2 d-flex items-center justify-center border setting-sider"
-          >
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.oeuo }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content
-            class="bg-white border p-2 d-flex items-center justify-end gap-2"
-          >
-            <a-input v-model:value="value" class="input-md" />
+          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+            <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-sider
-            class="bg-white p-2 d-flex items-center justify-center border setting-sider"
-          >
+          <a-layout-content class="p-2 border d-flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
-        <a-layout>
-          <a-layout-sider
-            class="bg-gray p-2 d-flex items-center justify-center border setting-sider"
-          >
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.match }} (1 -3)
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content
-            class="bg-white border p-2 d-flex items-center justify-end gap-2"
-          >
-            <a-input v-model:value="value" class="input-md" />
+          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+            <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-sider
-            class="bg-white p-2 d-flex items-center justify-center border setting-sider"
-          >
+          <a-layout-content class="p-2 border d-flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
-        <a-layout>
-          <a-layout-sider
-            class="bg-gray p-2 d-flex items-center justify-center border setting-sider"
-          >
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.match }} (1 -4)
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content
-            class="bg-white border p-2 d-flex items-center justify-end gap-2"
-          >
-            <a-input v-model:value="value" class="input-md" />
+          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+            <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-sider
-            class="bg-white p-2 d-flex items-center justify-center border setting-sider"
-          >
+          <a-layout-content class="p-2 border d-flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
-        <a-layout>
-          <a-layout-sider
-            class="bg-gray p-2 d-flex items-center justify-center border setting-sider"
-          >
+        <a-layout class="bg-white">
+          <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.match }} (1 -6)
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content
-            class="bg-white border p-2 d-flex items-center justify-end gap-2"
-          >
-            <a-input v-model:value="value" class="input-md" />
+          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+            <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-sider
-            class="bg-white p-2 d-flex items-center justify-center border setting-sider"
-          >
+          <a-layout-content class="p-2 border d-flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
-          </a-layout-sider>
+          </a-layout-content>
         </a-layout>
       </a-layout-content>
     </a-layout>
-  </a-collapse-panel>
+  </a-layout>
 </template>
 
 <script setup>

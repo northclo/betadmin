@@ -16,9 +16,9 @@
 }
 
 .ant-modal {
-  width: 50% !important;
+  width: 800px !important;
   max-width: 800px !important;
-  min-width: 400px !important;
+  min-width: 800px !important;
 }
 
 .ant-modal-header {
