@@ -100,6 +100,10 @@
   width: 200px;
 }
 
+.input-xl {
+  width: 300px;
+}
+
 .partner-table table {
   border-bottom: 1px solid rgb(209, 209, 209);
 }
