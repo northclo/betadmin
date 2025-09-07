@@ -1,6 +1,5 @@
 <template>
   <a-layout class="bg-white">
-    <!-- Header -->
     <a-typography-text class="text-dark-gray fs-3">
       {{ trlang.partner_member_information }}
     </a-typography-text>

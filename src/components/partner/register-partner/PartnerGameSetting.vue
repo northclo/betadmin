@@ -1,24 +1,35 @@
 <template>
   <a-layout class="bg-white mt-5">
-    <!-- Header -->
     <a-typography-text class="text-dark-gray fs-3">
       {{ trlang.partner_game_settings }}
     </a-typography-text>
 
-    <a-typography-text class="text-yellow mt-2">
-      {{ trlang.a_blank_or_0_in_the_amount_field_will_be_treated_as_unused }}
+    <a-layout class="bg-white flex flex-row justify-center items-center gap-2">
+      <a-typography-text>
+        {{ trlang.setup_as_other_partner_setting }}
+      </a-typography-text>
+      <a-select
+        ref="select"
+        v-model:value="value1"
+        class="input-lg"
+        :options="options1"
+        @focus="focus"
+        @change="handleChange"
+      ></a-select>
+      <a-button class="bg-gray text-white">{{ trlang.get_settings }}</a-button>
+    </a-layout>
+
+    <a-typography-text class="text-dark-brown mt-2">
+      {{ trlang.if_there_is_empty_or_0_value_then_it_means_not_used }}
     </a-typography-text>
 
-    <a-layout class="flex flex-row">
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+    <a-layout class="bg-white flex flex-row">
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
             {{ trlang.dividend_type }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
           <a-select
             ref="select"
@@ -30,7 +41,8 @@
           ></a-select>
         </a-layout-content>
       </a-layout>
-      <a-layout class="bg-white">
+
+      <a-layout class="bg-none">
         <!-- Sidebar -->
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
@@ -41,12 +53,12 @@
         <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
-          <a-typography-text>{{ trlang.candle }}</a-typography-text>
+          <a-typography-text>{{ trlang.seconds }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="bg-white">
+    <a-layout class="bg-none">
       <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -56,210 +68,154 @@
 
       <!-- Main content -->
       <a-layout-content class="border p-2 flex flex-column">
-        <a-layout class="flex flex-row bg-white">
-          <a-button>{{ trlang.cancellation_possible }}</a-button>
-          <a-button>{{ trlang.non_cancellable }}</a-button>
+        <a-layout class="flex flex-row bg-none">
+          <a-button>{{ trlang.possible_to_cancel }}</a-button>
+          <a-button>{{ trlang.impossible_to_cancel }}</a-button>
         </a-layout>
-        <a-layout class="flex flex-row items-center flex-wrap gap-2 bg-white mt-2">
-          <a-typography-text class="text-yellow">
-            {{ trlang.cancellation_possible }}:
+        <a-layout class="flex flex-row items-center flex-wrap gap-2 bg-none mt-2">
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.possible_to_cancel }}:
           </a-typography-text>
-          <a-typography-text class="text-yellow">
-            {{ trlang.based_on_deadline }}
-          </a-typography-text>
-          <a-input v-model:value="value" class="input-sm" />
-          <a-typography-text class="text-yellow">
-            {{ trlang.before_the_first_time_one_time }}
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.end_time }}
           </a-typography-text>
           <a-input v-model:value="value" class="input-sm" />
-          <a-typography-text class="text-yellow">
-            {{ trlang.until_the_meeting_one_day }}
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.seconds_before_per_one_round }}
           </a-typography-text>
           <a-input v-model:value="value" class="input-sm" />
-          <a-typography-text class="text-yellow">
-            {{ trlang.cancellation_possible_up_to_the_meeting_date }}
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.times_per_day }}
+          </a-typography-text>
+          <a-input v-model:value="value" class="input-sm" />
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.times }}
           </a-typography-text>
         </a-layout>
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="flex flex-row">
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+    <a-layout class="bg-white flex flex-row">
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.betting_units }}
+            {{ trlang.bet_unit }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center flex-wrap gap-2">
           <a-select
             ref="select"
-            v-model:value="value1"
+            v-model:value="betUnit"
             class="input-md"
-            :options="options1"
+            :options="betUnitOption"
           ></a-select>
-          <a-typography-text class="text-yellow">
-            {{ trlang.you_can_bet_on }}
-          </a-typography-text>
         </a-layout-content>
       </a-layout>
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.minimum_bet_on_transaction }}
+            {{ trlang.onetime_bet_min }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:value="oneTimeBetMin" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="flex flex-row">
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+    <a-layout class="bg-white flex flex-row">
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.maximum_single_bet_amount }}
+            {{ trlang.onetime_bet_max }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:value="oneTimeBetMax" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.maximum_single_winning_amount }}
+            {{ trlang.onetime_earning_max }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:value="oneTimeEarningMax" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="flex flex-row">
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+    <a-layout class="bg-white flex flex-row">
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.maximum_bet_per_round }}
+            {{ trlang.one_round_bet_max }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:value="oneRoundBetMax" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.maximum_winning_amount_per_round }}
+            {{ trlang.one_round_earning_max }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:oneRoundEarningMax="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="flex flex-row">
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+    <a-layout class="bg-white flex flex-row">
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.maximum_bet_per_round_per_hole }}
+            {{ trlang.one_round_bet_max_per_slot }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:value="oneRoundBetMaxPerSlot" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
-      <a-layout class="bg-white">
-        <!-- Sidebar -->
+
+      <a-layout class="bg-none">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.maximum_winning_amount_per_round_per_hole }}
+            {{ trlang.one_round_earning_max_per_slot }}
           </a-typography-text>
         </a-layout-sider>
-
-        <!-- Main content -->
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-input v-model:value="value" class="input-sm" />
+          <a-input v-model:value="oneRoundEarningMaxPerSlot" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <!-- Sidebar -->
+    <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
-          {{ trlang.maximum_cumulative_bet_per_round }}
+          {{ trlang.all_rounds_bet_max }}
         </a-typography-text>
       </a-layout-sider>
-
-      <!-- Main content -->
       <a-layout-content class="border p-2 flex items-center gap-2">
-        <a-input v-model:value="value" class="input-sm" />
+        <a-input v-model:value="allRoundsBetMax" class="input-sm" />
         <a-typography-text>{{ trlang.usd }}</a-typography-text>
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <!-- Sidebar -->
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
-        <a-typography-text class="text-white text-center">
-          {{ trlang.regular_ball_powerball_3_combinations_limit }}
-        </a-typography-text>
-      </a-layout-sider>
-
-      <!-- Main content -->
-      <a-layout-content class="border p-2">
-        <a-layout class="bg-white">
-          <a-layout-sider class="bg-gray border p-2 setting-sider">
-            <a-switch v-model:checked="isActive" class="w-fit" />
-            <a-typography-text class="flex items-center text-white ms-2">
-              {{ isActive ? trlang.use : trlang.no_use }}
-            </a-typography-text>
-          </a-layout-sider>
-          <a-layout-content class="flex items-center flex-wrap gap-2 p-2">
-            <a-typography-text>
-              {{ trlang.in_a_3_combination_game_per_round }}
-            </a-typography-text>
-            <a-input v-model:value="value" class="input-sm" />
-            <a-typography-text>
-              {{ trlang.allowed_up_to_dog_holes }}
-            </a-typography-text>
-          </a-layout-content>
-        </a-layout>
-      </a-layout-content>
-    </a-layout>
-
-    <a-layout class="bg-white">
+    <a-layout class="bg-none">
       <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -269,7 +225,7 @@
 
       <!-- Main content -->
       <a-layout-content class="border p-2">
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.bet_type }}
@@ -282,11 +238,11 @@
           </a-layout-content>
           <a-layout-content class="bg-gray p-2 flex items-center justify-center border">
             <a-typography-text class="text-white">
-              {{ trlang.exposure }}
+              {{ trlang.public }}
             </a-typography-text>
           </a-layout-content>
         </a-layout>
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.oedv }}
@@ -300,7 +256,7 @@
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.unov }}
@@ -314,7 +270,7 @@
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.oeuo }}
@@ -328,7 +284,7 @@
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.match }} (1 -3)
@@ -342,7 +298,7 @@
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.match }} (1 -4)
@@ -356,7 +312,7 @@
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
-        <a-layout class="bg-white">
+        <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">
             <a-typography-text class="text-white">
               {{ trlang.match }} (1 -6)

@@ -2,7 +2,7 @@
   <a-modal
     :open="open"
     :title="trlang.partner_registration"
-    :ok-text="trlang.registration"
+    :ok-text="trlang.register"
     :cancel-text="trlang.cancel"
     @ok="register"
     @cancel="$emit('update:open', false)"
