@@ -113,7 +113,7 @@
       </template>
       <template v-if="column.key === 'function'">
         <a-layout
-          class="bg-none d-flex flex-row justify-center items-center flex-wrap gap-2"
+          class="bg-none flex flex-row justify-center items-center flex-wrap gap-2"
         >
           <a-button v-if="record.role === 'headquater'" class="bg-gray text-white">
             <CheckCircleOutlined /> {{ trlang.full_message }}

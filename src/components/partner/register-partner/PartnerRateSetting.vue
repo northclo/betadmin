@@ -8,24 +8,24 @@
     <a-layout class="bg-white mt-2">
       <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
-        <a-typography-text class="d-flex items-center text-white">
+        <a-typography-text class="flex items-center text-white">
           {{ trlang.partner_rate }}
         </a-typography-text>
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex flex-column gap-2">
-        <a-layout class="bg-white d-flex flex-row items-center gap-2">
+      <a-layout-content class="border p-2 flex flex-column gap-2">
+        <a-layout class="bg-white flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.dapol }}: </a-typography-text>
           <a-input v-model:value="minAmount" class="input-sm" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
-        <a-layout class="bg-white d-flex flex-row items-center gap-2">
+        <a-layout class="bg-white flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.danpol }}: </a-typography-text>
           <a-input v-model:value="minAmount" class="input-sm" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
-        <a-layout class="bg-white d-flex flex-row items-center gap-2">
+        <a-layout class="bg-white flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.number_match }}: </a-typography-text>
           <a-input v-model:value="minAmount" class="input-sm" />
           <a-typography-text>%</a-typography-text>

@@ -9,7 +9,7 @@
       {{ trlang.a_blank_or_0_in_the_amount_field_will_be_treated_as_unused }}
     </a-typography-text>
 
-    <a-layout class="d-flex flex-row">
+    <a-layout class="flex flex-row">
       <a-layout class="bg-white">
         <!-- Sidebar -->
         <a-layout-sider class="bg-gray border p-2 setting-sider">
@@ -19,7 +19,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-select
             ref="select"
             v-model:value="value1"
@@ -39,7 +39,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.candle }}</a-typography-text>
         </a-layout-content>
@@ -55,12 +55,12 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex flex-column">
-        <a-layout class="d-flex flex-row bg-white">
+      <a-layout-content class="border p-2 flex flex-column">
+        <a-layout class="flex flex-row bg-white">
           <a-button>{{ trlang.cancellation_possible }}</a-button>
           <a-button>{{ trlang.non_cancellable }}</a-button>
         </a-layout>
-        <a-layout class="d-flex flex-row items-center flex-wrap gap-2 bg-white mt-2">
+        <a-layout class="flex flex-row items-center flex-wrap gap-2 bg-white mt-2">
           <a-typography-text class="text-yellow">
             {{ trlang.cancellation_possible }}:
           </a-typography-text>
@@ -83,7 +83,7 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="d-flex flex-row">
+    <a-layout class="flex flex-row">
       <a-layout class="bg-white">
         <!-- Sidebar -->
         <a-layout-sider class="bg-gray border p-2 setting-sider">
@@ -93,7 +93,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center flex-wrap gap-2">
+        <a-layout-content class="border p-2 flex items-center flex-wrap gap-2">
           <a-select
             ref="select"
             v-model:value="value1"
@@ -114,14 +114,14 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="d-flex flex-row">
+    <a-layout class="flex flex-row">
       <a-layout class="bg-white">
         <!-- Sidebar -->
         <a-layout-sider class="bg-gray border p-2 setting-sider">
@@ -131,7 +131,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
@@ -145,14 +145,14 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="d-flex flex-row">
+    <a-layout class="flex flex-row">
       <a-layout class="bg-white">
         <!-- Sidebar -->
         <a-layout-sider class="bg-gray border p-2 setting-sider">
@@ -162,7 +162,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
@@ -176,14 +176,14 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
 
-    <a-layout class="d-flex flex-row">
+    <a-layout class="flex flex-row">
       <a-layout class="bg-white">
         <!-- Sidebar -->
         <a-layout-sider class="bg-gray border p-2 setting-sider">
@@ -193,7 +193,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
@@ -207,7 +207,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center gap-2">
+        <a-layout-content class="border p-2 flex items-center gap-2">
           <a-input v-model:value="value" class="input-sm" />
           <a-typography-text>{{ trlang.usd }}</a-typography-text>
         </a-layout-content>
@@ -223,7 +223,7 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-input v-model:value="value" class="input-sm" />
         <a-typography-text>{{ trlang.usd }}</a-typography-text>
       </a-layout-content>
@@ -242,11 +242,11 @@
         <a-layout class="bg-white">
           <a-layout-sider class="bg-gray border p-2 setting-sider">
             <a-switch v-model:checked="isActive" class="w-fit" />
-            <a-typography-text class="d-flex items-center text-white ms-2">
+            <a-typography-text class="flex items-center text-white ms-2">
               {{ isActive ? trlang.use : trlang.no_use }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="d-flex items-center flex-wrap gap-2 p-2">
+          <a-layout-content class="flex items-center flex-wrap gap-2 p-2">
             <a-typography-text>
               {{ trlang.in_a_3_combination_game_per_round }}
             </a-typography-text>
@@ -275,12 +275,12 @@
               {{ trlang.bet_type }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="bg-gray p-2 d-flex items-center justify-center border">
+          <a-layout-content class="bg-gray p-2 flex items-center justify-center border">
             <a-typography-text class="text-white text-center">
               {{ trlang.all_rounds_bet_max_per_slot }}
             </a-typography-text>
           </a-layout-content>
-          <a-layout-content class="bg-gray p-2 d-flex items-center justify-center border">
+          <a-layout-content class="bg-gray p-2 flex items-center justify-center border">
             <a-typography-text class="text-white">
               {{ trlang.exposure }}
             </a-typography-text>
@@ -292,11 +292,11 @@
               {{ trlang.oedv }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+          <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-content class="p-2 border d-flex justify-center items-center">
+          <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
@@ -306,11 +306,11 @@
               {{ trlang.unov }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+          <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-content class="p-2 border d-flex justify-center items-center">
+          <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
@@ -320,11 +320,11 @@
               {{ trlang.oeuo }}
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+          <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-content class="p-2 border d-flex justify-center items-center">
+          <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
@@ -334,11 +334,11 @@
               {{ trlang.match }} (1 -3)
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+          <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-content class="p-2 border d-flex justify-center items-center">
+          <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
@@ -348,11 +348,11 @@
               {{ trlang.match }} (1 -4)
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+          <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-content class="p-2 border d-flex justify-center items-center">
+          <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>
@@ -362,11 +362,11 @@
               {{ trlang.match }} (1 -6)
             </a-typography-text>
           </a-layout-sider>
-          <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+          <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input v-model:value="value" class="input-sm" />
             <a-typography-text>{{ trlang.usd }}</a-typography-text>
           </a-layout-content>
-          <a-layout-content class="p-2 border d-flex justify-center items-center">
+          <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="checked" />
           </a-layout-content>
         </a-layout>

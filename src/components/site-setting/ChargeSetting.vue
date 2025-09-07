@@ -14,15 +14,15 @@
           {{ trlang.recharge_amount }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="d-flex gap-2 border p-2 flex-wrap">
-        <a-typography-text class="d-flex items-center text-yellow">
+      <a-layout-content class="flex gap-2 border p-2 flex-wrap">
+        <a-typography-text class="flex items-center text-yellow">
           {{ trlang.minimum }}
         </a-typography-text>
         <a-input v-model:value="minAmount" style="width: 80px" />
-        <a-typography-text class="d-flex items-center text-yellow">
+        <a-typography-text class="flex items-center text-yellow">
           {{ trlang.from }}
         </a-typography-text>
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
         <a-select v-model:value="maxAmount" style="width: 120px">
@@ -34,7 +34,7 @@
             {{ item.amount }}
           </a-select-option>
         </a-select>
-        <a-typography-text class="d-flex items-center text-yellow">
+        <a-typography-text class="flex items-center text-yellow">
           {{ trlang.rechargeable_with }}
         </a-typography-text>
       </a-layout-content>
@@ -47,31 +47,31 @@
           {{ trlang.charging_time_zone }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex flex-column items-start gap-2">
+      <a-layout-content class="border p-2 flex flex-column items-start gap-2">
         <a-layout class="w-100">
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="timezoneCheck" class="w-fit me-2" />
               <a-typography-text
-                class="d-flex item-center text-white"
+                class="flex item-center text-white"
                 style="width: 45px"
               >
                 {{ timezoneCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
             <a-layout-content class="border p-2 bg-white">
-              <a-layout class="bg-white d-flex flex-row gap-2 flex-wrap">
-                <a-typography-text class="d-flex items-center">
+              <a-layout class="bg-white flex flex-row gap-2 flex-wrap">
+                <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
                 <a-input v-model:value="startTime" style="width: 80px" />
-                <a-typography-text class="d-flex items-center">~</a-typography-text>
-                <a-typography-text class="d-flex items-center">
+                <a-typography-text class="flex items-center">~</a-typography-text>
+                <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
                 <a-input v-model:value="endTime" style="width: 80px" />
               </a-layout>
-              <a-typography-text class="d-flex items-center text-yellow">
+              <a-typography-text class="flex items-center text-yellow">
                 {{ trlang.please_enter_the_charging_time_zone }}
                 {{ trlang.enter_in_24hour_format }}
               </a-typography-text>
@@ -83,7 +83,7 @@
                 {{ trlang.impossible_time_zone_display_text }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 d-flex gap-2 bg-white">
+            <a-layout-content class="border p-2 flex gap-2 bg-white">
               <a-textarea :rows="4" v-model:value="timezoneText" allow-clear />
             </a-layout-content>
           </a-layout>

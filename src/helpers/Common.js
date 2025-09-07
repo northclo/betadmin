@@ -47,7 +47,17 @@ export const exportExcel = (data, title, fileName) => {
     saveAs(blob, `${fileName}.xlsx`);
 };
 
-export const testEnglishNumberNoSpecialCharacter = (min, max, text) => {
+export const testEnglishNumberWithoutSpecialCharacter = (min, max, text) => {
     const regex = new RegExp(`^[a-zA-Z0-9]{${min},${max}}$`);
+    return regex.test(text);
+}
+
+export const testStartEnglish = (min, max, text) => {
+    const regex = new RegExp(`^[A-Za-z][\\w\\-@!]{${min - 1},${max - 1}}$`);
+    return regex.test(text);
+}
+
+export const testEnglishNumberDashUnderscore = (min, max, text) => {
+    const regex = new RegExp(`^[A-Za-z][A-Za-z0-9_-]{${min - 1},${max - 1}}$`);
     return regex.test(text);
 }

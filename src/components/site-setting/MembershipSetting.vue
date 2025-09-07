@@ -14,7 +14,7 @@
           {{ trlang.use_membership_registration }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex items-center gap-2 flex-wrap">
+      <a-layout-content class="border p-2 flex items-center gap-2 flex-wrap">
         <a-button
           v-for="item in useMembership"
           :key="item.key"
@@ -29,14 +29,14 @@
     <!-- Membership Approval -->
     <a-layout class="bg-white">
       <a-layout-sider
-        class="bg-gray border d-flex justify-center items-center p-2 setting-sider"
+        class="bg-gray border flex justify-center items-center p-2 setting-sider"
       >
         <a-typography-text class="text-white text-center">
           {{ trlang.whether_membership_registration_is_approved }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex flex-column">
-        <a-layout class="d-flex flex-row gap-2 bg-white items-center">
+      <a-layout-content class="border p-2 flex flex-column">
+        <a-layout class="flex flex-row gap-2 bg-white items-center">
           <a-switch v-model:checked="check" class="w-fit" />
           <a-typography-text>
             {{ check ? trlang.use : trlang.no_use }}

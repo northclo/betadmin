@@ -14,9 +14,9 @@
           {{ trlang.activate }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex gap-2">
+      <a-layout-content class="border p-2 flex gap-2">
         <a-switch v-model:checked="activate" class="w-fit" />
-        <a-typography-text class="d-flex item-center">
+        <a-typography-text class="flex item-center">
           {{ activate ? trlang.activate : trlang.disable }}
         </a-typography-text>
       </a-layout-content>
@@ -38,13 +38,13 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2">
-        <a-layout class="d-flex flex-row gap-2 bg-white">
+        <a-layout class="flex flex-row gap-2 bg-white">
           <a-switch v-model:checked="duplicateCheck" class="w-fit" />
-          <a-typography-text class="d-flex item-center">
+          <a-typography-text class="flex item-center">
             {{ duplicateCheck ? trlang.activate : trlang.disable }}
           </a-typography-text>
         </a-layout>
-        <a-layout class="bg-white d-flex flex-row items-center gap-2">
+        <a-layout class="bg-white flex flex-row items-center gap-2">
           <a-typography-text class="text-yellow">
             {{ trlang.when_same_round_same_pick_same_amount }}
           </a-typography-text>
@@ -62,14 +62,14 @@
           {{ trlang.division }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="d-flex">
+      <a-layout-content class="flex">
         <a-typography-text
-          class="w-50 bg-gray text-white d-flex justify-center items-center border"
+          class="w-50 bg-gray text-white flex justify-center items-center border"
         >
           A
         </a-typography-text>
         <a-typography-text
-          class="w-50 bg-gray text-white d-flex justify-center items-center border"
+          class="w-50 bg-gray text-white flex justify-center items-center border"
         >
           B
         </a-typography-text>
@@ -82,14 +82,14 @@
           {{ item.name }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="d-flex">
+      <a-layout-content class="flex">
         <a-layout
-          class="w-50 d-flex flex-row justify-center items-center border p-2 gap-2"
+          class="w-50 flex flex-row justify-center items-center border p-2 gap-2"
         >
           <a-input v-model:value="item.valueA" class="text-end" style="width: 80px" />%
         </a-layout>
         <a-layout
-          class="w-50 d-flex flex-row justify-center items-center border p-2 gap-2"
+          class="w-50 flex flex-row justify-center items-center border p-2 gap-2"
         >
           <a-input v-model:value="item.valueB" class="text-end" style="width: 80px" />%
         </a-layout>

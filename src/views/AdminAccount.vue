@@ -1,12 +1,12 @@
 <template>
   <a-layout class="bg-white pt-5 pb-5">
     <a-layout
-      class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+      class="bg-white flex flex-row justify-between items-center px-5 sticky-header"
     >
       <a-typography-text class="text-dark-gray fs-1">
         {{ trlang.change_administrator_information }}
       </a-typography-text>
-      <a-button class="bg-main text-white d-flex justify-center items-center">
+      <a-button class="bg-main text-white flex justify-center items-center">
         <SaveOutlined />
         {{ trlang.save }}
       </a-button>

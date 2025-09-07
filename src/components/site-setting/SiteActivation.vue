@@ -14,7 +14,7 @@
           {{ trlang.site_activation }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex gap-2 items-center">
+      <a-layout-content class="border p-2 flex gap-2 items-center">
         <a-switch v-model:checked="check" class="w-fit" />
         <a-typography-text>
           {{ check ? trlang.active : trlang.deactive }}
@@ -29,7 +29,7 @@
           {{ trlang.how_to_display_when_site_is_disabled }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex gap-2 items-center flex-wrap">
+      <a-layout-content class="border p-2 flex gap-2 items-center flex-wrap">
         <a-button
           v-for="item in display"
           :key="item.key"

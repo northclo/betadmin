@@ -1,7 +1,7 @@
 <template>
   <a-layout class="bg-white pt-5 pb-5">
     <a-layout
-      class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+      class="bg-white flex flex-row justify-between items-center px-5 sticky-header"
     >
       <a-typography-text class="text-dark-gray fs-1">
         {{ trlang.partner_registration }}
@@ -21,7 +21,7 @@
     <PartnerGameSetting />
   </a-collapse>
 
-  <a-layout class="bg-white p-5 d-flex flex-row justify-center items-center gap-2">
+  <a-layout class="bg-white p-5 flex flex-row justify-center items-center gap-2">
     <a-button class="bg-dark-gray text-white">
       <CheckCircleOutlined />
       {{ trlang.register }}

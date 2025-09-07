@@ -14,9 +14,9 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-switch v-model:checked="isActive" class="w-fit" />
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ isActive ? trlang.possible : trlang.no_possible }}
         </a-typography-text>
       </a-layout-content>
@@ -31,9 +31,9 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-switch v-model:checked="isActive" class="w-fit" />
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ isActive ? trlang.possible : trlang.no_possible }}
         </a-typography-text>
       </a-layout-content>
@@ -48,9 +48,9 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-switch v-model:checked="isActive" class="w-fit" />
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ isActive ? trlang.possible : trlang.no_possible }}
         </a-typography-text>
       </a-layout-content>
@@ -65,9 +65,9 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-switch v-model:checked="isActive" class="w-fit" />
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ isActive ? trlang.possible : trlang.no_possible }}
         </a-typography-text>
       </a-layout-content>
@@ -82,9 +82,9 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-switch v-model:checked="isActive" class="w-fit" />
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ isActive ? trlang.possible : trlang.no_possible }}
         </a-typography-text>
       </a-layout-content>

@@ -14,8 +14,8 @@
           {{ trlang.prevent_further_inquiries_when_there_is_no_response }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex flex-column">
-        <a-layout class="bg-white d-flex flex-row gap-2 items-center">
+      <a-layout-content class="border p-2 flex flex-column">
+        <a-layout class="bg-white flex flex-row gap-2 items-center">
           <a-switch v-model:checked="check" class="w-fit" />
           <a-typography-text>
             {{ check ? trlang.use : trlang.no_use }}

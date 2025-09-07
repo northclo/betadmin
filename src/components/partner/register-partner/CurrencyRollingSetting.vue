@@ -9,13 +9,13 @@
       <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-switch v-model:checked="isActive" class="w-fit" />
-        <a-typography-text class="d-flex items-center text-white ms-2">
+        <a-typography-text class="flex items-center text-white ms-2">
           {{ isActive ? trlang.use : trlang.no_use }}
         </a-typography-text>
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center flex-wrap gap-2">
+      <a-layout-content class="border p-2 flex items-center flex-wrap gap-2">
         <a-typography-text>
           {{ trlang.the_last_deposit_approved_amount }}
         </a-typography-text>

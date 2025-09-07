@@ -1,13 +1,13 @@
 <template>
   <!-- Sticky Header -->
   <a-layout
-    class="bg-white d-flex flex-row justify-between items-center px-5 sticky-header"
+    class="bg-white flex flex-row justify-between items-center px-5 sticky-header"
   >
     <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.site_setting }}
     </a-typography-text>
     <a-button
-      class="bg-main text-white d-flex justify-center items-center"
+      class="bg-main text-white flex justify-center items-center"
       @click="saveData"
     >
       <SaveOutlined />
@@ -16,7 +16,7 @@
   </a-layout>
 
   <!-- Scrollable Content -->
-  <a-collapse class="d-flex flex-column gap-2 p-2 border-0">
+  <a-collapse class="flex flex-column gap-2 p-2 border-0">
     <SiteActivationSetting
       v-if="dataSource"
       :dataSource="dataSource"

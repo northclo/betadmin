@@ -9,8 +9,8 @@
       <ParnterChart :dataSource="dataSource" :loading="loading" />
 
       <a-layout class="p-5 bg-white mt-5">
-        <a-layout class="bg-white pt-5 pb-5 d-flex flex-row justify-between items-center">
-          <a-layout-content class="d-flex items-center gap-2">
+        <a-layout class="bg-white pt-5 pb-5 flex flex-row justify-between items-center">
+          <a-layout-content class="flex items-center gap-2">
             <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
             <a-input v-model:value="search" placeholder="Search..." class="search-input">
               <template #prefix> <SearchOutlined /> </template>
@@ -23,7 +23,7 @@
             }}</a-typography-text>
             <a-checkbox v-model:checked="checked"></a-checkbox>
           </a-layout-content>
-          <a-layout-content class="d-flex justify-end">
+          <a-layout-content class="flex justify-end">
             <a-button class="bg-gray text-white" @click="openRegisterPartner = true">
               <CheckCircleOutlined />{{ trlang.add_a_branch_office }}
             </a-button>

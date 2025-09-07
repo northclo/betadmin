@@ -42,7 +42,7 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex items-center gap-2">
+      <a-layout-content class="border p-2 flex items-center gap-2">
         <a-typography-text> {{ trlang.distributor_id }}: </a-typography-text>
         <a-typography-text> {{ trlang.distributor_id }}: </a-typography-text>
         <a-typography-text class="text-dark-brown">
@@ -74,7 +74,7 @@
       </a-layout-sider>
 
       <!-- Main content -->
-      <a-layout-content class="border p-2 d-flex flex-column">
+      <a-layout-content class="border p-2 flex flex-column">
         <a-select
           ref="select"
           v-model:value="value1"

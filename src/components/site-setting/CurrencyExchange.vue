@@ -14,15 +14,15 @@
           {{ trlang.exchange_amount }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="d-flex gap-2 border p-2 flex-wrap">
-        <a-typography-text class="d-flex items-center text-yellow">
+      <a-layout-content class="flex gap-2 border p-2 flex-wrap">
+        <a-typography-text class="flex items-center text-yellow">
           {{ trlang.minimum }}
         </a-typography-text>
         <a-input v-model:value="minAmount" style="width: 80px" />
-        <a-typography-text class="d-flex items-center text-yellow">
+        <a-typography-text class="flex items-center text-yellow">
           {{ trlang.from }}
         </a-typography-text>
-        <a-typography-text class="d-flex items-center">
+        <a-typography-text class="flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
         <a-select
@@ -38,7 +38,7 @@
             {{ item.amount }}
           </a-select-option>
         </a-select>
-        <a-typography-text class="d-flex items-center text-yellow">
+        <a-typography-text class="flex items-center text-yellow">
           {{ trlang.can_be_exchanged_for }}
         </a-typography-text>
       </a-layout-content>
@@ -51,31 +51,31 @@
           {{ trlang.time_zone_available_for_currency_exchange }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex flex-column items-start gap-2">
+      <a-layout-content class="border p-2 flex flex-column items-start gap-2">
         <a-layout class="w-100">
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="timezoneCheck" class="w-fit me-2" />
               <a-typography-text
-                class="d-flex item-center text-white"
+                class="flex item-center text-white"
                 style="width: 45px"
               >
                 {{ timezoneCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
             <a-layout-content class="border p-2 bg-white">
-              <a-layout class="bg-white d-flex flex-row gap-2 flex-wrap">
-                <a-typography-text class="d-flex items-center">
+              <a-layout class="bg-white flex flex-row gap-2 flex-wrap">
+                <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
                 <a-input v-model:value="startTime" style="width: 80px" />
-                <a-typography-text class="d-flex items-center">~</a-typography-text>
-                <a-typography-text class="d-flex items-center">
+                <a-typography-text class="flex items-center">~</a-typography-text>
+                <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
                 <a-input v-model:value="endTime" style="width: 80px" />
               </a-layout>
-              <a-typography-text class="d-flex items-center text-yellow">
+              <a-typography-text class="flex items-center text-yellow">
                 {{
                   trlang.please_enter_the_time_zone_where_currency_exchange_is_available
                 }}
@@ -89,7 +89,7 @@
                 {{ trlang.impossible_time_zone_display_text }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 d-flex gap-2 bg-white">
+            <a-layout-content class="border p-2 flex gap-2 bg-white">
               <a-textarea :rows="4" v-model:value="timezoneText" allow-clear />
             </a-layout-content>
           </a-layout>
@@ -104,7 +104,7 @@
           {{ trlang.restrictions_on_currency_exchange_applications }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 d-flex flex-column items-start gap-2">
+      <a-layout-content class="border p-2 flex flex-column items-start gap-2">
         <a-button
           v-for="item in restrictBtn"
           :key="item.key"
@@ -121,18 +121,18 @@
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="restrictionExchangeCheck" class="w-fit me-2" />
               <a-typography-text
-                class="d-flex item-center text-white"
+                class="flex item-center text-white"
                 style="width: 45px"
               >
                 {{ restrictionExchangeCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 d-flex gap-2 bg-white flex-wrap">
-              <a-typography-text class="d-flex items-center">
+            <a-layout-content class="border p-2 flex gap-2 bg-white flex-wrap">
+              <a-typography-text class="flex items-center">
                 {{ trlang.since_the_last_exchange }}
               </a-typography-text>
               <a-input v-model:value="restrictionExchangeAmount" style="width: 80px" />
-              <a-typography-text class="d-flex items-center">
+              <a-typography-text class="flex items-center">
                 {{ trlang.request_for_currency_exchange_cannot_be_made_within_10minutes }}
               </a-typography-text>
             </a-layout-content>
@@ -143,18 +143,18 @@
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
               <a-switch v-model:checked="restrictionChargeCheck" class="w-fit me-2" />
               <a-typography-text
-                class="d-flex item-center text-white"
+                class="flex item-center text-white"
                 style="width: 45px"
               >
                 {{ restrictionChargeCheck ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 d-flex gap-2 bg-white flex-wrap">
-              <a-typography-text class="d-flex items-center">
+            <a-layout-content class="border p-2 flex gap-2 bg-white flex-wrap">
+              <a-typography-text class="flex items-center">
                 {{ trlang.since_the_last_charge }}
               </a-typography-text>
               <a-input v-model:value="restrictionChargeAmount" style="width: 80px" />
-              <a-typography-text class="d-flex items-center">
+              <a-typography-text class="flex items-center">
                 {{ trlang.request_for_currency_exchange_cannot_be_made_within_10minutes }}
               </a-typography-text>
             </a-layout-content>

@@ -1,9 +1,9 @@
 <template>
-  <a-layout-header class="bg-white d-flex items-center header-content">
-    <a-layout class="bg-white d-flex flex-row gap-2">
+  <a-layout-header class="bg-white flex items-center header-content">
+    <a-layout class="bg-white flex flex-row gap-2">
       <a-dropdown v-for="menu in menus" :key="menu.key">
         <div
-          class="d-flex flex-column items-center cursor-pointer"
+          class="flex flex-column items-center cursor-pointer"
           @click="clickMenu(menu.to)"
         >
           <component :is="menu.icon" class="header-icon" />

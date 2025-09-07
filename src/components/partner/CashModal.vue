@@ -22,7 +22,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+        <a-layout-content class="border p-2 flex items-center justify-end gap-2">
           <a-typography-text>
             {{ isActive ? trlang.possible : trlang.no_possible }}
           </a-typography-text>
@@ -44,7 +44,7 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+        <a-layout-content class="border p-2 flex items-center justify-end gap-2">
           <a-typography-text>
             {{ isActive ? trlang.possible : trlang.no_possible }}
           </a-typography-text>
@@ -60,10 +60,10 @@
         </a-layout-sider>
 
         <!-- Main content -->
-        <a-layout-content class="border p-2 d-flex items-center justify-end gap-2">
+        <a-layout-content class="border p-2 flex items-center justify-end gap-2">
           <a-radio-group v-model:value="amountRange" :options="amountRangeOption" />
           <a-input v-model:value="value" class="input-md" />
-          <a-typography-text class="d-flex items-center">
+          <a-typography-text class="flex items-center">
             {{ isActive ? trlang.possible : trlang.no_possible }}
           </a-typography-text>
         </a-layout-content>

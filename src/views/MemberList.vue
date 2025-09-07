@@ -4,23 +4,23 @@
       {{ trlang.member_list }}
     </a-typography-text>
 
-    <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
+    <a-layout-header class="bg-white flex justify-end items-center gap-2">
       <a-button
-        class="bg-main text-white d-flex justify-center items-center"
+        class="bg-main text-white flex justify-center items-center"
         @click="openAddModal"
       >
         <PlusOutlined />
         {{ trlang.add_member }}
       </a-button>
       <a-button
-        class="bg-red text-white d-flex justify-center items-center"
+        class="bg-red text-white flex justify-center items-center"
         @click="deleteSelectedMembers"
       >
         <DeleteOutlined />
         {{ trlang.delete_member }}
       </a-button>
       <a-button
-        class="bg-main text-white d-flex justify-center items-center"
+        class="bg-main text-white flex justify-center items-center"
         @click="exportMemberToExcel"
       >
         <PrinterOutlined />
@@ -28,7 +28,7 @@
       </a-button>
     </a-layout-header>
 
-    <a-layout-header class="bg-white d-flex justify-end items-center gap-2">
+    <a-layout-header class="bg-white flex justify-end items-center gap-2">
       <a-input
         v-model:value="search"
         placeholder="Search..."
@@ -48,7 +48,7 @@
       :cancel-text="trlang.cancel"
       @ok="addMember"
     >
-      <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+      <a-layout class="flex gap-5 flex-row bg-white mt-2">
         <a-input
           :addonBefore="trlang.first_name"
           v-model:value="firstName"
@@ -61,7 +61,7 @@
         />
       </a-layout>
 
-      <a-layout class="d-flex gap-5 flex-row bg-white mt-2">
+      <a-layout class="flex gap-5 flex-row bg-white mt-2">
         <a-input
           :addonBefore="trlang.user_name"
           v-model:value="userName"
