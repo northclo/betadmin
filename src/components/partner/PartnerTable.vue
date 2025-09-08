@@ -121,7 +121,6 @@
           <a-button
             v-if="record.role !== 'headquater' && record.role !== 'user'"
             class="bg-gray text-white"
-            @click="saveData"
           >
             <CheckCircleOutlined /> {{ trlang.setting }}
           </a-button>
@@ -142,7 +141,11 @@
           >
             <CheckCircleOutlined /> {{ trlang.group_message }}
           </a-button>
-          <a-button v-if="record.role !== 'headquater'" class="bg-gray text-white">
+          <a-button
+            v-if="record.role !== 'headquater'"
+            class="bg-gray text-white"
+            @click="deleteItem(record)"
+          >
             <CheckCircleOutlined /> {{ trlang.delete }}
           </a-button>
           <a-button
@@ -178,18 +181,29 @@
 <script setup>
 import { computed, defineProps, inject } from "vue";
 import { CheckCircleOutlined, UserAddOutlined } from "@ant-design/icons-vue";
+import { deleteData } from "@/helpers/Axios.js";
+import { apiLink } from "@/utils/api-link";
+import { message } from "ant-design-vue";
 
 /* Translations */
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
-defineProps({
+const props = defineProps({
   columns: Array,
   dataSource: Array,
   loading: Boolean,
+  fetchData: Function,
 });
 
-const saveData = () => {
-  console.log("-------------");
+const deleteItem = async (record) => {
+  const result = await deleteData(
+    `${apiLink.delete_partner}?id=${record.id}&role=${record.role}`
+  );
+
+  if (result.status) {
+    message.success(trlang.value.deleted_successful);
+    props.fetchData();
+  }
 };
 </script>

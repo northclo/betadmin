@@ -10,4 +10,6 @@ export const apiLink = {
   get_game_partner: 'partner/list',
   register_user: 'partner/register-user',
   send_partner_message: "partner/message",
+  cash_increase: "partner/cash-increase",
+  delete_partner: "partner"
 };

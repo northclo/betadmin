@@ -12,16 +12,16 @@
         <a-layout class="bg-white pt-5 pb-5 flex flex-row justify-between items-center">
           <a-layout-content class="flex items-center gap-2">
             <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
-            <a-input v-model:value="search" placeholder="Search..." class="search-input">
+            <a-input v-model:value="search" class="search-input">
               <template #prefix> <SearchOutlined /> </template>
             </a-input>
-            <a-button class="bg-gray text-white ms-2" @click="searchPartner">
+            <a-button class="bg-gray text-white ms-2" @click="fetchData">
               {{ trlang.search }}
             </a-button>
             <a-typography-text class="ms-5 me-2">{{
               trlang.expand_all
             }}</a-typography-text>
-            <a-checkbox v-model:checked="checked"></a-checkbox>
+            <a-checkbox v-model:checked="expand" @change="fetchData"></a-checkbox>
           </a-layout-content>
           <a-layout-content class="flex justify-end">
             <a-button class="bg-gray text-white" @click="openRegisterPartner = true">
@@ -34,16 +34,28 @@
           :columns="columns"
           :dataSource="dataSource"
           :loading="loading"
-          @saveData="saveData"
           @openRegisterUser="openRegisterUser = true"
+          :fetchData="fetchData"
           @openCashModal="openCashModal"
           @openNoteModal="openNoteModal"
           @openGroupMessageModal="openGroupMessageModal"
         />
       </a-layout>
-      <RegisterUserModal v-model:open="openRegisterUser" />
-      <RegisterPartnerModal v-model:open="openRegisterPartner" />
-      <CashModal v-model:open="openCash" :dataSource="selectedRecord" />
+      <RegisterUserModal
+        v-model:open="openRegisterUser"
+        :dataSource="selectedRecord"
+        :fetchData="fetchData"
+      />
+      <RegisterPartnerModal
+        v-model:open="openRegisterPartner"
+        :dataSource="selectedRecord"
+        :fetchData="fetchData"
+      />
+      <CashModal
+        v-model:open="openCash"
+        :dataSource="selectedRecord"
+        :fetchData="fetchData"
+      />
       <SendNoteModal v-model:open="openNote" :dataSource="selectedRecord" />
       <GroupMessageModal v-model:open="openGroupMessage" :dataSource="selectedRecord" />
     </a-layout>
@@ -52,7 +64,6 @@
 
 <script setup>
 import { ref, inject, computed, onMounted } from "vue";
-import { message } from "ant-design-vue";
 import { SearchOutlined, CheckCircleOutlined } from "@ant-design/icons-vue";
 import { partnerManagementColumns } from "@/utils/table-column/partner-management";
 import { getData } from "@/helpers/Axios.js";
@@ -73,7 +84,7 @@ const trlang = computed(() => langState?.translations || {});
 /* Router */
 
 /* Reactive states */
-const checked = ref(true);
+const expand = ref(true);
 const search = ref("");
 const columns = ref([]);
 const dataSource = ref([]);
@@ -91,7 +102,15 @@ const fetchData = async () => {
     loading.value = true;
     columns.value = partnerManagementColumns(trlang);
     const partners = await getData(apiLink.game_partner + "?search=" + search.value);
-    dataSource.value = partners.data;
+
+    if (expand.value) {
+      dataSource.value = partners.data;
+    } else {
+      dataSource.value =
+        partners.data.length > 6
+          ? [...partners.data.slice(0, 5), partners.data[partners.data.length - 1]]
+          : partners.data;
+    }
   } finally {
     loading.value = false;
   }
@@ -111,10 +130,6 @@ const openGroupMessageModal = (record) => {
   selectedRecord.value = record;
   openGroupMessage.value = true;
 };
-
-/* Methods */
-const saveData = () => message.success("message success");
-const searchPartner = () => fetchData();
 
 /* Load data on mount */
 onMounted(() => fetchData());

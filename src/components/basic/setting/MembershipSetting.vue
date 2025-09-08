@@ -1,13 +1,11 @@
 <template>
   <a-collapse-panel class="bg-white">
-    <!-- Header -->
     <template #header>
       <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
         {{ trlang.membership_setting }}
       </a-typography-text>
     </template>
 
-    <!-- Membership Registration Toggle -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -16,17 +14,16 @@
       </a-layout-sider>
       <a-layout-content class="border p-2 flex items-center gap-2 flex-wrap">
         <a-button
-          v-for="item in useMembership"
+          v-for="item in membershipRegistrationOptions"
           :key="item.key"
-          :class="item.key === useMembershipKey ? 'bg-main text-white' : ''"
-          @click="useMembershipKey = item.key"
+          :class="item.key === membershipRegistration ? 'bg-main text-white' : ''"
+          @click="membershipRegistration = item.key"
         >
-          <CheckOutlined v-if="item.key === useMembershipKey" /> {{ item.text }}
+          <CheckOutlined v-if="item.key === membershipRegistration" /> {{ item.text }}
         </a-button>
       </a-layout-content>
     </a-layout>
 
-    <!-- Membership Approval -->
     <a-layout class="bg-white">
       <a-layout-sider
         class="bg-gray border flex justify-center items-center p-2 setting-sider"
@@ -37,9 +34,9 @@
       </a-layout-sider>
       <a-layout-content class="border p-2 flex flex-column">
         <a-layout class="flex flex-row gap-2 bg-white items-center">
-          <a-switch v-model:checked="check" class="w-fit" />
+          <a-switch v-model:checked="membershipApproval" class="w-fit" />
           <a-typography-text>
-            {{ check ? trlang.use : trlang.no_use }}
+            {{ membershipApproval ? trlang.use : trlang.no_use }}
           </a-typography-text>
         </a-layout>
         <a-typography-text class="text-yellow mt-2">
@@ -55,7 +52,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Notification Message -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -63,59 +59,60 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2">
-        <a-textarea v-model:value="notificationMessage" :rows="4" allow-clear />
+        <a-textarea v-model:value="membershipSignupMessage" :rows="4" allow-clear />
       </a-layout-content>
     </a-layout>
   </a-collapse-panel>
 </template>
 
 <script setup>
-import { ref, computed, inject, watch, onBeforeMount, defineExpose } from "vue";
-import { CheckOutlined } from "@ant-design/icons-vue";
+import { ref, computed, inject, watch, onBeforeMount, defineExpose } from 'vue';
+import { CheckOutlined } from '@ant-design/icons-vue';
 
-/* Props */
 const props = defineProps({
   dataSource: { type: Object, required: true },
 });
 
 /* Translations */
-const langState = inject("langState");
+const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-/* Reactive state */
-const useMembership = ref([]);
-const useMembershipKey = ref(0);
-const check = ref(true);
-const notificationMessage = ref("");
+const membershipRegistrationOptions = ref([]);
+const membershipRegistration = ref(0);
+const membershipApproval = ref(true);
+const membershipSignupMessage = ref('');
 
-// Initialize membership options
 const initMembershipOptions = () => {
-  const options = [
-    `${trlang.value.use} (${trlang.value.recommender_required})`,
-    `${trlang.value.use} (${trlang.value.select_referrer})`,
-    `${trlang.value.use} (${trlang.value.do_not_use_referrer})`,
-    `${trlang.value.use} (${trlang.value.not_in_use})`,
+  membershipRegistrationOptions.value = [
+    {
+      key: 'recommender',
+      text: `${trlang.value.use} (${trlang.value.recommender_required})`,
+    },
+    {
+      key: 'select_referrer',
+      text: `${trlang.value.use} (${trlang.value.select_referrer})`,
+    },
+    {
+      key: 'no_referrer',
+      text: `${trlang.value.use} (${trlang.value.do_not_use_referrer})`,
+    },
+    { key: 'no_use', text: `${trlang.value.use} (${trlang.value.not_in_use})` },
   ];
-  useMembership.value = options.map((text, idx) => ({ key: idx, text }));
 };
 
-// Load data from parent
 const loadData = (data) => {
-  if (!data?.membership) return;
-  useMembershipKey.value = data.membership.registration ?? 0;
-  check.value = data.membership.approval ?? true;
-  notificationMessage.value = data.membership.message || "";
+  membershipRegistration.value = data.membership_registration ?? 0;
+  membershipApproval.value = data.membership_approval ?? true;
+  membershipSignupMessage.value = data.membership_signup_message || '';
 };
 
-// Watch for changes
 watch(() => props.dataSource, loadData, { immediate: true });
 
-// Expose state for parent
 defineExpose({
   getState: () => ({
-    registration: useMembershipKey.value,
-    approval: check.value,
-    message: notificationMessage.value,
+    membershipRegistration: membershipRegistration.value,
+    membershipApproval: membershipApproval.value,
+    membershipSignupMessage: membershipSignupMessage.value,
   }),
 });
 

@@ -8,7 +8,6 @@
     @cancel="$emit('update:open', false)"
   >
     <a-layout class="bg-white mt-5">
-      <!-- Header -->
       <a-typography-text class="text-dark-gray fs-3">
         {{ trlang.cash_increase_decrease }}
       </a-typography-text>
@@ -22,7 +21,9 @@
         <a-layout-content class="border p-2 flex items-center justify-end gap-2">
           <a-typography-text>{{ dataSource.nickname }}</a-typography-text>
           <a-typography-text> ({{ dataSource.id }}) </a-typography-text>
-          <a-typography-text>{{ dataSource.role }}</a-typography-text>
+          <a-typography-text class="bg-gray text-white px-2">
+            {{ dataSource.role }}
+          </a-typography-text>
         </a-layout-content>
       </a-layout>
 
@@ -46,7 +47,7 @@
         </a-layout-sider>
         <a-layout-content class="border p-2 flex items-center justify-end gap-2">
           <a-radio-group v-model:value="amountRange" :options="amountRangeOption" />
-          <a-input v-model:value="value" class="input-md" />
+          <a-input v-model:value="amount" class="input-md" />
           <a-typography-text>{{ dataSource.betMoneyUnit }}</a-typography-text>
         </a-layout-content>
       </a-layout>
@@ -57,24 +58,46 @@
 <script setup>
 import { message } from "ant-design-vue";
 import { computed, defineProps, inject, ref } from "vue";
+import { postData } from "@/helpers/Axios.js";
+import { apiLink } from "@/utils/api-link";
 
 /* Translations */
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
-defineProps({
+const props = defineProps({
   open: Boolean,
   dataSource: Object,
+  fetchData: Function,
 });
 
 const emit = defineEmits(["update:open"]);
 
 const amountRange = ref("+");
 const amountRangeOption = ref(["+", "-"]);
+const amount = ref(null);
 
-const process = () => {
-  if (amountRange.value == "+") message.success(trlang.value.cash_increased_successful);
-  if (amountRange.value == "-") message.success(trlang.value.cash_decreased_successful);
-  emit("update:open", false);
+const process = async () => {
+  if (!amount.value || isNaN(Number(amount.value))) {
+    amount.value = 0;
+    return message.error(trlang.value.input_amount);
+  }
+
+  const increaseAmount =
+    amountRange.value === "+" ? Number(amount.value) : -Number(amount.value);
+
+  const result = await postData(apiLink.cash_increase, {
+    role: props.dataSource.role,
+    id: props.dataSource.id,
+    amount: increaseAmount,
+    currency: props.dataSource.betMoneyUnit,
+  });
+
+  if (result.status) {
+    if (amountRange.value == "+") message.success(trlang.value.cash_increased_successful);
+    if (amountRange.value == "-") message.success(trlang.value.cash_decreased_successful);
+    props.fetchData();
+    emit("update:open", false);
+  }
 };
 </script>

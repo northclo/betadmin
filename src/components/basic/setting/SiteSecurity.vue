@@ -17,9 +17,9 @@
 
       <!-- Main content -->
       <a-layout-content class="border p-2 flex items-center gap-2">
-        <a-switch v-model:checked="isActive" class="w-fit" />
+        <a-switch v-model:checked="security" class="w-fit" />
         <a-typography-text class="flex items-center">
-          {{ isActive ? trlang.active : trlang.deactive }}
+          {{ security ? trlang.active : trlang.deactive }}
         </a-typography-text>
       </a-layout-content>
     </a-layout>
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, watch, defineExpose } from "vue";
+import { ref, computed, inject, watch, defineExpose } from 'vue';
 
 /* Props */
 const props = defineProps({
@@ -38,23 +38,20 @@ const props = defineProps({
 });
 
 /* Inject language translations */
-const langState = inject("langState");
+const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-/* Reactive toggle state */
-const isActive = ref(false);
+const security = ref(false);
 
-/* Sync state with props */
 watch(
-  () => props.dataSource?.siteSecurity,
+  () => props.dataSource,
   (newVal) => {
-    isActive.value = Boolean(newVal);
+    security.value = newVal.security ?? true;
   },
   { immediate: true }
 );
 
-/* Expose state for parent access */
 defineExpose({
-  getState: () => ({ isActive: isActive.value }),
+  getState: () => ({ security: security.value }),
 });
 </script>

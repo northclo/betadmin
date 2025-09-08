@@ -221,8 +221,10 @@ import { apiLink } from "@/utils/api-link";
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
-defineProps({
+const props = defineProps({
   open: Boolean,
+  dataSource: Object,
+  fetchData: Function,
 });
 
 const emit = defineEmits(["update:open"]);
@@ -308,6 +310,7 @@ const register = async () => {
 
   if (result.status) {
     message.success(trlang.value.registered_successful);
+    props.fetchData();
     emit("update:open", false);
   }
 };

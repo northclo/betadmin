@@ -18,16 +18,16 @@
         <a-typography-text class="flex items-center text-yellow">
           {{ trlang.minimum }}
         </a-typography-text>
-        <a-input v-model:value="minAmount" style="width: 80px" />
+        <a-input v-model:value="chargeMin" style="width: 80px" />
         <a-typography-text class="flex items-center text-yellow">
           {{ trlang.from }}
         </a-typography-text>
         <a-typography-text class="flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
-        <a-select v-model:value="maxAmount" style="width: 120px">
+        <a-select v-model:value="chargeMax" style="width: 120px">
           <a-select-option
-            v-for="item in maxAmountOption"
+            v-for="item in chargeMaxOption"
             :key="item.key"
             :value="item.amount"
           >
@@ -51,12 +51,9 @@
         <a-layout class="w-100">
           <a-layout class="w-100">
             <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
-              <a-switch v-model:checked="timezoneCheck" class="w-fit me-2" />
-              <a-typography-text
-                class="flex item-center text-white"
-                style="width: 45px"
-              >
-                {{ timezoneCheck ? trlang.use : trlang.no_use }}
+              <a-switch v-model:checked="chargeTimezone" class="w-fit me-2" />
+              <a-typography-text class="flex item-center text-white" style="width: 45px">
+                {{ chargeTimezone ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
             <a-layout-content class="border p-2 bg-white">
@@ -64,12 +61,12 @@
                 <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
-                <a-input v-model:value="startTime" style="width: 80px" />
+                <a-input v-model:value="chargeStartTime" style="width: 80px" />
                 <a-typography-text class="flex items-center">~</a-typography-text>
                 <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
-                <a-input v-model:value="endTime" style="width: 80px" />
+                <a-input v-model:value="chargeEndTime" style="width: 80px" />
               </a-layout>
               <a-typography-text class="flex items-center text-yellow">
                 {{ trlang.please_enter_the_charging_time_zone }}
@@ -84,7 +81,11 @@
               </a-typography-text>
             </a-layout-sider>
             <a-layout-content class="border p-2 flex gap-2 bg-white">
-              <a-textarea :rows="4" v-model:value="timezoneText" allow-clear />
+              <a-textarea
+                :rows="4"
+                v-model:value="chargeImpossibleTimezoneMessage"
+                allow-clear
+              />
             </a-layout-content>
           </a-layout>
         </a-layout>
@@ -99,69 +100,62 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2">
-        <a-textarea :rows="4" v-model:value="completeMessage" allow-clear />
+        <a-textarea :rows="4" v-model:value="chargeCompleteMessage" allow-clear />
       </a-layout-content>
     </a-layout>
   </a-collapse-panel>
 </template>
 
 <script setup>
-import { ref, computed, inject, watch, onBeforeMount, defineExpose } from "vue";
+import { ref, computed, inject, watch, onBeforeMount, defineExpose } from 'vue';
 
 /* Props */
 const props = defineProps({
   dataSource: { type: Object, required: true },
 });
 
-/* Translations */
-const langState = inject("langState");
+const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-/* State */
-const minAmount = ref(0);
-const maxAmount = ref("");
-const maxAmountOption = ref([]);
-const timezoneCheck = ref(true);
-const timezoneText = ref("");
-const startTime = ref(0);
-const endTime = ref(0);
-const completeMessage = ref("");
+const chargeMin = ref(null);
+const chargeMax = ref('');
+const chargeMaxOption = ref([]);
+const chargeTimezone = ref(true);
+const chargeImpossibleTimezoneMessage = ref('');
+const chargeStartTime = ref(null);
+const chargeEndTime = ref(null);
+const chargeCompleteMessage = ref('');
 
-/* Init select options */
 const initOptions = () => {
-  maxAmountOption.value = [1000, 10000, 100000].map((amt, idx) => ({
+  chargeMaxOption.value = [1000, 10000, 100000].map((amt, idx) => ({
     key: idx,
-    amount: amt + " USD",
+    amount: amt + ' USD',
   }));
 };
 
-/* Load from props */
 const loadData = (data) => {
-  if (!data?.charge) return;
-  const ch = data.charge;
-  minAmount.value = ch.minAmount ?? 0;
-  maxAmount.value = ch.maxAmount
-    ? ch.maxAmount + " USD"
-    : maxAmountOption.value[0]?.amount;
-  timezoneCheck.value = ch.timezoneAvailable ?? true;
-  startTime.value = ch.startTime ?? 0;
-  endTime.value = ch.endTime ?? 0;
-  timezoneText.value = ch.impossibleMessage ?? "";
-  completeMessage.value = ch.completeMessage ?? "";
+  chargeMin.value = data.charge_min ?? null;
+  chargeMax.value = data.charge_max
+    ? data.charge_max + ' USD'
+    : chargeMaxOption.value[0]?.amount;
+  chargeTimezone.value = data.charge_timezone ?? true;
+  chargeStartTime.value = data.charge_start_time ?? null;
+  chargeEndTime.value = data.charge_end_time ?? null;
+  chargeImpossibleTimezoneMessage.value = data.charge_impossible_timezone_message ?? '';
+  chargeCompleteMessage.value = data.charge_complete_message ?? '';
 };
 
 watch(() => props.dataSource, loadData, { immediate: true });
 
-/* Expose state to parent */
 defineExpose({
   getState: () => ({
-    minAmount: minAmount.value,
-    maxAmount: Number(maxAmount.value.replace(" USD", "")),
-    timezoneAvailable: timezoneCheck.value,
-    startTime: startTime.value,
-    endTime: endTime.value,
-    impossibleMessage: timezoneText.value,
-    completeMessage: completeMessage.value,
+    chargeMin: chargeMin.value,
+    chargeMax: Number(chargeMax.value.replace(' USD', '')),
+    chargeTimezone: chargeTimezone.value,
+    chargeStartTime: chargeStartTime.value,
+    chargeEndTime: chargeEndTime.value,
+    chargeImpossibleTimezoneMessage: chargeImpossibleTimezoneMessage.value,
+    chargeCompleteMessage: chargeCompleteMessage.value,
   }),
 });
 
