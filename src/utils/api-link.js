@@ -8,8 +8,8 @@ export const apiLink = {
   site_setting: 'site-setting',
   game_partner: 'partner',
   get_game_partner: 'partner/list',
+  delete_partner: "partner",
   register_user: 'partner/register-user',
   send_partner_message: "partner/message",
   cash_increase: "partner/cash-increase",
-  delete_partner: "partner"
 };
