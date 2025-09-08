@@ -7,5 +7,7 @@ export const apiLink = {
   game_setting: 'partner/setting',
   site_setting: 'site-setting',
   game_partner: 'partner',
-  get_game_partner: 'partner/list'
+  get_game_partner: 'partner/list',
+  register_user: 'partner/register-user',
+  send_partner_message: "partner/message",
 };

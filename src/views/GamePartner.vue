@@ -36,13 +36,16 @@
           :loading="loading"
           @saveData="saveData"
           @openRegisterUser="openRegisterUser = true"
-          @openCash="openCash = true"
+          @openCashModal="openCashModal"
+          @openNoteModal="openNoteModal"
+          @openGroupMessageModal="openGroupMessageModal"
         />
       </a-layout>
       <RegisterUserModal v-model:open="openRegisterUser" />
       <RegisterPartnerModal v-model:open="openRegisterPartner" />
-      <CashModal v-model:open="openCash" />
-      <SendNoteModal v-model:open="openNote" />
+      <CashModal v-model:open="openCash" :dataSource="selectedRecord" />
+      <SendNoteModal v-model:open="openNote" :dataSource="selectedRecord" />
+      <GroupMessageModal v-model:open="openGroupMessage" :dataSource="selectedRecord" />
     </a-layout>
   </a-layout>
 </template>
@@ -61,6 +64,7 @@ import RegisterUserModal from "@/components/partner/RegisterUserModal.vue";
 import RegisterPartnerModal from "@/components/partner/RegisterPartnerModal.vue";
 import CashModal from "@/components/partner/CashModal.vue";
 import SendNoteModal from "@/components/partner/SendNoteModal.vue";
+import GroupMessageModal from "../components/partner/GroupMessageModal.vue";
 
 /* Translations */
 const langState = inject("langState");
@@ -78,6 +82,8 @@ const openRegisterUser = ref(false);
 const openRegisterPartner = ref(false);
 const openCash = ref(false);
 const openNote = ref(false);
+const openGroupMessage = ref(false);
+const selectedRecord = ref(null);
 
 /* Fetch columns and table data */
 const fetchData = async () => {
@@ -89,6 +95,21 @@ const fetchData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const openCashModal = (record) => {
+  selectedRecord.value = record;
+  openCash.value = true;
+};
+
+const openNoteModal = (record) => {
+  selectedRecord.value = record;
+  openNote.value = true;
+};
+
+const openGroupMessageModal = (record) => {
+  selectedRecord.value = record;
+  openGroupMessage.value = true;
 };
 
 /* Methods */

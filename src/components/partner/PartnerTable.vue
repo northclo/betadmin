@@ -131,13 +131,14 @@
           <a-button
             v-if="record.role !== 'headquater'"
             class="bg-gray text-white"
-            @click="$emit('openCash')"
+            @click="$emit('openCashModal', record)"
           >
             <CheckCircleOutlined /> {{ trlang.cash_increase_decrease }}
           </a-button>
           <a-button
             v-if="record.role !== 'headquater' && record.role !== 'user'"
             class="bg-gray text-white"
+            @click="$emit('openGroupMessageModal', record)"
           >
             <CheckCircleOutlined /> {{ trlang.group_message }}
           </a-button>
@@ -154,7 +155,11 @@
           >
             <CheckCircleOutlined /> {{ trlang.add_sub }}
           </a-button>
-          <a-button v-if="record.role === 'user'" class="bg-gray text-white">
+          <a-button
+            v-if="record.role === 'user'"
+            class="bg-gray text-white"
+            @click="$emit('openNoteModal', record)"
+          >
             <CheckCircleOutlined /> {{ trlang.note }}
           </a-button>
           <a-button

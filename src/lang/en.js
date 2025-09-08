@@ -14,6 +14,10 @@ export default {
   changed_successful: "Changed successful",
   deleted_successful: "Deleted successful",
   saved_successful: "Saved successful",
+  registered_successful: "Registered successful",
+  cash_increased_successful: "Cash increased successful",
+  cash_decreased_successful: "Cash decreased successful",
+  sent_successful: "Sent successful",
   active: "Active",
   deactive: "Deactive",
   activate: "Activate",
@@ -29,6 +33,11 @@ export default {
   no_possible: "No possible",
   person: "person",
   people: "people",
+  invalid_data: "Invalid data",
+  correct: "Correct",
+  invalid_username: "Invalid username",
+  invalid_nickname: "Invalid nickname",
+
 
   // Left Layout
   user_held_money: "User-held money",
@@ -337,5 +346,9 @@ export default {
   distributor_id: "Distributor ID",
   including_subordinates: "Including subordinates",
   administrator: "Administrator",
-  when_set_messages_will_be_automatically_deleted_after_the_specified_period: "When set, messages will be automatically deleted after the specified period"
+  when_set_messages_will_be_automatically_deleted_after_the_specified_period: "When set, messages will be automatically deleted after the specified period",
+  please_input_nickname: "Please input nickname",
+  please_input_title: "Please input title",
+  please_input_message: "Please input message",
+  num_2_10_characters_in_combination_of_english_and_numbers: "(2 - 10 characters in combination of English, and numbers)"
 };
