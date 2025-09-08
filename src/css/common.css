@@ -368,6 +368,10 @@ button {
   border: 1px solid rgb(209, 209, 209); /* Light gray border */
 }
 
+.border-bottom {
+  border-bottom: 1px solid rgb(209, 209, 209); /* Light gray border */
+}
+
 .radius-2 {
   border-radius: 8px; /* Rounded corners */
 }
