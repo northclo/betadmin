@@ -9,7 +9,8 @@
       {{ trlang.this_is_the_view_manager }}
       {{ trlang.please_keep_your_password_secure }}
     </a-typography-text>
-    <a-layout class="bg-white">
+
+    <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.view_manager_id }}
@@ -19,7 +20,8 @@
         <a-input v-model:value="viewManagerId" />
       </a-layout-content>
     </a-layout>
-    <a-layout class="bg-white">
+
+    <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.view_manager_password }}
@@ -29,7 +31,8 @@
         <a-input-password v-model:value="password" />
       </a-layout-content>
     </a-layout>
-    <a-layout class="bg-white">
+
+    <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.confirm_view_manager_password }}
