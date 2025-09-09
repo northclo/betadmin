@@ -1,31 +1,31 @@
 export const memberListColumn = [
   {
     title: "First Name",
-    dataIndex: "firstName",
+    dataIndex: "first_name",
     key: "firstName",
     sorter: (a, b) => a.firstName.localeCompare(b.firstName),
   },
   {
     title: "Last Name",
-    dataIndex: "lastName",
+    dataIndex: "last_name",
     key: "lastName",
     sorter: (a, b) => a.lastName.localeCompare(b.lastName),
   },
   {
     title: "User Name",
-    dataIndex: "userName",
+    dataIndex: "user_name",
     key: "userName",
     sorter: (a, b) => a.userName.localeCompare(b.userName),
   },
   {
     title: "Email",
-    dataIndex: "email",
+    dataIndex: "user_email",
     key: "email",
     sorter: (a, b) => a.email.localeCompare(b.email),
   },
   {
     title: "Phone Number",
-    dataIndex: "phoneNumber",
+    dataIndex: "phone_number",
     key: "phoneNumber",
     sorter: (a, b) => a.phoneNumber.localeCompare(b.phoneNumber),
   },

@@ -195,7 +195,6 @@ const fetchData = async () => {
 };
 
 const saveData = async () => {
-  console.log('options.value :>> ', toNumber(options.value[9].valueA));
   const payload = {
     activate: activate.value,
     inactive_message: inactiveMessage.value,
