@@ -14,18 +14,26 @@
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
-        <a-layout v-if="record.role === 'headquater'" class="bg-none headquater-content">
+        <a-layout
+          v-if="record.role === 'headquater'"
+          class="bg-none headquater-content"
+        >
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
       </template>
-      <template v-if="column.key === 'regional_office' && record.role !== 'user'">
+      <template
+        v-if="column.key === 'regional_office' && record.role !== 'user'"
+      >
         <a-layout v-if="record.role === 'regionalOffice'" class="bg-light-pink">
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
-        <a-typography-text v-if="record.role === 'branchOffice'" class="text-main">
-          {{ record.subs === 0 ? "" : record.subs }}
+        <a-typography-text
+          v-if="record.role === 'branchOffice'"
+          class="text-main"
+        >
+          {{ record.subs === 0 ? '' : record.subs }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'agency' && record.role !== 'user'">
@@ -33,8 +41,11 @@
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
-        <a-typography-text v-if="record.role === 'regionalOffice'" class="text-main">
-          {{ record.subs === 0 ? "" : record.subs }}
+        <a-typography-text
+          v-if="record.role === 'regionalOffice'"
+          class="text-main"
+        >
+          {{ record.subs === 0 ? '' : record.subs }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'distributor' && record.role !== 'user'">
@@ -43,7 +54,7 @@
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
         <a-typography-text v-if="record.role === 'agency'" class="text-main">
-          {{ record.subs === 0 ? "" : record.subs }}
+          {{ record.subs === 0 ? '' : record.subs }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'store' && record.role !== 'user'">
@@ -51,8 +62,11 @@
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
-        <a-typography-text v-if="record.role === 'distributor'" class="text-main">
-          {{ record.subs === 0 ? "" : record.subs }}
+        <a-typography-text
+          v-if="record.role === 'distributor'"
+          class="text-main"
+        >
+          {{ record.subs === 0 ? '' : record.subs }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'users'">
@@ -61,7 +75,7 @@
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
         <a-typography-text v-else class="text-dark-brown">
-          {{ record.members === 0 ? "" : record.members }}
+          {{ record.members === 0 ? '' : record.members }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'nickname'">
@@ -90,7 +104,9 @@
           </a-typography-text>
           <a-typography-text>
             {{ trlang.number }}
-            <span class="text-dark-brown">{{ record.matchNumberBetRate }}%</span>
+            <span class="text-dark-brown"
+              >{{ record.matchNumberBetRate }}%</span
+            >
           </a-typography-text>
         </a-layout>
       </template>
@@ -98,7 +114,7 @@
         <a-typography-text>
           {{
             record.members === 0
-              ? "1" + trlang.person
+              ? '1' + trlang.person
               : record.members + 1 + trlang.people
           }}
         </a-typography-text>
@@ -115,7 +131,10 @@
         <a-layout
           class="bg-none flex flex-row justify-center items-center flex-wrap gap-2"
         >
-          <a-button v-if="record.role === 'headquater'" class="bg-gray text-white">
+          <a-button
+            v-if="record.role === 'headquater'"
+            class="bg-gray text-white"
+          >
             <CheckCircleOutlined /> {{ trlang.full_message }}
           </a-button>
           <a-button
@@ -144,7 +163,7 @@
           <a-button
             v-if="record.role !== 'headquater'"
             class="bg-gray text-white"
-            @click="deleteItem(record)"
+            @click="$emit('openRemoveModal', record)"
           >
             <CheckCircleOutlined /> {{ trlang.delete }}
           </a-button>
@@ -179,31 +198,17 @@
 </template>
 
 <script setup>
-import { computed, defineProps, inject } from "vue";
-import { CheckCircleOutlined, UserAddOutlined } from "@ant-design/icons-vue";
-import { deleteData } from "@/helpers/Axios.js";
-import { apiLink } from "@/utils/api-link";
-import { message } from "ant-design-vue";
+import { computed, defineProps, inject } from 'vue';
+import { CheckCircleOutlined, UserAddOutlined } from '@ant-design/icons-vue';
 
 /* Translations */
-const langState = inject("langState");
+const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-const props = defineProps({
+defineProps({
   columns: Array,
   dataSource: Array,
   loading: Boolean,
   fetchData: Function,
 });
-
-const deleteItem = async (record) => {
-  const result = await deleteData(
-    `${apiLink.delete_partner}?id=${record.id}&role=${record.role}`
-  );
-
-  if (result.status) {
-    message.success(trlang.value.deleted_successful);
-    props.fetchData();
-  }
-};
 </script>

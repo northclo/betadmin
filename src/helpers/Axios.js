@@ -41,7 +41,7 @@ export const getData = handleError(async (url) => {
 
   const res = await axios.get(`${config.baseURL}${url}`, {
     headers: {
-      autherization: token
+      authorization: token
     },
     timeout: 5000
   })
@@ -58,7 +58,7 @@ export const postData = handleError(async (url, data = {}) => {
 
   const res = await axios.post(`${config.baseURL}${url}`, data, {
     headers: {
-      autherization: token
+      authorization: token
     },
     timeout: 5000,
   });
@@ -75,7 +75,7 @@ export const putData = handleError(async (url, data = {}) => {
 
   const res = await axios.put(`${config.baseURL}${url}`, data, {
     headers: {
-      autherization: token
+      authorization: token
     },
     timeout: 5000,
   });
@@ -92,7 +92,7 @@ export const deleteData = handleError(async (url) => {
 
   const res = await axios.delete(`${config.baseURL}${url}`, {
     headers: {
-      autherization: token
+      authorization: token
     },
     timeout: 5000
   })

@@ -37,6 +37,7 @@ export default {
   correct: "Correct",
   invalid_username: "Invalid username",
   invalid_nickname: "Invalid nickname",
+  remove: "Remove",
 
 
   // Left Layout
@@ -350,5 +351,11 @@ export default {
   please_input_nickname: "Please input nickname",
   please_input_title: "Please input title",
   please_input_message: "Please input message",
-  num_2_10_characters_in_combination_of_english_and_numbers: "(2 - 10 characters in combination of English, and numbers)"
+  num_2_10_characters_in_combination_of_english_and_numbers: "(2 - 10 characters in combination of English, and numbers)",
+  remove_current_partner: "Remove Current Parnter",
+  if_there_are_sub_partners_and_users_then_it_is_not_possible_to_delete: "If there are sub partners and users, then it is not possible to delete",
+  sub_partners: "Sub partners",
+  partner_info: "Partner info",
+  num: "num",
+  it_is_not_possible_to_delete: "It is not possible to delete"
 };
