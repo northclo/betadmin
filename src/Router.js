@@ -10,6 +10,7 @@ const MemberList = () => import("@/views/MemberList.vue");
 const AdminAccount = () => import('@/views/AdminAccount.vue');
 const GameSetting = () => import('@/views/GameSetting.vue');
 const GamePartner = () => import('@/views/GamePartner.vue');
+const LoginInformation = () => import('@/views/LoginInformation.vue');
 
 const routes = [
   {
@@ -52,6 +53,11 @@ const routes = [
     name: routeLink.game_partner.name,
     component: GamePartner
   },
+  {
+    path: routeLink.login_information.link,
+    name: routeLink.login_information.name,
+    component: LoginInformation
+  }
 ];
 
 const router = createRouter({

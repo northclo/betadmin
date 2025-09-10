@@ -14,7 +14,7 @@
         >
           <a-layout-content class="flex items-center gap-2">
             <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
-            <a-input v-model:value="search" class="search-input">
+            <a-input v-model:value="search" class="input-lg">
               <template #prefix> <SearchOutlined /> </template>
             </a-input>
             <a-button class="bg-gray text-white ms-2" @click="fetchData">

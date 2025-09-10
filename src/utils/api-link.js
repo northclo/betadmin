@@ -12,4 +12,6 @@ export const apiLink = {
   register_user: 'partner/register-user',
   send_partner_message: "partner/message",
   cash_increase: "partner/cash-increase",
+  get_login_information: "member/login",
+  block_ip: 'member/block-ip'
 };

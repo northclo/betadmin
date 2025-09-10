@@ -81,7 +81,7 @@ export const menuList = () => {
         {
           key: "login_info",
           label: "login_information",
-          to: "/member-login",
+          to: routeLink.login_information.link,
         },
         {
           key: "current_user",

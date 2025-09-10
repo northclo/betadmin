@@ -357,5 +357,12 @@ export default {
   sub_partners: "Sub partners",
   partner_info: "Partner info",
   num: "num",
-  it_is_not_possible_to_delete: "It is not possible to delete"
+  it_is_not_possible_to_delete: "It is not possible to delete",
+
+
+  // Login Information
+  start_date: "Start date",
+  end_date: "End date",
+  ip_blocking: "IP blocking",
+  ip_allow: "IP allow",
 };

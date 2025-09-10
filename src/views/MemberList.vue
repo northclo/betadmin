@@ -32,7 +32,7 @@
       <a-input
         v-model:value="search"
         placeholder="Search..."
-        class="search-input"
+        class="input-lg"
         @change="searchMember"
       >
         <template #prefix>
@@ -113,20 +113,20 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, inject } from "vue";
-import BaseTable from "@/components/Table.vue";
+import { ref, onMounted, computed, inject } from 'vue';
+import BaseTable from '@/components/Table.vue';
 import {
   SearchOutlined,
   PlusOutlined,
   DeleteOutlined,
   PrinterOutlined,
-} from "@ant-design/icons-vue";
-import { getData, deleteData, putData, postData } from "@/helpers/Axios";
-import { checkValidEmail, exportExcel } from "@/helpers/Common.js";
-import { apiLink } from "@/utils/api-link";
-import { routeLink } from "@/utils/route-link";
-import { memberListColumn } from "@/utils/table-column/member-list";
-import { message } from "ant-design-vue";
+} from '@ant-design/icons-vue';
+import { getData, deleteData, putData, postData } from '@/helpers/Axios';
+import { checkValidEmail, exportExcel } from '@/helpers/Common.js';
+import { apiLink } from '@/utils/api-link';
+import { routeLink } from '@/utils/route-link';
+import { memberListColumn } from '@/utils/table-column/member-list';
+import { message } from 'ant-design-vue';
 
 export default {
   name: routeLink.member_list.name,
@@ -138,7 +138,7 @@ export default {
     PrinterOutlined,
   },
   setup() {
-    const langState = inject("langState");
+    const langState = inject('langState');
     const trlang = computed(() => langState.translations);
 
     const dataSource = ref([]);
@@ -150,22 +150,24 @@ export default {
     const loading = ref(true);
 
     // form fields
-    const firstName = ref("");
-    const lastName = ref("");
-    const userName = ref("");
-    const email = ref("");
-    const password = ref("");
-    const confirmPassword = ref("");
-    const company = ref("");
-    const phoneNumber = ref("");
+    const firstName = ref('');
+    const lastName = ref('');
+    const userName = ref('');
+    const email = ref('');
+    const password = ref('');
+    const confirmPassword = ref('');
+    const company = ref('');
+    const phoneNumber = ref('');
     const modalState = ref(0); // add: 0, edit: 1
-    const updateId = ref("");
-    const search = ref("");
+    const updateId = ref('');
+    const search = ref('');
 
     const fetchData = async () => {
       loading.value = true;
 
-      const res = await getData(`${apiLink.member_list}?search=${search.value}`);
+      const res = await getData(
+        `${apiLink.member_list}?search=${search.value}`
+      );
       if (res.status) {
         dataSource.value =
           res.data.map((element, idx) => ({
@@ -183,8 +185,8 @@ export default {
       userName.value = row.userName;
       company.value = row.company;
       email.value = row.email;
-      password.value = "";
-      confirmPassword.value = "";
+      password.value = '';
+      confirmPassword.value = '';
       phoneNumber.value = row.phoneNumber;
       updateId.value = row._id;
       modalState.value = 1;
@@ -193,14 +195,14 @@ export default {
     };
 
     const openAddModal = () => {
-      firstName.value = "";
-      lastName.value = "";
-      userName.value = "";
-      company.value = "";
-      email.value = "";
-      password.value = "";
-      confirmPassword.value = "";
-      phoneNumber.value = "";
+      firstName.value = '';
+      lastName.value = '';
+      userName.value = '';
+      company.value = '';
+      email.value = '';
+      password.value = '';
+      confirmPassword.value = '';
+      phoneNumber.value = '';
       modalState.value = 0;
 
       openModal();
@@ -220,14 +222,17 @@ export default {
 
     const hideModal = () => {
       modalState.value = 0;
-      updateId.value = "";
+      updateId.value = '';
       open.value = false;
     };
 
     const addMember = async () => {
-      if (!firstName.value) return message.error(trlang.value.first_name_required);
-      if (!lastName.value) return message.error(trlang.value.last_name_required);
-      if (!userName.value) return message.error(trlang.value.user_name_required);
+      if (!firstName.value)
+        return message.error(trlang.value.first_name_required);
+      if (!lastName.value)
+        return message.error(trlang.value.last_name_required);
+      if (!userName.value)
+        return message.error(trlang.value.user_name_required);
       if (!email.value) return message.error(trlang.value.email_required);
       if (!checkValidEmail(email.value))
         return message.error(trlang.value.not_correct_email);
@@ -287,12 +292,14 @@ export default {
       if (selectedMembers.value.length === 0) {
         return message.error(trlang.value.please_select_members);
       }
-      let deleteMemberIds = "";
+      let deleteMemberIds = '';
       selectedMembers.value.forEach((element) => {
-        deleteMemberIds += "," + element._id;
+        deleteMemberIds += ',' + element._id;
       });
 
-      const res = await deleteData(`${apiLink.member_list}/${deleteMemberIds.slice(1)}`);
+      const res = await deleteData(
+        `${apiLink.member_list}/${deleteMemberIds.slice(1)}`
+      );
       await fetchData();
       if (res.status) {
         message.success(trlang.value.deleted_successful);
@@ -301,7 +308,11 @@ export default {
 
     const exportMemberToExcel = () => {
       if (selectedMembers.value.length === 0) {
-        exportExcel(dataSource.value, trlang.value.member_list, trlang.value.member_list);
+        exportExcel(
+          dataSource.value,
+          trlang.value.member_list,
+          trlang.value.member_list
+        );
       } else {
         exportExcel(
           selectedMembers.value,

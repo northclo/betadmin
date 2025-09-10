@@ -35,4 +35,8 @@ export const routeLink = {
     name: "GamePartnerPage",
     link: "/game/partner"
   },
+  login_information: {
+    name: "LoginInformationPage",
+    link: "/member/login"
+  }
 };
