@@ -13,5 +13,6 @@ export const apiLink = {
   send_partner_message: "partner/message",
   cash_increase: "partner/cash-increase",
   get_login_information: "member/login",
-  block_ip: 'member/block-ip'
+  block_ip: 'member/block-ip',
+  get_game_management: "game",
 };

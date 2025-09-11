@@ -94,7 +94,7 @@ export const menuList = () => {
       key: "game_manage",
       label: "game_management",
       icon: SettingOutlined,
-      to: routeLink.game_setting.link
+      to: routeLink.game_management.link
     },
     {
       key: "bet_list",

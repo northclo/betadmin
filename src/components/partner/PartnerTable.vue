@@ -10,7 +10,7 @@
     </template>
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'branch_office'">
-        <a-layout v-if="record.role === 'branchOffice'" class="bg-light-pink">
+        <a-layout v-if="record.role === 'branch_office'" class="bg-light-pink">
           <a-typography-text> {{ record.nickname }} </a-typography-text>
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
@@ -30,7 +30,7 @@
           <a-typography-text>({{ record.id }})</a-typography-text>
         </a-layout>
         <a-typography-text
-          v-if="record.role === 'branchOffice'"
+          v-if="record.role === 'branch_office'"
           class="text-main"
         >
           {{ record.subs === 0 ? '' : record.subs }}

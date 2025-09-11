@@ -38,5 +38,9 @@ export const routeLink = {
   login_information: {
     name: "LoginInformationPage",
     link: "/member/login"
+  },
+  game_management: {
+    name: "GameManagementPage",
+    link: "/game"
   }
 };

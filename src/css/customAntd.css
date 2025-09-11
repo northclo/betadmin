@@ -45,3 +45,7 @@ table .ant-table-thead tr th {
 table thead > tr > th::before {
   display: none;
 }
+
+table tbody > tr > td:has(> .no-padding) {
+  padding: 1px !important;
+}

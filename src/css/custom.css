@@ -125,3 +125,44 @@
   background: var(--white-color);
   margin-top: 20px;
 }
+
+.prefix-badge {
+  color: var(--white-color);
+  display: inline-block;
+  font-weight: 700;
+  text-align: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  line-height: 19px;
+  margin-right: 5px;
+}
+
+.prefix-badge-register {
+  background-color: var(--gray);
+  box-shadow: #1f1c31 0 -12px 6px inset;
+}
+
+.prefix-badge-start {
+  background-color: #d9d8a6;
+  box-shadow: #575621 0 -12px 6px inset;
+}
+
+.prefix-badge-end {
+  background-color: #63a55d;
+  box-shadow: #2b4629 0 -12px 6px inset;
+}
+
+.prefix-badge-finish {
+  background-color: #b8a7a7;
+  box-shadow: #452a2a 0 -12px 6px inset;
+}
+
+.prefix-badge-cancel {
+  background-color: #a8aeb6;
+  box-shadow: #3e454f 0 -12px 6px inset;
+}
+
+.prefix-badge-inactive {
+  background: var(--light-gray-color);
+}

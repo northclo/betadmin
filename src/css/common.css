@@ -61,6 +61,10 @@ button {
   background: var(--gray) !important;
 }
 
+.bg-purple {
+  background: var(--purple-color) !important;
+}
+
 .bg-none {
   background: transparent; /* No background */
 }

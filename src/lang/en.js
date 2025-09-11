@@ -365,4 +365,21 @@ export default {
   end_date: "End date",
   ip_blocking: "IP blocking",
   ip_allow: "IP allow",
+
+  // Game Management
+  game_process: "Game Process",
+  keyword: "Keyword",
+  total_round_id: "Total Round ID",
+  day_round_id: "Day Round ID",
+  register_game: "Register Game",
+  under_betting: "Under Betting",
+  end_betting: "End Betting",
+  finish_betting: "Finish Betting",
+  cancel_game: "Cancel Game",
+  all_process: "All Process",
+  remain: "Remain",
+  day: 'day',
+  hour: 'hour',
+  min: "min",
+  sec: "sec"
 };

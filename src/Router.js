@@ -11,6 +11,7 @@ const AdminAccount = () => import('@/views/AdminAccount.vue');
 const GameSetting = () => import('@/views/GameSetting.vue');
 const GamePartner = () => import('@/views/GamePartner.vue');
 const LoginInformation = () => import('@/views/LoginInformation.vue');
+const GameManagement = () => import('@/views/GameManagement.vue');
 
 const routes = [
   {
@@ -57,6 +58,11 @@ const routes = [
     path: routeLink.login_information.link,
     name: routeLink.login_information.name,
     component: LoginInformation
+  },
+  {
+    path: routeLink.game_management.link,
+    name: routeLink.game_management.name,
+    component: GameManagement
   }
 ];
 
