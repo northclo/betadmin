@@ -92,18 +92,22 @@
           </template>
 
           <template v-else-if="['odd_even', 'under_over'].includes(column.key)">
-            <a-layout class="flex flex-row bg-none no-padding">
-              <a-layout
+            <a-row class="bg-none no-padding">
+              <a-col
+                :span="12"
                 v-for="opt in bettingOptions[column.key]"
                 :key="opt.label"
-                :class="['pt-2 pb-2', opt.active(record) ? 'bg-purple' : '']"
+                :class="[
+                  'flex flex-column pt-2 pb-2',
+                  opt.active(record) ? 'bg-purple' : '',
+                ]"
               >
                 <a-typography-text>{{ opt.label }}</a-typography-text>
                 <a-typography-text
                   >[<span class="text-red">0</span>]</a-typography-text
                 >
-              </a-layout>
-            </a-layout>
+              </a-col>
+            </a-row>
           </template>
 
           <template
@@ -111,18 +115,22 @@
               ['odd_under_over', 'even_under_over'].includes(column.key)
             "
           >
-            <a-layout class="flex flex-row bg-none no-padding">
-              <a-layout
+            <a-row class="bg-none no-padding">
+              <a-col
+                :span="12"
                 v-for="opt in bettingOptions[column.key]"
                 :key="opt.label"
-                :class="['pt-2 pb-2', opt.active(record) ? 'bg-purple' : '']"
+                :class="[
+                  'flex flex-column pt-2 pb-2',
+                  opt.active(record) ? 'bg-purple' : '',
+                ]"
               >
                 <a-typography-text>{{ opt.label }}</a-typography-text>
                 <a-typography-text
                   >[<span class="text-red">0</span>]</a-typography-text
                 >
-              </a-layout>
-            </a-layout>
+              </a-col>
+            </a-row>
           </template>
 
           <template v-else-if="column.key === 'game_status'">
