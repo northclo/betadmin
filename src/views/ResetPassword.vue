@@ -1,51 +1,37 @@
 <template>
   <a-row class="h-100vh">
-    <!-- Left Panel -->
     <a-col :span="12" class="flex justify-center items-center items-center">
       <a-space direction="vertical" size="middle" class="w-100 max-w-fit">
         <div>
-          <a-typography-title level="2">{{ trlang.reset_password }}</a-typography-title>
+          <a-typography-title level="2">
+            {{ trlang.reset_password }}
+          </a-typography-title>
         </div>
-
-        <!-- Password Input -->
         <div>
-          <a-typography-text>{{ trlang.password }}</a-typography-text>
-          <a-input-password
-            v-model:value="password"
-            :placeholder="trlang.input_password"
-          />
+          <a-typography-text>
+            {{ trlang.password }}
+          </a-typography-text>
+          <a-input-password v-model:value="password" :placeholder="trlang.input_password" />
         </div>
-
-        <!-- Confirm Password Input -->
         <div>
-          <a-typography-text>{{ trlang.confirm_password }}</a-typography-text>
-          <a-input-password
-            v-model:value="confirm_password"
-            :placeholder="trlang.input_password"
-          />
+          <a-typography-text>
+            {{ trlang.confirm_password }}
+          </a-typography-text>
+          <a-input-password v-model:value="confirm_password" :placeholder="trlang.input_password" />
         </div>
-
-        <!-- Reset Button -->
-        <a-button
-          type="primary"
-          class="w-100 mt-5"
-          @click="resetPassword"
-          :loading="loading"
-        >
+        <a-button type="primary" class="w-100 mt-5" :loading="loading" @click="resetPassword">
           {{ trlang.reset_password }}
         </a-button>
-
-        <!-- Back to Login -->
         <div class="text-end mt-2">
           <router-link to="/auth/login">
-            <a-button type="link">{{ trlang.back_to_login }}</a-button>
+            <a-button type="link">
+              {{ trlang.back_to_login }}
+            </a-button>
           </router-link>
         </div>
       </a-space>
     </a-col>
-
-    <!-- Right Panel -->
-    <a-col :span="12" class="login-image"></a-col>
+    <a-col :span="12" class="login-image" />
   </a-row>
 </template>
 

@@ -1,30 +1,22 @@
 <template>
   <a-row class="h-100vh">
-    <!-- Left Panel -->
     <a-col :span="12" class="flex justify-center items-center items-center">
       <a-space direction="vertical" size="middle" class="w-100 max-w-fit">
-        <!-- Title -->
-        <div>
-          <a-typography-title level="2">{{ trlang.forgot_password }}</a-typography-title>
-        </div>
+        <a-typography-title level="2">{{ trlang.forgot_password }}</a-typography-title>
 
-        <!-- Email Input -->
         <div>
           <a-typography-text>{{ trlang.email }}</a-typography-text>
           <a-input v-model:value="email" :placeholder="trlang.input_email" />
         </div>
 
-        <!-- Info Text -->
-        <a-typography-text class="fs-5">{{
-          trlang.you_will_get_verify_with_email
-        }}</a-typography-text>
+        <a-typography-text class="fs-5">
+          {{ trlang.you_will_get_verify_with_email }}
+        </a-typography-text>
 
-        <!-- Send Verification Button -->
         <a-button type="primary" class="w-100" @click="sendVerify" :loading="loading">
           {{ trlang.send_verify }}
         </a-button>
 
-        <!-- Back to Login -->
         <div class="text-end mt-2">
           <router-link to="/auth/login">
             <a-button type="link">{{ trlang.back_to_login }}</a-button>
@@ -34,7 +26,7 @@
     </a-col>
 
     <!-- Right Panel -->
-    <a-col :span="12" class="login-image"></a-col>
+    <a-col :span="12" class="login-image" />
   </a-row>
 </template>
 

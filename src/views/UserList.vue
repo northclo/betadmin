@@ -1,0 +1,293 @@
+<template>
+  <a-layout class="bg-white px-5 sticky-header">
+    <a-typography-text class="text-dark-gray fs-1">
+      {{ trlang.game_management }}
+    </a-typography-text>
+  </a-layout>
+
+  <a-layout class="p-2 flex flex-column gap-2">
+    <!-- Filters -->
+    <a-layout-header class="bg-white px-5 flex items-center gap-2 shadow">
+      <a-typography-text class="bg-gray text-white p-2">
+        {{ trlang.game_process }}
+      </a-typography-text>
+      <a-select
+        v-model:value="gameProcess"
+        :options="gameProcessOptions"
+        class="input-lg"
+        @change="fetchData"
+      />
+      <a-typography-text class="bg-gray text-white p-2">
+        {{ trlang.keyword }}
+      </a-typography-text>
+      <a-select
+        v-model:value="searchField"
+        :options="searchFieldOptions"
+        class="input-lg"
+      />
+      <a-input
+        v-model:value="search"
+        placeholder="Search..."
+        class="input-lg"
+        @pressEnter="fetchData"
+      >
+        <template #prefix><SearchOutlined /></template>
+      </a-input>
+      <a-button type="primary" @click="fetchData">
+        {{ trlang.search }}
+      </a-button>
+    </a-layout-header>
+
+    <!-- Table -->
+    <a-layout-content class="bg-white p-2 shadow">
+      <!-- Status Legend -->
+      <a-space class="p-2">
+        <template v-for="status in statusLegend" :key="status.key">
+          <a-typography-text>
+            <span :class="`prefix-badge ${status.class}`">{{
+              status.key
+            }}</span>
+            {{ status.label }}
+          </a-typography-text>
+        </template>
+      </a-space>
+
+      <a-table
+        :columns="gameManagementColumn"
+        :dataSource="dataSource"
+        rowKey="key"
+        class="w-100"
+        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
+        :pagination="paginationConfig"
+        @change="handleTableChange"
+      >
+        <template #emptyText>
+          <a-spin v-if="loading" />
+          <span v-else>{{ trlang.no_data }}</span>
+        </template>
+
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'round_id'">
+            <a-layout class="bg-none">
+              <a-typography-text class="text-main font-bold">
+                {{ record.total_no }}
+              </a-typography-text>
+              <a-typography-text>{{ record.today_no }}</a-typography-text>
+            </a-layout>
+          </template>
+
+          <template v-else-if="column.key === 'game_time'">
+            <a-layout class="bg-none">
+              <a-typography-text>{{ record.startTime }}</a-typography-text>
+              <a-typography-text class="text-red">
+                {{ loadRemainedTime(record.remainedTime) }}
+              </a-typography-text>
+            </a-layout>
+          </template>
+
+          <template v-else-if="column.key === 'result_list'">
+            <a-typography-text>
+              {{ JSON.stringify(record.list).slice(1, -1) }}
+            </a-typography-text>
+          </template>
+
+          <template v-else-if="['odd_even', 'under_over'].includes(column.key)">
+            <a-row class="bg-none no-padding">
+              <a-col
+                :span="12"
+                v-for="opt in bettingOptions[column.key]"
+                :key="opt.label"
+                :class="[
+                  'flex flex-column pt-2 pb-2',
+                  opt.active(record) ? 'bg-purple' : '',
+                ]"
+              >
+                <a-typography-text>{{ opt.label }}</a-typography-text>
+                <a-typography-text
+                  >[<span class="text-red">0</span>]</a-typography-text
+                >
+              </a-col>
+            </a-row>
+          </template>
+
+          <template
+            v-else-if="
+              ['odd_under_over', 'even_under_over'].includes(column.key)
+            "
+          >
+            <a-row class="bg-none no-padding">
+              <a-col
+                :span="12"
+                v-for="opt in bettingOptions[column.key]"
+                :key="opt.label"
+                :class="[
+                  'flex flex-column pt-2 pb-2',
+                  opt.active(record) ? 'bg-purple' : '',
+                ]"
+              >
+                <a-typography-text>{{ opt.label }}</a-typography-text>
+                <a-typography-text
+                  >[<span class="text-red">0</span>]</a-typography-text
+                >
+              </a-col>
+            </a-row>
+          </template>
+
+          <template v-else-if="column.key === 'game_status'">
+            <a-space class="p-2">
+              <span
+                v-for="status in statusLegend"
+                :key="status.key"
+                :class="`prefix-badge ${
+                  record.status === status.value
+                    ? status.class
+                    : 'prefix-badge-inactive'
+                }`"
+              >
+                {{ status.key }}
+              </span>
+            </a-space>
+          </template>
+        </template>
+      </a-table>
+    </a-layout-content>
+  </a-layout>
+</template>
+
+<script setup>
+import { ref, onMounted, computed, inject, watch } from 'vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
+import { gameManagementColumn } from '@/utils/table-column/game-management';
+import { getData } from '@/helpers/Axios';
+import { apiLink } from '@/utils/api-link';
+import { routeLink } from '@/utils/route-link';
+import { usePagination } from '@/composables/usePagination';
+
+defineOptions({ name: routeLink.login_information.name });
+
+const langState = inject('langState');
+const trlang = computed(() => langState.translations);
+
+// Filters
+const searchField = ref('total_no');
+const search = ref('');
+const gameProcess = ref('');
+const searchFieldOptions = ref([]);
+const gameProcessOptions = ref([]);
+
+// Table Data
+const dataSource = ref([]);
+const loading = ref(false);
+
+// Pagination
+const { paginationConfig, handleTableChange } = usePagination(10);
+
+// Status Legend
+const statusLegend = computed(() => [
+  {
+    key: 'R',
+    value: 'r',
+    class: 'prefix-badge-register',
+    label: trlang.value.register_game,
+  },
+  {
+    key: 'S',
+    value: 's',
+    class: 'prefix-badge-start',
+    label: trlang.value.under_betting,
+  },
+  {
+    key: 'E',
+    value: 'e',
+    class: 'prefix-badge-end',
+    label: trlang.value.end_betting,
+  },
+  {
+    key: 'F',
+    value: 'f',
+    class: 'prefix-badge-finish',
+    label: trlang.value.finish_betting,
+  },
+  {
+    key: 'C',
+    value: 'c',
+    class: 'prefix-badge-cancel',
+    label: trlang.value.cancel_game,
+  },
+]);
+
+// Betting Options
+const bettingOptions = computed(() => ({
+  odd_even: [
+    { label: trlang.value.odd, active: (r) => r.odd },
+    { label: trlang.value.even, active: (r) => !r.odd },
+  ],
+  under_over: [
+    { label: trlang.value.under, active: (r) => r.under },
+    { label: trlang.value.over, active: (r) => !r.under },
+  ],
+  odd_under_over: [
+    { label: trlang.value.odd_under, active: (r) => r.odd && r.under },
+    { label: trlang.value.odd_over, active: (r) => r.odd && !r.under },
+  ],
+  even_under_over: [
+    { label: trlang.value.even_under, active: (r) => !r.odd && r.under },
+    { label: trlang.value.even_over, active: (r) => !r.odd && !r.under },
+  ],
+}));
+
+// Init Options
+const initOptions = () => {
+  gameProcessOptions.value = [
+    { value: '', label: `:: ${trlang.value.all_process} ::` },
+    { value: 'register', label: trlang.value.register_game },
+    { value: 'under', label: trlang.value.under_betting },
+    { value: 'end', label: trlang.value.end_betting },
+    { value: 'finish', label: trlang.value.finish_betting },
+    { value: 'cancel', label: trlang.value.cancel_game },
+  ];
+  searchFieldOptions.value = [
+    { value: 'total_no', label: trlang.value.total_round_id },
+    { value: 'today_no', label: trlang.value.day_round_id },
+  ];
+};
+
+// Fetch Data
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const res = await getData(
+      `${apiLink.get_game_management}?status=${gameProcess.value}&searchField=${searchField.value}&search=${search.value}`
+    );
+    if (res.status) dataSource.value = res.data || [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Watch pagination
+watch(
+  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
+  fetchData
+);
+
+// Format Remained Time
+const loadRemainedTime = (time) => {
+  if (time < 0) return '';
+  const parts = [];
+  const days = Math.floor(time / 86400000);
+  const hours = Math.floor((time / 3600000) % 24);
+  const mins = Math.floor((time / 60000) % 60);
+  const secs = Math.floor((time / 1000) % 60);
+  if (days) parts.push(`${days}${trlang.value.day}`);
+  if (hours) parts.push(`${hours}${trlang.value.hour}`);
+  if (mins) parts.push(`${mins}${trlang.value.min}`);
+  if (secs) parts.push(`${secs}${trlang.value.sec}`);
+  return `${trlang.value.remain} ${parts.join(' ')}`;
+};
+
+onMounted(() => {
+  initOptions();
+  fetchData();
+});
+</script>

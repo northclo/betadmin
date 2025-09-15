@@ -1,6 +1,6 @@
 <template>
   <a-layout-sider :trigger="null" collapsible class="h-100vh overflow-y-auto left-sider">
-    <div style="width: 100%; height: 100px"></div>
+    <div style="width: 100%; height: 100px" />
     <a-layout class="bg-none">
       <a-typography-text class="text-green text-center fs-4">
         {{ trlang.betting_settlement_profit_new }}

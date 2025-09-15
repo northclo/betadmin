@@ -8,21 +8,12 @@
       <a-typography-text>
         {{ trlang.setup_as_other_partner_setting }}
       </a-typography-text>
-      <a-tree-select
-        v-model:value="activeSetting"
-        class="input-xl"
-        :tree-data="partnerOptions"
-        :field-names="{
-          label: 'nickname',
-          value: 'partner_id',
-          children: 'subs',
-        }"
-        tree-default-expand-all
-        show-search
-      />
-      <a-button class="bg-gray text-white" @click="changeActivePartner">{{
-        trlang.get_settings
-      }}</a-button>
+      <a-tree-select v-model:value="activeSetting" class="input-xl" :tree-data="partnerOptions" :field-names="{
+        label: 'nickname',
+        value: 'partner_id',
+        children: 'subs',
+      }" tree-default-expand-all show-search />
+      <a-button class="bg-gray text-white" @click="changeActivePartner">{{ trlang.get_settings }}</a-button>
     </a-layout>
 
     <a-typography-text class="text-dark-brown mt-2">
@@ -37,12 +28,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="border p-2 flex items-center gap-2">
-          <a-select
-            ref="select"
-            v-model:value="dividendType"
-            class="input-md"
-            :options="dividendTypeOptions"
-          ></a-select>
+          <a-select ref="select" v-model:value="dividendType" class="input-md" :options="dividendTypeOptions" />
         </a-layout-content>
       </a-layout>
 
@@ -67,16 +53,10 @@
       </a-layout-sider>
       <a-layout-content class="border p-2 flex flex-column">
         <a-layout class="flex flex-row bg-none">
-          <a-button
-            :class="cancelBet ? 'bg-main text-white' : ''"
-            @click="cancelBet = true"
-          >
+          <a-button :class="cancelBet ? 'bg-main text-white' : ''" @click="cancelBet = true">
             {{ trlang.possible_to_cancel }}
           </a-button>
-          <a-button
-            :class="!cancelBet ? 'bg-main text-white' : ''"
-            @click="cancelBet = false"
-          >
+          <a-button :class="!cancelBet ? 'bg-main text-white' : ''" @click="cancelBet = false">
             {{ trlang.impossible_to_cancel }}
           </a-button>
         </a-layout>
@@ -111,12 +91,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="border p-2 flex items-center flex-wrap gap-2">
-          <a-select
-            ref="select"
-            v-model:value="betUnit"
-            class="input-md"
-            :options="betUnitOption"
-          ></a-select>
+          <a-select ref="select" v-model:value="betUnit" class="input-md" :options="betUnitOption" />
         </a-layout-content>
       </a-layout>
 

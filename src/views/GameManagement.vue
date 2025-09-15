@@ -6,61 +6,40 @@
   </a-layout>
 
   <a-layout class="p-2 flex flex-column gap-2">
-    <!-- Filters -->
     <a-layout-header class="bg-white px-5 flex items-center gap-2 shadow">
       <a-typography-text class="bg-gray text-white p-2">
         {{ trlang.game_process }}
       </a-typography-text>
-      <a-select
-        v-model:value="gameProcess"
-        :options="gameProcessOptions"
-        class="input-lg"
-        @change="fetchData"
-      />
+      <a-select v-model:value="gameProcess" :options="gameProcessOptions" class="input-lg" @change="fetchData" />
       <a-typography-text class="bg-gray text-white p-2">
         {{ trlang.keyword }}
       </a-typography-text>
-      <a-select
-        v-model:value="searchField"
-        :options="searchFieldOptions"
-        class="input-lg"
-      />
-      <a-input
-        v-model:value="search"
-        placeholder="Search..."
-        class="input-lg"
-        @pressEnter="fetchData"
-      >
-        <template #prefix><SearchOutlined /></template>
+      <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
+      <a-input v-model:value="search" placeholder="Search..." class="input-lg" @press-enter="fetchData">
+        <template #prefix>
+          <SearchOutlined />
+        </template>
       </a-input>
       <a-button type="primary" @click="fetchData">
         {{ trlang.search }}
       </a-button>
     </a-layout-header>
 
-    <!-- Table -->
     <a-layout-content class="bg-white p-2 shadow">
-      <!-- Status Legend -->
       <a-space class="p-2">
         <template v-for="status in statusLegend" :key="status.key">
           <a-typography-text>
-            <span :class="`prefix-badge ${status.class}`">{{
-              status.key
-            }}</span>
+            <span :class="`prefix-badge ${status.class}`">
+              {{ status.key }}
+            </span>
             {{ status.label }}
           </a-typography-text>
         </template>
       </a-space>
 
-      <a-table
-        :columns="gameManagementColumn"
-        :dataSource="dataSource"
-        rowKey="key"
-        class="w-100"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
-        :pagination="paginationConfig"
-        @change="handleTableChange"
-      >
+      <a-table :columns="gameManagementColumn" :data-source="dataSource" row-key="key" class="w-100"
+        :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
+        @change="handleTableChange">
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -93,57 +72,30 @@
 
           <template v-else-if="['odd_even', 'under_over'].includes(column.key)">
             <a-row class="bg-none no-padding">
-              <a-col
-                :span="12"
-                v-for="opt in bettingOptions[column.key]"
-                :key="opt.label"
-                :class="[
-                  'flex flex-column pt-2 pb-2',
-                  opt.active(record) ? 'bg-purple' : '',
-                ]"
-              >
+              <a-col v-for="opt in bettingOptions[column.key]" :key="opt.label"
+                :class="['flex flex-column pt-2 pb-2', opt.active(record) ? 'bg-purple' : '']" :span="12">
                 <a-typography-text>{{ opt.label }}</a-typography-text>
-                <a-typography-text
-                  >[<span class="text-red">0</span>]</a-typography-text
-                >
+                <a-typography-text>[<span class="text-red">0</span>]</a-typography-text>
               </a-col>
             </a-row>
           </template>
 
-          <template
-            v-else-if="
-              ['odd_under_over', 'even_under_over'].includes(column.key)
-            "
-          >
+          <template v-else-if="['odd_under_over', 'even_under_over'].includes(column.key)">
             <a-row class="bg-none no-padding">
-              <a-col
-                :span="12"
-                v-for="opt in bettingOptions[column.key]"
-                :key="opt.label"
-                :class="[
-                  'flex flex-column pt-2 pb-2',
-                  opt.active(record) ? 'bg-purple' : '',
-                ]"
-              >
+              <a-col v-for="opt in bettingOptions[column.key]" :key="opt.label"
+                :class="['flex flex-column pt-2 pb-2', opt.active(record) ? 'bg-purple' : '']" :span="12">
                 <a-typography-text>{{ opt.label }}</a-typography-text>
-                <a-typography-text
-                  >[<span class="text-red">0</span>]</a-typography-text
-                >
+                <a-typography-text>[<span class="text-red">0</span>]</a-typography-text>
               </a-col>
             </a-row>
           </template>
 
           <template v-else-if="column.key === 'game_status'">
             <a-space class="p-2">
-              <span
-                v-for="status in statusLegend"
-                :key="status.key"
-                :class="`prefix-badge ${
-                  record.status === status.value
-                    ? status.class
-                    : 'prefix-badge-inactive'
-                }`"
-              >
+              <span v-for="status in statusLegend" :key="status.key" :class="`prefix-badge ${record.status === status.value
+                ? status.class
+                : 'prefix-badge-inactive'
+                }`">
                 {{ status.key }}
               </span>
             </a-space>

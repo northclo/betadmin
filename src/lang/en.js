@@ -381,5 +381,11 @@ export default {
   day: 'day',
   hour: 'hour',
   min: "min",
-  sec: "sec"
+  sec: "sec",
+
+  // Current Login User Page
+  current_loggedin_users: "Current Loggedin Users",
+  user_status: "User Status",
+  block_ip: "Block IP",
+  allow_ip: "Allow IP"
 };

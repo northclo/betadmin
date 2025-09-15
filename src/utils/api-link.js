@@ -15,4 +15,5 @@ export const apiLink = {
   get_login_information: "member/login",
   block_ip: 'member/block-ip',
   get_game_management: "game",
+  get_current_loggedin_user: "member/current-login"
 };

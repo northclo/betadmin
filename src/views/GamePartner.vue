@@ -6,75 +6,43 @@
       </a-typography-text>
     </a-layout>
     <a-layout class="px-2">
-      <ParnterChart :dataSource="dataSource" :loading="loading" />
+      <ParnterChart :data-source="dataSource" :loading="loading" />
 
       <a-layout class="p-5 bg-white mt-5">
-        <a-layout
-          class="bg-white pt-5 pb-5 flex flex-row justify-between items-center"
-        >
+        <a-layout class="bg-white pt-5 pb-5 flex flex-row justify-between items-center">
           <a-layout-content class="flex items-center gap-2">
             <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
             <a-input v-model:value="search" class="input-lg">
-              <template #prefix> <SearchOutlined /> </template>
+              <template #prefix>
+                <SearchOutlined />
+              </template>
             </a-input>
             <a-button class="bg-gray text-white ms-2" @click="fetchData">
               {{ trlang.search }}
             </a-button>
-            <a-typography-text class="ms-5 me-2">{{
-              trlang.expand_all
-            }}</a-typography-text>
-            <a-checkbox
-              v-model:checked="expand"
-              @change="fetchData"
-            ></a-checkbox>
+            <a-typography-text class="ms-5 me-2">
+              {{ trlang.expand_all }}
+            </a-typography-text>
+            <a-checkbox v-model:checked="expand" @change="fetchData" />
           </a-layout-content>
           <a-layout-content class="flex justify-end">
-            <a-button
-              class="bg-gray text-white"
-              @click="openRegisterPartner = true"
-            >
+            <a-button class="bg-gray text-white" @click="openRegisterPartner = true">
               <CheckCircleOutlined />{{ trlang.add_a_branch_office }}
             </a-button>
           </a-layout-content>
         </a-layout>
 
-        <PartnerTable
-          :columns="columns"
-          :dataSource="dataSource"
-          :loading="loading"
-          @openRegisterUser="openRegisterUser = true"
-          :fetchData="fetchData"
-          @openCashModal="openCashModal"
-          @openNoteModal="openNoteModal"
-          @openGroupMessageModal="openGroupMessageModal"
-          @openRemoveModal="openRemoveModal"
-        />
+        <PartnerTable :columns="columns" :data-source="dataSource" :loading="loading" :fetch-data="fetchData"
+          @open-register-user="openRegisterUser = true" @open-cash-modal="openCashModal"
+          @open-note-modal="openNoteModal" @open-group-message-modal="openGroupMessageModal"
+          @open-remove-modal="openRemoveModal" />
       </a-layout>
-      <RegisterUserModal
-        v-model:open="openRegisterUser"
-        :dataSource="selectedRecord"
-        :fetchData="fetchData"
-      />
-      <RegisterPartnerModal
-        v-model:open="openRegisterPartner"
-        :dataSource="selectedRecord"
-        :fetchData="fetchData"
-      />
-      <CashModal
-        v-model:open="openCash"
-        :dataSource="selectedRecord"
-        :fetchData="fetchData"
-      />
-      <SendNoteModal v-model:open="openNote" :dataSource="selectedRecord" />
-      <GroupMessageModal
-        v-model:open="openGroupMessage"
-        :dataSource="selectedRecord"
-      />
-      <RemovePartnerModal
-        v-model:open="openRemove"
-        :dataSource="selectedRecord"
-        :fetchData="fetchData"
-      />
+      <RegisterUserModal v-model:open="openRegisterUser" :data-source="selectedRecord" :fetch-data="fetchData" />
+      <RegisterPartnerModal v-model:open="openRegisterPartner" :data-source="selectedRecord" :fetch-data="fetchData" />
+      <CashModal v-model:open="openCash" :data-source="selectedRecord" :fetch-data="fetchData" />
+      <SendNoteModal v-model:open="openNote" :data-source="selectedRecord" />
+      <GroupMessageModal v-model:open="openGroupMessage" :data-source="selectedRecord" />
+      <RemovePartnerModal v-model:open="openRemove" :data-source="selectedRecord" :fetch-data="fetchData" />
     </a-layout>
   </a-layout>
 </template>
@@ -130,9 +98,9 @@ const fetchData = async () => {
       dataSource.value =
         partners.data.length > 6
           ? [
-              ...partners.data.slice(0, 5),
-              partners.data[partners.data.length - 1],
-            ]
+            ...partners.data.slice(0, 5),
+            partners.data[partners.data.length - 1],
+          ]
           : partners.data;
     }
   } finally {

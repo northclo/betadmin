@@ -1,21 +1,16 @@
 <template>
-  <a-layout
-    class="bg-white flex flex-row justify-between items-center px-5 sticky-header"
-  >
+  <a-layout class="bg-white flex flex-row justify-between items-center px-5 sticky-header">
     <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.game_settings }}
     </a-typography-text>
-    <a-button
-      class="bg-main text-white flex justify-center items-center"
-      @click="handleSave"
-    >
+    <a-button class="bg-main text-white flex justify-center items-center" @click="handleSave">
       <SaveOutlined />
       {{ trlang.save }}
     </a-button>
   </a-layout>
 
   <a-layout class="p-2">
-    <PowerballGame ref="powerballRef" :saveData="saveData" />
+    <PowerballGame ref="powerballRef" :save-data="saveData" />
   </a-layout>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <a-spin v-if="loading" class="partner-chart" />
-  <div v-else ref="graphContainer" class="partner-chart"></div>
+  <div v-else ref="graphContainer" class="partner-chart" />
 </template>
 
 <script setup>

@@ -1,48 +1,49 @@
 <template>
   <a-row class="h-100vh">
-    <!-- Left Panel -->
     <a-col :span="12" class="flex justify-center items-center">
       <a-space direction="vertical" size="middle" class="w-100 max-w-fit">
         <div>
-          <a-typography-title level="2">{{ trlang.welcome_back }}</a-typography-title>
-          <a-typography-text>{{ trlang.enter_detail }}</a-typography-text>
+          <a-typography-title level="2">
+            {{ trlang.welcome_back }}
+          </a-typography-title>
+          <a-typography-text>
+            {{ trlang.enter_detail }}
+          </a-typography-text>
         </div>
 
-        <!-- Email Input -->
         <div>
           <a-typography-text>{{ trlang.email }}</a-typography-text>
           <a-input v-model:value="email" :placeholder="trlang.input_email" />
         </div>
 
-        <!-- Password Input -->
         <div>
           <a-typography-text>{{ trlang.password }}</a-typography-text>
-          <a-input-password
-            v-model:value="password"
-            :placeholder="trlang.input_password"
-          />
+          <a-input-password v-model:value="password" :placeholder="trlang.input_password" />
         </div>
 
-        <!-- Remember Me + Forgot Password -->
         <a-row class="w-100" justify="space-between" align="middle">
-          <a-checkbox v-model:checked="remember">{{ trlang.remember_me }}</a-checkbox>
+          <a-checkbox v-model:checked="remember">
+            {{ trlang.remember_me }}
+          </a-checkbox>
           <router-link to="/auth/forgot-password">
-            <a-button type="link">{{ trlang.forgot_password }}</a-button>
+            <a-button type="link">
+              {{ trlang.forgot_password }}
+            </a-button>
           </router-link>
         </a-row>
 
-        <!-- Login Button -->
         <a-button type="primary" class="w-100" @click="login">
           {{ trlang.login }}
         </a-button>
 
-        <!-- Register Link -->
         <a-row justify="center" align="middle" class="mt-2">
-          <a-typography-text class="fs-5">{{
-            trlang.not_have_account
-          }}</a-typography-text>
+          <a-typography-text class="fs-5">
+            {{ trlang.not_have_account }}
+          </a-typography-text>
           <router-link to="/auth/register">
-            <a-button type="link">{{ trlang.register_now }}</a-button>
+            <a-button type="link">
+              {{ trlang.register_now }}
+            </a-button>
           </router-link>
         </a-row>
       </a-space>

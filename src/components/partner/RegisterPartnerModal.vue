@@ -1,12 +1,6 @@
 <template>
-  <a-modal
-    :open="open"
-    :title="trlang.partner_registration"
-    :ok-text="trlang.register"
-    :cancel-text="trlang.cancel"
-    @ok="register"
-    @cancel="$emit('update:open', false)"
-  >
+  <a-modal :open="open" :title="trlang.partner_registration" :ok-text="trlang.register" :cancel-text="trlang.cancel"
+    @ok="register" @cancel="$emit('update:open', false)">
     <PartnerMemberInformation />
     <CurrencyRollingSetting />
     <PartnerRateSetting />
@@ -30,6 +24,8 @@ const trlang = computed(() => langState?.translations || {});
 defineProps({
   open: Boolean,
 });
+
+defineEmits('update:open')
 
 const register = () => {
   console.log("Register user logic here");

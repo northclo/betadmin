@@ -1,12 +1,6 @@
 <template>
-  <a-modal
-    :open="open"
-    :title="trlang.send_a_note"
-    :ok-text="trlang.registration"
-    :cancel-text="trlang.cancel"
-    @ok="sendNote"
-    @cancel="$emit('update:open', false)"
-  >
+  <a-modal :open="open" :title="trlang.send_a_note" :ok-text="trlang.registration" :cancel-text="trlang.cancel"
+    @ok="sendNote" @cancel="$emit('update:open', false)">
     <a-layout class="bg-white mt-5">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white">{{ trlang.title }}</a-typography-text>
@@ -54,12 +48,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2 flex flex-column">
-        <a-select
-          ref="select"
-          v-model:value="expire"
-          class="input-lg"
-          :options="expireOptions"
-        />
+        <a-select ref="select" v-model:value="expire" class="input-lg" :options="expireOptions" />
         <a-typography-text class="text-dark-brown">
           *{{
             trlang.when_set_messages_will_be_automatically_deleted_after_the_specified_period

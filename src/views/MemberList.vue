@@ -5,110 +5,49 @@
     </a-typography-text>
 
     <a-layout-header class="bg-white flex justify-end items-center gap-2">
-      <a-button
-        class="bg-main text-white flex justify-center items-center"
-        @click="openAddModal"
-      >
+      <a-button class="bg-main text-white flex justify-center items-center" @click="openAddModal">
         <PlusOutlined />
         {{ trlang.add_member }}
       </a-button>
-      <a-button
-        class="bg-red text-white flex justify-center items-center"
-        @click="deleteSelectedMembers"
-      >
+      <a-button class="bg-red text-white flex justify-center items-center" @click="deleteSelectedMembers">
         <DeleteOutlined />
         {{ trlang.delete_member }}
       </a-button>
-      <a-button
-        class="bg-main text-white flex justify-center items-center"
-        @click="exportMemberToExcel"
-      >
+      <a-button class="bg-main text-white flex justify-center items-center" @click="exportMemberToExcel">
         <PrinterOutlined />
         {{ trlang.export_excel }}
       </a-button>
     </a-layout-header>
 
     <a-layout-header class="bg-white flex justify-end items-center gap-2">
-      <a-input
-        v-model:value="search"
-        placeholder="Search..."
-        class="input-lg"
-        @change="searchMember"
-      >
+      <a-input v-model:value="search" placeholder="Search..." class="input-lg" @change="searchMember">
         <template #prefix>
           <SearchOutlined />
         </template>
       </a-input>
     </a-layout-header>
 
-    <a-modal
-      v-model:open="open"
-      :title="trlang.add_member"
-      :ok-text="trlang.save"
-      :cancel-text="trlang.cancel"
-      @ok="addMember"
-    >
+    <a-modal v-model:open="open" :title="trlang.add_member" :ok-text="trlang.save" :cancel-text="trlang.cancel"
+      @ok="addMember">
       <a-layout class="flex gap-5 flex-row bg-white mt-2">
-        <a-input
-          :addonBefore="trlang.first_name"
-          v-model:value="firstName"
-          placeholder="John*"
-        />
-        <a-input
-          :addonBefore="trlang.last_name"
-          v-model:value="lastName"
-          placeholder="Smith*"
-        />
+        <a-input :addon-before="trlang.first_name" v-model:value="firstName" placeholder="John*" />
+        <a-input :addonBefore="trlang.last_name" v-model:value="lastName" placeholder="Smith*" />
       </a-layout>
 
       <a-layout class="flex gap-5 flex-row bg-white mt-2">
-        <a-input
-          :addonBefore="trlang.user_name"
-          v-model:value="userName"
-          placeholder="John Smith*"
-        />
-        <a-input
-          :addonBefore="trlang.company"
-          v-model:value="company"
-          placeholder="Apple"
-        />
+        <a-input :addonBefore="trlang.user_name" v-model:value="userName" placeholder="John Smith*" />
+        <a-input :addonBefore="trlang.company" v-model:value="company" placeholder="Apple" />
       </a-layout>
 
-      <a-input
-        :addonBefore="trlang.email"
-        v-model:value="email"
-        placeholder="johnsmith@gmail.com*"
-        class="mt-2"
-      />
-      <a-input
-        :addonBefore="trlang.password"
-        v-model:value="password"
-        placeholder="1111*"
-        class="mt-2"
-      />
-      <a-input
-        :addonBefore="trlang.confirm_password"
-        v-model:value="confirmPassword"
-        placeholder="1111*"
-        class="mt-2"
-      />
-      <a-input
-        :addonBefore="trlang.phone_number"
-        v-model:value="phoneNumber"
-        placeholder="+1231231231"
-        class="mt-2"
-      />
+      <a-input :addonBefore="trlang.email" v-model:value="email" placeholder="johnsmith@gmail.com*" class="mt-2" />
+      <a-input :addonBefore="trlang.password" v-model:value="password" placeholder="1111*" class="mt-2" />
+      <a-input :addonBefore="trlang.confirm_password" v-model:value="confirmPassword" placeholder="1111*"
+        class="mt-2" />
+      <a-input :addonBefore="trlang.phone_number" v-model:value="phoneNumber" placeholder="+1231231231" class="mt-2" />
     </a-modal>
 
-    <BaseTable
-      :columns="columns"
-      :dataSource="dataSource"
-      :editRow="editRow"
-      :deleteRow="deleteRow"
-      :loading="loading"
-      @update:selectedRows="onSelectedRows"
-      @update:selectedRowKeys="onSelectedRowKeys"
-    />
+    <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow" :loading="loading"
+      @update:selectedRows="onSelectedRows" @update:selectedRowKeys="onSelectedRowKeys" />
   </a-layout>
 </template>
 

@@ -42,5 +42,9 @@ export const routeLink = {
   game_management: {
     name: "GameManagementPage",
     link: "/game"
+  },
+  current_login_user: {
+    name: "CurrentLoginUserPage",
+    link: '/member/current-login'
   }
 };

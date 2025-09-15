@@ -6,54 +6,29 @@
   </a-layout>
 
   <a-layout class="p-2 flex flex-column gap-2">
-    <!-- Filters -->
     <a-layout-header class="bg-white flex items-center gap-2 shadow">
       <a-typography-text>{{ trlang.start_date }}</a-typography-text>
-      <a-date-picker
-        v-model:value="startDate"
-        class="input-lg"
-        format="YYYY-MM-DD"
-        valueFormat="YYYY-MM-DD"
-        @change="fetchData"
-      />
+      <a-date-picker v-model:value="startDate" class="input-lg" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
+        @change="fetchData" />
       <a-typography-text>~</a-typography-text>
       <a-typography-text>{{ trlang.end_date }}</a-typography-text>
-      <a-date-picker
-        v-model:value="endDate"
-        class="input-lg"
-        format="YYYY-MM-DD"
-        valueFormat="YYYY-MM-DD"
-        @change="fetchData"
-      />
-      <a-select
-        v-model:value="searchField"
-        :options="searchFieldOptions"
-        class="input-lg"
-      />
-      <a-input
-        v-model:value="search"
-        placeholder="Search..."
-        class="input-lg"
-        @pressEnter="fetchData"
-      >
+      <a-date-picker v-model:value="endDate" class="input-lg" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
+        @change="fetchData" />
+      <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
+      <a-input v-model:value="search" placeholder="Search..." class="input-lg" @press-enter="fetchData">
         <template #prefix>
           <SearchOutlined />
         </template>
       </a-input>
-      <a-button type="primary" @click="fetchData">{{ trlang.search }}</a-button>
+      <a-button type="primary" @click="fetchData">
+        {{ trlang.search }}
+      </a-button>
     </a-layout-header>
 
-    <!-- Table -->
     <a-layout-content class="bg-white p-2 shadow">
-      <a-table
-        :columns="loginInformationColumn"
-        :dataSource="dataSource"
-        rowKey="key"
-        class="w-100"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
-        :pagination="paginationConfig"
-        @change="handleTableChange"
-      >
+      <a-table :columns="loginInformationColumn" :data-source="dataSource" row-key="key" class="w-100"
+        :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
+        @change="handleTableChange">
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -71,13 +46,10 @@
               {{ record.own_partner_nickname || record.user_nickname }}
             </span>
             <span> ({{ record.own_partner_id || record.user_id }}) </span>
-            <span
-              :class="
-                record.own_partner_nickname
-                  ? 'bg-gray text-white p-1 radius-1'
-                  : ''
-              "
-            >
+            <span :class="record.own_partner_nickname
+              ? 'bg-gray text-white p-1 radius-1'
+              : ''
+              ">
               {{
                 record.own_partner_nickname
                   ? trlang[record.own_partner_role]
@@ -88,13 +60,10 @@
 
           <!-- Distributor -->
           <template v-if="column.key === 'distributor'">
-            <a-typography-text
-              :class="
-                record.own_partner_nickname || record.partner_nickname
-                  ? 'bg-yellow border radius-1 flex flex-column'
-                  : ''
-              "
-            >
+            <a-typography-text :class="record.own_partner_nickname || record.partner_nickname
+              ? 'bg-yellow border radius-1 flex flex-column'
+              : ''
+              ">
               {{
                 record.own_partner_nickname || record.partner_nickname || '-'
               }}
@@ -107,10 +76,7 @@
           <!-- IP -->
           <template v-if="column.key === 'ip_address'">
             <a-typography-text>{{ record.ip_address }}</a-typography-text>
-            <a-button
-              class="bg-gray text-white ms-2"
-              @click="changeBlockIp(record.ip_address, record.block_ip)"
-            >
+            <a-button class="bg-gray text-white ms-2" @click="changeBlockIp(record.ip_address, record.block_ip)">
               {{ record.block_ip ? trlang.ip_allow : trlang.ip_blocking }}
             </a-button>
           </template>
