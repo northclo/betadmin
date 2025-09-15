@@ -39,8 +39,6 @@ const handleError =
 export const getData = handleError(async (url) => {
   let token = localStorage.getItem('token');
 
-  console.log(`${config.baseURL}${url}`)
-
   const res = await axios.get(`${config.baseURL}${url}`, {
     headers: {
       authorization: token

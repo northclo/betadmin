@@ -27,5 +27,6 @@ module.exports = {
     'vue/v-on-event-hyphenation': 'off',
     'vue/require-default-prop': 'off',
     'vue/require-explicit-emits': 'off',
+    'vue/html-quotes': 'off',
   },
 };

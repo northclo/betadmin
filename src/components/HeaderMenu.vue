@@ -2,14 +2,9 @@
   <a-layout-header class="bg-white flex items-center header-content">
     <a-layout class="bg-white flex flex-row gap-2">
       <a-dropdown v-for="menu in menus" :key="menu.key">
-        <div
-          class="flex flex-column items-center cursor-pointer"
-          @click="clickMenu(menu.to)"
-        >
+        <div class="flex flex-column items-center cursor-pointer" @click="clickMenu(menu.to)">
           <component :is="menu.icon" class="header-icon" />
-          <a-typography-text class="header-label text-main font-bold">
-            {{ trlang[menu.label] }}
-          </a-typography-text>
+          <a-typography-text class="header-label text-main font-bold">{{ trlang[menu.label] }}</a-typography-text>
         </div>
         <template #overlay v-if="menu.children">
           <a-menu>
@@ -47,6 +42,7 @@ import { UserOutlined } from "@ant-design/icons-vue";
 import router from "@/Router";
 import { routeLink } from "@/utils/route-link";
 import { menuList } from "@/utils/menu-list";
+import { useOnlineStatus } from '@/composables/useOnlineStatus';
 
 export default {
   name: "HeaderMenu",
@@ -54,6 +50,8 @@ export default {
   setup() {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
+
+    useOnlineStatus(localStorage.getItem('token'));
 
     const menus = ref([]);
 
@@ -75,20 +73,4 @@ export default {
     return { trlang, menus, logout, clickMenu };
   },
 };
-
-// const isMobile = ref(window.innerWidth < 1000);
-
-// const handleResize = () => {
-//   isMobile.value = window.innerWidth < 1000;
-// };
-
-// onMounted(() => {
-//   window.addEventListener("resize", handleResize);
-// });
-
-// onBeforeUnmount(() => {
-//   window.removeEventListener("resize", handleResize);
-// });
-
-// defineProps({ collapsed: Boolean });
 </script>

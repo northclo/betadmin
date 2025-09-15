@@ -21,6 +21,7 @@ export const currentLoginUserColumn = [
         title: "Partner",
         dataIndex: "partner",
         key: "partner",
+        align: 'center'
     },
     {
         title: "IP",
@@ -38,12 +39,6 @@ export const currentLoginUserColumn = [
         title: "Device",
         dataIndex: "device",
         key: "device",
-        align: 'center',
-    },
-    {
-        title: "Login Date",
-        dataIndex: "login_date",
-        key: "login_date",
         align: 'center',
     },
     {
@@ -68,7 +63,7 @@ export const currentLoginUserColumn = [
         title: "User's Import",
         dataIndex: "user_import",
         key: "user_import",
-        align: 'center',
+        align: 'end',
     },
     {
         title: "Final Import Date",

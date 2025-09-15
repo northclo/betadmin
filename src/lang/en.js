@@ -237,6 +237,7 @@ export default {
   match_number: "Match Number",
 
   // Game Partner
+  headquater: "Headquater",
   id_or_nickname: "ID or nickname",
   add_a_branch_office: "Add a branch office",
   head_office: "Head office",
