@@ -49,3 +49,8 @@ table thead > tr > th::before {
 table tbody > tr > td:has(> .no-padding) {
   padding: 1px !important;
 }
+
+.ant-layout-header {
+  min-height: 64px !important;
+  height: auto !important;
+}

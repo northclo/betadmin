@@ -1,307 +1,432 @@
 <template>
-  <a-layout class="bg-white p-5">
+  <a-layout class="bg-white px-5 sticky-header">
     <a-typography-text class="text-dark-gray fs-1">
-      {{ trlang.member_list }}
+      {{ trlang.login_information }}
     </a-typography-text>
+  </a-layout>
 
-    <a-layout-header class="bg-white flex justify-end items-center gap-2">
-      <a-button class="bg-main text-white flex justify-center items-center" @click="openAddModal">
-        <PlusOutlined />
-        {{ trlang.add_member }}
-      </a-button>
-      <a-button class="bg-red text-white flex justify-center items-center" @click="deleteSelectedMembers">
-        <DeleteOutlined />
-        {{ trlang.delete_member }}
-      </a-button>
-      <a-button class="bg-main text-white flex justify-center items-center" @click="exportMemberToExcel">
-        <PrinterOutlined />
-        {{ trlang.export_excel }}
-      </a-button>
+  <a-layout class="p-2 flex flex-column gap-2">
+    <a-layout-header
+      class="bg-white flex items-center flex-wrap gap-5 shadow px-5 pt-2 pb-2"
+    >
+      <div class="flex items-center gap-2">
+        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+          trlang.duration
+        }}</a-typography-text>
+        <a-select
+          v-model:value="duration"
+          :options="durationOptions"
+          class="input-lg"
+          @change="fetchData"
+        />
+        <a-typography-text>{{ trlang.start_date }}</a-typography-text>
+        <a-date-picker
+          v-model:value="startDate"
+          class="input-lg"
+          format="YYYY-MM-DD"
+          value-format="YYYY-MM-DD"
+          @change="fetchData"
+        />
+        <a-typography-text>~</a-typography-text>
+        <a-typography-text>{{ trlang.end_date }}</a-typography-text>
+        <a-date-picker
+          v-model:value="endDate"
+          class="input-lg"
+          format="YYYY-MM-DD"
+          value-format="YYYY-MM-DD"
+          @change="fetchData"
+        />
+      </div>
+      <div class="flex items-center gap-2">
+        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+          trlang.user_status
+        }}</a-typography-text>
+        <a-select
+          v-model:value="userStatus"
+          :options="userStatusOptions"
+          class="input-md"
+          @change="fetchData"
+        />
+      </div>
+      <div class="flex items-center gap-2">
+        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+          trlang.partner
+        }}</a-typography-text>
+        <a-select
+          v-model:value="partner"
+          :options="partnerOptions"
+          class="input-lg"
+          @change="fetchData"
+        />
+        <a-typography-text>{{ trlang.include_sub }}</a-typography-text>
+        <a-checkbox v-model:checked="includeSub" @change="fetchData" />
+      </div>
+      <div class="flex items-center gap-2">
+        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+          trlang.keyword
+        }}</a-typography-text>
+        <a-select
+          v-model:value="searchField"
+          :options="searchFieldOptions"
+          class="input-lg"
+        />
+        <a-input
+          v-model:value="search"
+          placeholder="Search..."
+          class="input-lg"
+          @press-enter="fetchData"
+        >
+          <template #prefix>
+            <SearchOutlined />
+          </template>
+        </a-input>
+        <a-button type="primary" @click="fetchData">
+          {{ trlang.search }}
+        </a-button>
+      </div>
+      <div class="flex items-center gap-2">
+        <a-typography-text class="">
+          {{ trlang.current_loggedin_users }}
+        </a-typography-text>
+        <a-checkbox v-model:checked="currentLoggedinUser" @change="fetchData" />
+      </div>
+      <a-button @click="refreshPage">{{ trlang.refresh_page }}</a-button>
+      <div class="flex items-center gap-2">
+        <a-typography-text class="">
+          {{ trlang.consider_users }}
+        </a-typography-text>
+        <a-checkbox v-model:checked="considerUser" @change="fetchData" />
+      </div>
+      <div class="flex items-center gap-2">
+        <a-typography-text class="bg-gray text-white p-2 px-5">
+          {{ trlang.sort }}
+        </a-typography-text>
+        <a-select
+          v-model:value="sort"
+          :options="sortOptions"
+          class="input-lg"
+          @change="fetchData"
+        />
+      </div>
     </a-layout-header>
 
-    <a-layout-header class="bg-white flex justify-end items-center gap-2">
-      <a-input v-model:value="search" placeholder="Search..." class="input-lg" @change="searchMember">
-        <template #prefix>
-          <SearchOutlined />
+    <a-layout-content class="bg-white p-2 shadow">
+      <a-table
+        :columns="memberListColumn"
+        :data-source="dataSource"
+        :row-key="rowKey"
+        class="w-100"
+        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
+        :pagination="paginationConfig"
+        @change="handleTableChange"
+        :row-selection="rowSelection"
+      >
+        <template #emptyText>
+          <a-spin v-if="loading" />
+          <span v-else>{{ trlang.no_data }}</span>
         </template>
-      </a-input>
-    </a-layout-header>
 
-    <a-modal v-model:open="open" :title="trlang.add_member" :ok-text="trlang.save" :cancel-text="trlang.cancel"
-      @ok="addMember">
-      <a-layout class="flex gap-5 flex-row bg-white mt-2">
-        <a-input :addon-before="trlang.first_name" v-model:value="firstName" placeholder="John*" />
-        <a-input :addonBefore="trlang.last_name" v-model:value="lastName" placeholder="Smith*" />
-      </a-layout>
-
-      <a-layout class="flex gap-5 flex-row bg-white mt-2">
-        <a-input :addonBefore="trlang.user_name" v-model:value="userName" placeholder="John Smith*" />
-        <a-input :addonBefore="trlang.company" v-model:value="company" placeholder="Apple" />
-      </a-layout>
-
-      <a-input :addonBefore="trlang.email" v-model:value="email" placeholder="johnsmith@gmail.com*" class="mt-2" />
-      <a-input :addonBefore="trlang.password" v-model:value="password" placeholder="1111*" class="mt-2" />
-      <a-input :addonBefore="trlang.confirm_password" v-model:value="confirmPassword" placeholder="1111*"
-        class="mt-2" />
-      <a-input :addonBefore="trlang.phone_number" v-model:value="phoneNumber" placeholder="+1231231231" class="mt-2" />
-    </a-modal>
-
-    <BaseTable :columns="columns" :dataSource="dataSource" :editRow="editRow" :deleteRow="deleteRow" :loading="loading"
-      @update:selectedRows="onSelectedRows" @update:selectedRowKeys="onSelectedRowKeys" />
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            {{ index + 1 }}
+          </template>
+          <template v-if="column.key === 'login'">
+            <div
+              class="flex items-center gap-2"
+              :class="record.login_status ? '' : 'text-light-gray'"
+            >
+              <LogoutOutlined />
+              <a-typography-text>
+                {{
+                  record.login_status ? trlang.connected : trlang.no_connected
+                }}
+              </a-typography-text>
+            </div>
+          </template>
+          <template v-if="column.key === 'nickname'">
+            <div class="flex flex-column">
+              <a-typography-text>
+                <span class="font-bold">
+                  {{
+                    record.own_partners.length == 0
+                      ? record.partners
+                        ? record.partners[0].nickname
+                        : record.user_nickname
+                      : record.own_partners[0].nickname
+                  }}
+                </span>
+                ({{
+                  record.own_partners.length == 0
+                    ? record.partners
+                      ? record.partners[0].partner_id
+                      : record.user_nickname
+                    : record.own_partners[0].partner_id
+                }})
+              </a-typography-text>
+              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2">
+                {{
+                  record.own_partners.length == 0
+                    ? record.partners
+                      ? trlang[record.partners[0].role]
+                      : ''
+                    : trlang[record.own_partners[0].role]
+                }}
+              </a-typography-text>
+            </div>
+          </template>
+          <template v-if="column.key === 'partner'">
+            {{
+              record.own_partners.length == 0
+                ? record.partners
+                  ? record.partners[0].nickname
+                  : ''
+                : record.own_partners[0].nickname
+            }}
+          </template>
+          <template v-if="column.key === 'status'">
+            {{ trlang[record.user_status] }}
+          </template>
+          <template v-if="column.key === 'owned_money'">
+            <div class="flex flex-column">
+              <a-typography-text class="text-red">
+                {{ record.own_money.toLocaleString() }}USD
+              </a-typography-text>
+              <a-typography-text>
+                {{ record.point.toLocaleString() }}P
+              </a-typography-text>
+            </div>
+          </template>
+          <template v-if="column.key === 'all_import_money'">
+            {{
+              record.totalImportAmount
+                ? record.totalImportAmount.toLocaleString()
+                : 0
+            }}USD
+          </template>
+          <template v-if="column.key === 'all_exchange_money'">
+            {{
+              record.totalExchangeAmount
+                ? record.totalExchangeAmount.toLocaleString()
+                : 0
+            }}USD
+          </template>
+          <template v-if="column.key === 'partner_earning'">
+            {{
+              record.totalPartnerEarning
+                ? record.totalPartnerEarning.toLocaleString()
+                : 0
+            }}USD
+          </template>
+          <template v-if="column.key === 'total_betting_amount'">
+            <a-typography-text class="text-main">
+              {{
+                record.totalBettingAmount
+                  ? record.totalBettingAmount.toLocaleString()
+                  : 0
+              }}USD
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'total_win_number'">
+            <a-typography-text class="text-red">
+              {{ record.totalWinCount ? record.totalWinCount : 0 }}
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'total_earning_money'">
+            <a-typography-text class="text-dark-main">
+              {{
+                record.totalEarningAmount
+                  ? record.totalEarningAmount.toLocaleString()
+                  : 0
+              }}USD
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'betting_provide_point'">
+            {{ record.own_money.toLocaleString() }}P
+          </template>
+          <template v-if="column.key === 'last_import_date'">
+            <div class="flex flex-column justify-center items-center">
+              <a-typography-text class="font-bold">
+                {{ record.last_import_time?.split('T')[0] }}
+              </a-typography-text>
+              <a-typography-text>
+                {{ record.last_import_time?.split('T')[1].split('.')[0] }}
+              </a-typography-text>
+            </div>
+          </template>
+          <template v-if="column.key === 'connect_date'">
+            <div class="flex flex-column justify-center items-center">
+              <a-typography-text class="font-bold">
+                {{ record.login_history?.createdAt.split('T')[0] }}
+              </a-typography-text>
+              <a-typography-text>
+                {{
+                  record.login_history?.createdAt.split('T')[1].split('.')[0]
+                }}
+              </a-typography-text>
+            </div>
+          </template>
+          <template v-if="column.key === 'created_date'">
+            <div class="flex flex-column justify-center items-center">
+              <a-typography-text class="font-bold">
+                {{ record.createdAt.split('T')[0] }}
+              </a-typography-text>
+              <a-typography-text>
+                {{ record.createdAt.split('T')[1].split('.')[0] }}
+              </a-typography-text>
+            </div>
+          </template>
+        </template>
+      </a-table>
+    </a-layout-content>
   </a-layout>
 </template>
 
-<script>
-import { ref, onMounted, computed, inject } from 'vue';
-import BaseTable from '@/components/Table.vue';
-import {
-  SearchOutlined,
-  PlusOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from '@ant-design/icons-vue';
-import { getData, deleteData, putData, postData } from '@/helpers/Axios';
-import { checkValidEmail, exportExcel } from '@/helpers/Common.js';
+<script setup>
+import { ref, onMounted, computed, inject, watch } from 'vue';
+import { SearchOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import { memberListColumn } from '@/utils/table-column/member-list.js';
+import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
-import { memberListColumn } from '@/utils/table-column/member-list';
-import { message } from 'ant-design-vue';
+import { usePagination } from '@/composables/usePagination';
 
-export default {
-  name: routeLink.member_list.name,
-  components: {
-    BaseTable,
-    SearchOutlined,
-    PlusOutlined,
-    DeleteOutlined,
-    PrinterOutlined,
-  },
-  setup() {
-    const langState = inject('langState');
-    const trlang = computed(() => langState.translations);
+defineOptions({
+  name: routeLink.login_information.name,
+});
 
-    const dataSource = ref([]);
-    const open = ref(false);
-    const columns = memberListColumn;
-    const checkedRows = ref([]);
-    const selectedMembers = ref([]);
-    const selectedMemberKeys = ref([]);
-    const loading = ref(true);
+const langState = inject('langState');
+const trlang = computed(() => langState.translations);
 
-    // form fields
-    const firstName = ref('');
-    const lastName = ref('');
-    const userName = ref('');
-    const email = ref('');
-    const password = ref('');
-    const confirmPassword = ref('');
-    const company = ref('');
-    const phoneNumber = ref('');
-    const modalState = ref(0); // add: 0, edit: 1
-    const updateId = ref('');
-    const search = ref('');
+// Filters
+const duration = ref('');
+const durationOptions = ref([]);
+const startDate = ref('');
+const endDate = ref('');
+const userStatus = ref('');
+const userStatusOptions = ref([]);
+const partner = ref('');
+const partnerOptions = ref([]);
+const includeSub = ref(false);
+const search = ref('');
+const searchField = ref('');
+const searchFieldOptions = ref([]);
+const currentLoggedinUser = ref(false);
+const considerUser = ref(false);
+const sort = ref('');
+const sortOptions = ref([]);
 
-    const fetchData = async () => {
-      loading.value = true;
+const dataSource = ref([]);
+const loading = ref(false);
+const selectedRowKeys = ref([]);
 
-      const res = await getData(
-        `${apiLink.member_list}?search=${search.value}`
-      );
-      if (res.status) {
-        dataSource.value =
-          res.data.map((element, idx) => ({
-            key: idx,
-            ...element,
-          })) || [];
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
-        loading.value = false;
-      }
-    };
-
-    const editRow = (row) => {
-      firstName.value = row.firstName;
-      lastName.value = row.lastName;
-      userName.value = row.userName;
-      company.value = row.company;
-      email.value = row.email;
-      password.value = '';
-      confirmPassword.value = '';
-      phoneNumber.value = row.phoneNumber;
-      updateId.value = row._id;
-      modalState.value = 1;
-
-      openModal();
-    };
-
-    const openAddModal = () => {
-      firstName.value = '';
-      lastName.value = '';
-      userName.value = '';
-      company.value = '';
-      email.value = '';
-      password.value = '';
-      confirmPassword.value = '';
-      phoneNumber.value = '';
-      modalState.value = 0;
-
-      openModal();
-    };
-
-    const deleteRow = async (row) => {
-      const res = await deleteData(`${apiLink.member_list}/${row._id}`);
-      await fetchData();
-      if (res.status) {
-        message.success(trlang.value.deleted_successful);
-      }
-    };
-
-    const openModal = () => {
-      open.value = true;
-    };
-
-    const hideModal = () => {
-      modalState.value = 0;
-      updateId.value = '';
-      open.value = false;
-    };
-
-    const addMember = async () => {
-      if (!firstName.value)
-        return message.error(trlang.value.first_name_required);
-      if (!lastName.value)
-        return message.error(trlang.value.last_name_required);
-      if (!userName.value)
-        return message.error(trlang.value.user_name_required);
-      if (!email.value) return message.error(trlang.value.email_required);
-      if (!checkValidEmail(email.value))
-        return message.error(trlang.value.not_correct_email);
-      if (!password.value && modalState.value === 0)
-        return message.error(trlang.value.password_required);
-      if (!confirmPassword.value && modalState.value === 0)
-        return message.error(trlang.value.confirm_password_required);
-      if (password.value !== confirmPassword.value)
-        return message.error(trlang.value.wrong_password);
-
-      if (modalState.value === 0) {
-        let res = await putData(apiLink.member_list, {
-          firstName: firstName.value,
-          lastName: lastName.value,
-          userName: userName.value,
-          email: email.value,
-          password: password.value,
-          company: company.value,
-          phoneNumber: phoneNumber.value,
-        });
-
-        if (res.status) {
-          message.success(trlang.value.added_successful);
-          hideModal();
-          fetchData();
-        }
-      } else {
-        let data = {
-          _id: updateId.value,
-          firstName: firstName.value,
-          lastName: lastName.value,
-          userName: userName.value,
-          email: email.value,
-          company: company.value,
-          phoneNumber: phoneNumber.value,
-        };
-
-        if (password.value) {
-          data.password = password.value;
-        }
-
-        let res = await postData(apiLink.member_list, data);
-
-        if (res.status) {
-          message.success(trlang.value.changed_successful);
-          hideModal();
-          fetchData();
-        }
-      }
-    };
-
-    const searchMember = () => {
-      fetchData();
-    };
-
-    const deleteSelectedMembers = async () => {
-      if (selectedMembers.value.length === 0) {
-        return message.error(trlang.value.please_select_members);
-      }
-      let deleteMemberIds = '';
-      selectedMembers.value.forEach((element) => {
-        deleteMemberIds += ',' + element._id;
-      });
-
-      const res = await deleteData(
-        `${apiLink.member_list}/${deleteMemberIds.slice(1)}`
-      );
-      await fetchData();
-      if (res.status) {
-        message.success(trlang.value.deleted_successful);
-      }
-    };
-
-    const exportMemberToExcel = () => {
-      if (selectedMembers.value.length === 0) {
-        exportExcel(
-          dataSource.value,
-          trlang.value.member_list,
-          trlang.value.member_list
-        );
-      } else {
-        exportExcel(
-          selectedMembers.value,
-          trlang.value.member_list,
-          trlang.value.member_list
-        );
-      }
-    };
-
-    const onSelectedRows = (rows) => {
-      selectedMembers.value = rows;
-    };
-
-    const onSelectedRowKeys = (keys) => {
-      selectedMemberKeys.value = keys;
-    };
-
-    onMounted(() => {
-      fetchData();
-    });
-
-    return {
-      trlang,
-      dataSource,
-      columns,
-      open,
-      search,
-      checkedRows,
-      editRow,
-      deleteRow,
-      openModal,
-      hideModal,
-      fetchData,
-      addMember,
-      searchMember,
-      deleteSelectedMembers,
-      exportMemberToExcel,
-      onSelectedRowKeys,
-      onSelectedRows,
-      openAddModal,
-      loading,
-      firstName,
-      lastName,
-      userName,
-      email,
-      password,
-      confirmPassword,
-      company,
-      phoneNumber,
-    };
-  },
+const initOptions = () => {
+  duration.value = 'import_exchange_betting';
+  durationOptions.value = [
+    {
+      value: 'import_exchange_betting',
+      label: trlang.value.import_exchange_betting,
+    },
+    { value: 'created_date', label: trlang.value.created_date },
+    { value: 'connected_date', label: trlang.value.connected_date },
+    { value: 'last_import_date', label: trlang.value.last_import_date },
+    {
+      value: 'password_changed_date',
+      label: trlang.value.password_changed_date,
+    },
+  ];
+  userStatusOptions.value = [
+    { value: '', label: trlang.value.all },
+    { value: 'wait', label: trlang.value.wait },
+    { value: 'normal', label: trlang.value.normal },
+    { value: 'stop', label: trlang.value.stop },
+    { value: 'cancel', label: trlang.value.cancel },
+    { value: 'danger', label: trlang.value.danger },
+    { value: 'tester', label: trlang.value.tester },
+  ];
+  partnerOptions.value = [
+    { value: '', label: trlang.value.all },
+    { value: 'headquater', label: trlang.value.headquater },
+    { value: 'branch_office', label: trlang.value.branch_office },
+    { value: 'regional_office', label: trlang.value.regional_office },
+    { value: 'agency', label: trlang.value.agency },
+    { value: 'distributor', label: trlang.value.distributor },
+    { value: 'store', label: trlang.value.store },
+  ];
+  searchField.value = 'user_id';
+  searchFieldOptions.value = [
+    { value: 'user_id', label: trlang.value.id },
+    { value: 'user_nickname', label: trlang.value.nickname },
+    { value: 'memo', label: trlang.value.memo },
+    { value: 'bank_owner', label: trlang.value.bank_owner },
+    { value: 'phone_number', label: trlang.value.phone_number },
+    { value: 'bank_account', label: trlang.value.bank_account },
+    { value: 'recommended_user', label: trlang.value.recommended_user },
+    { value: 'cash_remained_over', label: trlang.value.cash_remained_over },
+    { value: 'cash_remained_under', label: trlang.value.cash_remained_under },
+  ];
+  sort.value = 'created_date';
+  sortOptions.value = [
+    { value: 'created_date', label: trlang.value.created_date },
+    { value: 'owned_money', label: trlang.value.owned_money },
+    { value: 'owned_point', label: trlang.value.owned_point },
+    { value: 'connect_date', label: trlang.value.connect_date },
+    { value: 'import_money', label: trlang.value.import_money },
+    { value: 'exchange_money', label: trlang.value.exchange_money },
+  ];
 };
+
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys) => {
+    selectedRowKeys.value = keys;
+  },
+}));
+
+const rowKey = (record) => record.user_id;
+
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const res = await getData(
+      `${apiLink.get_member_list}?duration=${duration.value}&startDate=${startDate.value}&endDate=${endDate.value}&userStatus=${userStatus.value}&partner=${partner.value}&includeSub=${includeSub.value}&searchField=${searchField.value}&search=${search.value}&currentLoggedinUser=${currentLoggedinUser.value}&considerUser=${considerUser.value}&sort=${sort.value}`
+    );
+
+    if (res.status) {
+      dataSource.value = res.data || [];
+      if (res.total) setTotal(res.total);
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+const refreshPage = () => {
+  duration.value = '';
+  startDate.value = '';
+  endDate.value = '';
+  userStatus.value = '';
+  partner.value = '';
+  includeSub.value = false;
+  search.value = '';
+  searchField.value = '';
+  currentLoggedinUser.value = false;
+  considerUser.value = false;
+  sort.value = '';
+  loading.value = false;
+  selectedRowKeys.value = [];
+
+  fetchData();
+};
+
+watch(
+  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
+  fetchData
+);
+
+onMounted(() => {
+  initOptions();
+  fetchData();
+});
 </script>

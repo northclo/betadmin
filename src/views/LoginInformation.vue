@@ -137,7 +137,7 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const res = await getData(
-      `${apiLink.get_login_information}?startDate=${startDate.value}&endDate=${endDate.value}&searchField=${searchField.value}&search=${search.value}&page=${paginationConfig.value.current}&limit=${paginationConfig.value.pageSize}`
+      `${apiLink.get_login_information}?startDate=${startDate.value}&endDate=${endDate.value}&searchField=${searchField.value}&search=${search.value}`
     );
 
     if (res.status) {

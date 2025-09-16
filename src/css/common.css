@@ -121,6 +121,14 @@ button {
   color: var(--dark-gray-color) !important;
 }
 
+.text-light-gray {
+  color: var(--light-gray-color) !important;
+}
+
+.text-dark-main {
+  color: var(--main-dark-color) !important;
+}
+
 /* ================================
    FONT WEIGHT UTILITIES
 ================================= */

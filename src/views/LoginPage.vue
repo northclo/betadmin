@@ -18,7 +18,10 @@
 
         <div>
           <a-typography-text>{{ trlang.password }}</a-typography-text>
-          <a-input-password v-model:value="password" :placeholder="trlang.input_password" />
+          <a-input-password
+            v-model:value="password"
+            :placeholder="trlang.input_password"
+          />
         </div>
 
         <a-row class="w-100" justify="space-between" align="middle">
@@ -55,30 +58,30 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, computed } from "vue";
-import { message } from "ant-design-vue";
-import { useRouter } from "vue-router";
-import { postData } from "@/helpers/Axios";
-import { apiLink } from "@/utils/api-link";
-import { routeLink } from "@/utils/route-link";
-import { checkValidEmail } from "@/helpers/Common.js";
+import { ref, inject, onMounted, computed } from 'vue';
+import { message } from 'ant-design-vue';
+import { useRouter } from 'vue-router';
+import { postData } from '@/helpers/Axios';
+import { apiLink } from '@/utils/api-link';
+import { routeLink } from '@/utils/route-link';
+import { checkValidEmail } from '@/helpers/Common.js';
 
 /* Router */
 const router = useRouter();
 
 /* Inject translations */
-const langState = inject("langState");
+const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
 /* Reactive states */
-const email = ref("");
-const password = ref("");
+const email = ref('');
+const password = ref('');
 const remember = ref(false);
 
 /* Load saved email/password on mount */
 onMounted(() => {
-  const savedEmail = localStorage.getItem("email");
-  const savedPassword = localStorage.getItem("password");
+  const savedEmail = localStorage.getItem('email');
+  const savedPassword = localStorage.getItem('password');
 
   if (savedEmail && savedPassword) {
     email.value = savedEmail;
@@ -105,14 +108,14 @@ const login = async () => {
   });
 
   if (res.status) {
-    localStorage.setItem("token", res.data.token);
+    localStorage.setItem('token', res.data.token);
 
     if (remember.value) {
-      localStorage.setItem("email", email.value);
-      localStorage.setItem("password", password.value);
+      localStorage.setItem('email', email.value);
+      localStorage.setItem('password', password.value);
     } else {
-      localStorage.removeItem("email");
-      localStorage.removeItem("password");
+      localStorage.removeItem('email');
+      localStorage.removeItem('password');
     }
 
     router.push(routeLink.dashboard.link);
