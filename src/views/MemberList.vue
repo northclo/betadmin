@@ -1,7 +1,7 @@
 <template>
   <a-layout class="bg-white px-5 sticky-header">
     <a-typography-text class="text-dark-gray fs-1">
-      {{ trlang.login_information }}
+      {{ trlang.member_list }}
     </a-typography-text>
   </a-layout>
 
