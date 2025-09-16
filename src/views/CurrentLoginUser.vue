@@ -10,31 +10,63 @@
     <a-layout-header class="bg-white flex justify-between shadow px-5">
       <a-layout class="bg-white flex flex-row items-center gap-2">
         <a-typography-text>{{ trlang.start_date }}</a-typography-text>
-        <a-date-picker v-model:value="startDate" class="input-lg" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD"
-          @change="fetchData" />
+        <a-date-picker
+          v-model:value="startDate"
+          class="input-lg"
+          format="YYYY-MM-DD"
+          valueFormat="YYYY-MM-DD"
+          @change="fetchData"
+        />
         <a-typography-text>~</a-typography-text>
         <a-typography-text>{{ trlang.end_date }}</a-typography-text>
-        <a-date-picker v-model:value="endDate" class="input-lg" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD"
-          @change="fetchData" />
-        <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
-        <a-input v-model:value="search" placeholder="Search..." class="input-lg" @pressEnter="fetchData">
+        <a-date-picker
+          v-model:value="endDate"
+          class="input-lg"
+          format="YYYY-MM-DD"
+          valueFormat="YYYY-MM-DD"
+          @change="fetchData"
+        />
+        <a-select
+          v-model:value="searchField"
+          :options="searchFieldOptions"
+          class="input-lg"
+        />
+        <a-input
+          v-model:value="search"
+          placeholder="Search..."
+          class="input-lg"
+          @pressEnter="fetchData"
+        >
           <template #prefix>
             <SearchOutlined />
           </template>
         </a-input>
-        <a-button type="primary" @click="fetchData">{{ trlang.search }}</a-button>
+        <a-button type="primary" @click="fetchData">{{
+          trlang.search
+        }}</a-button>
       </a-layout>
       <a-layout class="bg-white flex flex-row items-center justify-end gap-2">
         <a-typography-text>{{ trlang.user_status }}</a-typography-text>
-        <a-select v-model:value="userStatus" :options="userStatusOptions" class="input-lg" @change='fetchData' />
+        <a-select
+          v-model:value="userStatus"
+          :options="userStatusOptions"
+          class="input-lg"
+          @change="fetchData"
+        />
       </a-layout>
     </a-layout-header>
 
     <!-- Table -->
     <a-layout-content class="bg-white p-2 shadow">
-      <a-table :columns="currentLoginUserColumn" :dataSource="dataSource" rowKey="key" class="w-100"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
-        @change="handleTableChange">
+      <a-table
+        :columns="currentLoginUserColumn"
+        :dataSource="dataSource"
+        rowKey="key"
+        class="w-100"
+        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
+        :pagination="paginationConfig"
+        @change="handleTableChange"
+      >
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -47,84 +79,133 @@
           </template>
 
           <template v-if="column.key === 'disconnect'">
-            <LogoutOutlined class="cursor-pointer" @click='logoutUser(record.user_nickname)' />
+            <LogoutOutlined
+              class="cursor-pointer"
+              @click="logoutUser(record.user_nickname)"
+            />
           </template>
 
-          <template v-if='column.key === "id_nickname"'>
-            <div class='flex flex-column'>
+          <template v-if="column.key === 'id_nickname'">
+            <div class="flex flex-column">
               <div>
-                <a-typography-text class='me-2'>{{ record.user_nickname }}</a-typography-text>
-                <a-typography-text>({{ record.user_nickname }})</a-typography-text>
+                <a-typography-text class="me-2">{{
+                  record.user_nickname
+                }}</a-typography-text>
+                <a-typography-text
+                  >({{ record.user_nickname }})</a-typography-text
+                >
               </div>
-              <a-typography-text class='bg-gray text-white px-2 w-fit radius-2'>
-                {{ trlang[record.own_partner ? record.own_partner.role : record.partner?.role] }}
+              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2">
+                {{
+                  trlang[
+                    record.own_partner
+                      ? record.own_partner.role
+                      : record.partner?.role
+                  ]
+                }}
               </a-typography-text>
             </div>
           </template>
 
-          <template v-if='column.key === "partner"'>
-            <a-typography-text :class='record.own_partner || record.partner ? "bg-yellow border radius-2 px-2" : ""'>
-              {{ record.own_partner ? record.own_partner.nickname : record.partner?.nickname }}
+          <template v-if="column.key === 'partner'">
+            <a-typography-text
+              :class="
+                record.own_partner || record.partner
+                  ? 'bg-yellow border radius-2 px-2'
+                  : ''
+              "
+            >
+              {{
+                record.own_partner
+                  ? record.own_partner.nickname
+                  : record.partner?.nickname
+              }}
             </a-typography-text>
           </template>
 
           <!-- IP -->
           <template v-if="column.key === 'ip_address'">
-            <a-typography-text>{{ record.last_login_history?.ip_address }}</a-typography-text>
-            <a-button v-if='record.last_login_history?.ip_address' class="bg-gray text-white ms-2"
-              @click="changeBlockIp(record.last_login_history?.ip_address, record.blockedIp)">
+            <a-typography-text>{{
+              record.last_login_history?.ip_address
+            }}</a-typography-text>
+            <a-button
+              v-if="record.last_login_history?.ip_address"
+              class="bg-gray text-white ms-2"
+              @click="
+                changeBlockIp(
+                  record.last_login_history?.ip_address,
+                  record.blockedIp
+                )
+              "
+            >
               {{ record.blockedIp ? trlang.allow_ip : trlang.block_ip }}
             </a-button>
           </template>
 
-          <template v-if='column.key === "location"'>
+          <template v-if="column.key === 'location'">
             {{ record.last_login_history?.location }}
           </template>
 
-          <template v-if='column.key === "device"'>
+          <template v-if="column.key === 'device'">
             {{ record.last_login_history?.device }}
           </template>
 
-          <template v-if='column.key === "money_point"'>
-            <div class='flex flex-column'>
-              <a-typography-text class='text-red'>{{ record.own_money.toLocaleString() }}USD</a-typography-text>
-              <a-typography-text>{{ record.point.toLocaleString() }}P</a-typography-text>
+          <template v-if="column.key === 'money_point'">
+            <div class="flex flex-column">
+              <a-typography-text class="text-red"
+                >{{ record.own_money.toLocaleString() }}USD</a-typography-text
+              >
+              <a-typography-text
+                >{{ record.point.toLocaleString() }}P</a-typography-text
+              >
             </div>
           </template>
 
-          <template v-if='column.key === "import_money"'>
-            {{ record.import_money || 0 }}USD
+          <template v-if="column.key === 'import_money'">
+            {{ record.total_import_amount || 0 }}USD
           </template>
 
-          <template v-if='column.key === "exchange_money"'>
-            {{ record.import_money || 0 }}USD
+          <template v-if="column.key === 'exchange_money'">
+            {{ record.total_exchange_amount || 0 }}USD
           </template>
 
-          <template v-if='column.key === "user_import"'>
-            {{ record.import_money || 0 }}USD
+          <template v-if="column.key === 'user_import'">
+            {{ record.user_import_amount || 0 }}USD
           </template>
 
-          <template v-if='column.key === "final_import_date"'>
-            <div class='flex flex-column'>
-              <a-typography-text class='font-bold'>{{ record.createdAt.split('T')[0] }}</a-typography-text>
-              <a-typography-text>{{ record.createdAt.split('T')[1].split('.')[0] }}</a-typography-text>
+          <template v-if="column.key === 'final_import_date'">
+            <div class="flex flex-column">
+              <a-typography-text class="font-bold">
+                {{ record.last_import_date?.split('T')[0] }}
+              </a-typography-text>
+              <a-typography-text>
+                {{ record.last_import_date?.split('T')[1].split('.')[0] }}
+              </a-typography-text>
             </div>
           </template>
 
-          <template v-if='column.key === "created_date"'>
-            <div class='flex flex-column'>
-              <a-typography-text class='font-bold'>{{ record.createdAt.split('T')[0] }}</a-typography-text>
-              <a-typography-text>{{ record.createdAt.split('T')[1].split('.')[0] }}</a-typography-text>
+          <template v-if="column.key === 'created_date'">
+            <div class="flex flex-column">
+              <a-typography-text class="font-bold">{{
+                record.createdAt.split('T')[0]
+              }}</a-typography-text>
+              <a-typography-text>{{
+                record.createdAt.split('T')[1].split('.')[0]
+              }}</a-typography-text>
             </div>
           </template>
 
-          <template v-if='column.key === "connect_date"'>
-            <div class='flex flex-column'>
-              <a-typography-text class='font-bold'>
+          <template v-if="column.key === 'connect_date'">
+            <div class="flex flex-column">
+              <a-typography-text class="font-bold">
                 {{ record.last_login_history?.createdAt.split('T')[0] }}
               </a-typography-text>
               <a-typography-text>
-                {{ record.last_login_history?.createdAt.split('T')[1].split('.')[0] }}
+                {{
+                  record.last_login_history?.createdAt
+                    .split('T')[1]
+                    .split('.')[0]
+                }}
               </a-typography-text>
             </div>
           </template>
@@ -180,22 +261,25 @@ const initOptions = () => {
   ];
 
   userStatusOptions.value = [
-    { value: '', label: "All users" },
-    { value: 'wait', label: "Wait" },
-    { value: 'normal', label: "Normal" },
-    { value: 'stop', label: "Stop" },
-    { value: 'cancel', label: "Cancel" },
-    { value: 'danger', label: "Danger" },
-    { value: 'tester', label: "Tester" },
-  ]
+    { value: '', label: 'All users' },
+    { value: 'wait', label: 'Wait' },
+    { value: 'normal', label: 'Normal' },
+    { value: 'stop', label: 'Stop' },
+    { value: 'cancel', label: 'Cancel' },
+    { value: 'danger', label: 'Danger' },
+    { value: 'tester', label: 'Tester' },
+  ];
 };
 
 const fetchData = async () => {
   loading.value = true;
   try {
-    const res = await getData(`${apiLink.get_current_loggedin_user}?start_date=${startDate.value}&end_date=${endDate.value}&search_field=${searchField.value}&search=${search.value}&user_status=${userStatus.value}`);
+    const res = await getData(
+      `${apiLink.get_current_loggedin_user}?start_date=${startDate.value}&end_date=${endDate.value}&search_field=${searchField.value}&search=${search.value}&user_status=${userStatus.value}`
+    );
 
     if (res.status) {
+      console.log(res.data);
       dataSource.value = res.data || [];
     }
   } finally {
@@ -222,13 +306,13 @@ const changeBlockIp = async (ip, block) => {
 
 const logoutUser = async (user_nickname) => {
   const result = await postData(apiLink.logout_user, {
-    user_nickname: user_nickname
-  })
+    user_nickname: user_nickname,
+  });
 
   if (result.status) {
-    fetchData()
+    fetchData();
   }
-}
+};
 
 onMounted(() => {
   initOptions();
