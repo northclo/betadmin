@@ -123,9 +123,10 @@ const handleLoginFailed = () => {
 const initRetryState = () => {
   const lastFailed =
     Number(localStorage.getItem('last_login_failed_time')) || 0;
+  const loginFailed = Number(localStorage.getItem('login_failed')) || 0;
   const diff = (Date.now() - lastFailed) / 1000;
 
-  if (diff < 120) {
+  if (diff < 120 && loginFailed > 2) {
     retry.value = true;
     retryRemainedTime.value = Math.floor(120 - diff);
   }
