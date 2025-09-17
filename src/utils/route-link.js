@@ -46,5 +46,5 @@ export const routeLink = {
   current_login_user: {
     name: "CurrentLoginUserPage",
     link: '/member/current-login'
-  }
+  },
 };

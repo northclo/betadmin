@@ -1,5 +1,6 @@
 export const apiLink = {
   login: "auth",
+  get_captcha: 'auth/captcha',
   forgot_password: "auth/forgot-password",
   reset_password: "auth/reset-password",
   member_list: 'member/list',

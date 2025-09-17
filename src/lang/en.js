@@ -121,6 +121,10 @@ export default {
   wrong_password: "Password is wrong",
   password_reset_successful: "Password reset successful",
   logout: "Logout",
+  enter_captcha: "Enter captcha",
+  captcha_is_wrong: 'Captcha is wrong',
+  your_login_attempt_has_failed_3_times_or_more: "Your login attempt has failed 3 times or more",
+  please_try_again_later: "Please try again later",
 
   // Member List Page
   duration: "Duration",
