@@ -1,44 +1,57 @@
 <template>
-  <a-layout-header class="bg-white flex items-center header-content">
-    <a-layout class="bg-white flex flex-row gap-2">
-      <a-dropdown v-for="menu in menus" :key="menu.key">
-        <div class="flex flex-column items-center cursor-pointer" @click="clickMenu(menu.to)">
-          <component :is="menu.icon" class="header-icon" />
-          <a-typography-text class="header-label text-main font-bold">{{ trlang[menu.label] }}</a-typography-text>
-        </div>
-        <template #overlay v-if="menu.children">
-          <a-menu>
-            <a-menu-item v-for="child in menu.children" :key="child.key">
-              <a :href="child.to">{{ trlang[child.label] }}</a>
-            </a-menu-item>
-          </a-menu>
+  <div class="header-wrapper">
+    <a-layout-header class="flex items-center header-content">
+      <a-layout class="flex flex-row gap-2">
+        <template v-for="menu in menus" :key="menu.key">
+          <a-dropdown
+            v-if="menu.children && menu.children.length"
+            class="menu-dropdown"
+            :trigger="['click']"
+          >
+            <template #default>
+              <button
+                class="menu-btn"
+                :class="{ 'menu-btn-active': isActiveMenu(menu) }"
+                @click.stop
+              >
+                <component :is="menu.icon" class="header-icon" style="margin-right: 8px;" />
+                {{ trlang[menu.label] || menu.label }}
+              </button>
+            </template>
+            <template #overlay>
+              <a-menu class="dropdown-menu">
+                <a-menu-item
+                  v-for="child in menu.children"
+                  :key="child.key"
+                  @click="clickMenu(child.to)"
+                  :class="{ 'ant-menu-item-selected': currentRoute === child.to }"
+                >
+                  {{ trlang[child.label] || child.label }}
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <button
+            v-else
+            class="menu-btn"
+            :class="{ 'menu-btn-active': isActiveMenu(menu) }"
+            @click="clickMenu(menu.to)"
+          >
+            <component :is="menu.icon" class="header-icon" style="margin-right: 8px;" />
+            {{ trlang[menu.label] || menu.label }}
+          </button>
         </template>
-      </a-dropdown>
-    </a-layout>
-    <a-dropdown>
-      <a class="ant-dropdown-link font-bold text-main" @click.prevent>
-        <a-avatar>
-          <template #icon>
-            <UserOutlined />
-          </template>
-        </a-avatar>
-      </a>
-      <template #overlay>
-        <a-menu>
-          <a-menu-item>
-            <a href="javascript:;" class="text-red" @click="logout">{{
-              trlang.logout
-            }}</a>
-          </a-menu-item>
-        </a-menu>
-      </template>
-    </a-dropdown>
-  </a-layout-header>
+      </a-layout>
+      <div class="log-out-btn">
+        <a href="javascript:;" @click="logout">{{ trlang.logout }}</a>
+      </div>
+    </a-layout-header>
+  </div>
 </template>
 
 <script>
 import { inject, computed, ref, onMounted } from "vue";
-import { UserOutlined } from "@ant-design/icons-vue";
+import { useRoute } from "vue-router";
 import router from "@/Router";
 import { routeLink } from "@/utils/route-link";
 import { menuList } from "@/utils/menu-list";
@@ -46,10 +59,11 @@ import { useOnlineStatus } from '@/composables/useOnlineStatus';
 
 export default {
   name: "HeaderMenu",
-  components: { UserOutlined },
   setup() {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
+    const route = useRoute();
+    const currentRoute = computed(() => route.path);
 
     useOnlineStatus(localStorage.getItem('token'));
 
@@ -61,16 +75,27 @@ export default {
     };
 
     const clickMenu = (link) => {
-      if (link) {
+      if (link && typeof link === 'string') {
         router.push(link);
       }
+    };
+
+    const isActiveMenu = (menu) => {
+      if (!menu) return false;
+      if (menu.to) {
+        return currentRoute.value === menu.to;
+      }
+      if (menu.children && menu.children.length) {
+        return menu.children.some((child) => child.to && currentRoute.value.startsWith(child.to));
+      }
+      return false;
     };
 
     onMounted(() => {
       menus.value = menuList();
     });
 
-    return { trlang, menus, logout, clickMenu };
+    return { trlang, menus, logout, clickMenu, currentRoute, isActiveMenu };
   },
 };
 </script>

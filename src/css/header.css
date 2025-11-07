@@ -1,0 +1,101 @@
+.a-layout-header {
+  position: relative;
+}
+
+.header-wrapper {
+  background: var(--panel-gradient-alt);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.AppBarBtns {
+  padding: 20px 0px;
+}
+
+.AppBarBtnsSub {
+  display: flex;
+  justify-content: left;
+  gap: 10px;
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  color: rgba(255, 255, 255, 0.82);
+  outline: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  opacity: 0.85;
+}
+
+.menu-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.menu-btn:hover {
+  color: var(--white-color);
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.menu-btn:hover::before {
+  opacity: 1;
+}
+
+.menu-btn-active {
+  opacity: 1 !important;
+  color: var(--white-color) !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.7), rgba(139, 92, 246, 0.85)) !important;
+  border: 2px solid var(--panel-border) !important;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35) !important;
+}
+
+.menu-btn-active::before {
+  opacity: 0 !important;
+}
+
+.menu-btn-active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.45) !important;
+  border-color: rgba(140, 124, 255, 0.65) !important;
+}
+
+.log-out-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--panel-border);
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: var(--panel-shadow-soft);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.log-out-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.35);
+}
+
+.log-out-btn a {
+  color: var(--white-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+

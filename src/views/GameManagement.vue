@@ -1,12 +1,12 @@
 <template>
-  <a-layout class="bg-white px-5 sticky-header">
-    <a-typography-text class="text-dark-gray fs-1">
+  <a-layout class="panel-heading sticky-header">
+    <a-typography-text class="panel-heading__title">
       {{ trlang.game_management }}
     </a-typography-text>
   </a-layout>
 
-  <a-layout class="p-2 flex flex-column gap-2">
-    <a-layout-header class="bg-white px-5 flex items-center gap-2 shadow">
+  <a-layout class="panel-body">
+    <a-layout-header class="panel-toolbar flex items-center gap-2">
       <a-typography-text class="bg-gray text-white p-2">
         {{ trlang.game_process }}
       </a-typography-text>
@@ -25,7 +25,7 @@
       </a-button>
     </a-layout-header>
 
-    <a-layout-content class="bg-white p-2 shadow">
+    <a-layout-content class="table-panel">
       <a-space class="p-2">
         <template v-for="status in statusLegend" :key="status.key">
           <a-typography-text>
@@ -37,7 +37,7 @@
         </template>
       </a-space>
 
-      <a-table :columns="gameManagementColumn" :data-source="dataSource" row-key="key" class="w-100"
+      <a-table :columns="gameManagementColumn" :data-source="dataSource" row-key="key" class="w-100 table-transparent"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
         @change="handleTableChange">
         <template #emptyText>

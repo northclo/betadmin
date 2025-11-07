@@ -1,13 +1,13 @@
 <template>
-  <a-layout class="bg-white px-5 sticky-header">
-    <a-typography-text class="text-dark-gray fs-1">
+  <a-layout class="panel-heading sticky-header">
+    <a-typography-text class="panel-heading__title">
       {{ trlang.member_list }}
     </a-typography-text>
   </a-layout>
 
-  <a-layout class="p-2 flex flex-column gap-2">
+  <a-layout class="panel-body">
     <a-layout-header
-      class="bg-white flex items-center flex-wrap gap-5 shadow px-5 pt-2 pb-2"
+      class="panel-toolbar flex items-center flex-wrap gap-5"
     >
       <div class="flex items-center gap-2">
         <a-typography-text class="bg-gray text-white p-2 px-5">{{
@@ -110,12 +110,12 @@
       </div>
     </a-layout-header>
 
-    <a-layout-content class="bg-white p-2 shadow">
+    <a-layout-content class="table-panel">
       <a-table
         :columns="memberListColumn"
         :data-source="dataSource"
         :row-key="rowKey"
-        class="w-100"
+        class="w-100 table-transparent"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
         @change="handleTableChange"

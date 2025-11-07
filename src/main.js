@@ -9,7 +9,8 @@ import "semantic-ui-css/semantic.css";
 import "./css/root.css";
 import "./css/common.css";
 import "./css/custom.css";
-import "./css/customAntd.css"
+import "./css/customAntd.css";
+import "./css/header.css";
 
 import VueLazyload from "vue3-lazyload";
 import socketPlugin from './plugins/socket';

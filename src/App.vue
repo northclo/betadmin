@@ -3,12 +3,14 @@
     <div v-if="isAuthPage">
       <router-view />
     </div>
-    <a-layout v-else class="h-100vh flex flex-row">
+    <a-layout v-else class="h-100vh flex flex-row" style="position: relative; z-index: 1;">
       <LeftLayout class="flex-0 h-100vh" />
       <a-layout class="flex-1 h-100vh overflow-y-auto">
         <HeaderMenu />
-        <a-layout-content class="w-100 min-w-100 max-w-fit">
-          <router-view />
+        <a-layout-content class="w-100 min-w-100 max-w-fit p-5">
+          <div class="page-shell">
+            <router-view />
+          </div>
         </a-layout-content>
       </a-layout>
     </a-layout>

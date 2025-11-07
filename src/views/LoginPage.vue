@@ -1,68 +1,71 @@
 <template>
   <a-row class="h-100vh">
     <a-col :span="12" class="flex justify-center items-center">
-      <a-space direction="vertical" size="middle" class="w-100 max-w-fit">
-        <div>
-          <a-typography-title level="2">
-            {{ trlang.welcome_back }}
-          </a-typography-title>
-          <a-typography-text>{{ trlang.enter_detail }}</a-typography-text>
-        </div>
+      <a-card class="w-100" style="max-width: 400px; background: var(--glass-bg); backdrop-filter: var(--blur-lg); -webkit-backdrop-filter: var(--blur-lg); border: 1px solid var(--glass-border-light); box-shadow: var(--glass-shadow-strong); border-radius: 20px;">
+        <a-space direction="vertical" size="middle" class="w-100">
+          <div class="text-center">
+            <a-typography-title level="2" class="text-white">
+              {{ trlang.welcome_back }}
+            </a-typography-title>
+            <a-typography-text class="text-white">{{ trlang.enter_detail }}</a-typography-text>
+          </div>
 
-        <div>
-          <a-typography-text>{{ trlang.email }}</a-typography-text>
-          <a-input v-model:value="email" :placeholder="trlang.input_email" />
-        </div>
+          <div>
+            <a-typography-text class="text-white">{{ trlang.email }}</a-typography-text>
+            <a-input v-model:value="email" :placeholder="trlang.input_email" class="mt-2" />
+          </div>
 
-        <div>
-          <a-typography-text>{{ trlang.password }}</a-typography-text>
-          <a-input-password
-            v-model:value="password"
-            :placeholder="trlang.input_password"
-          />
-        </div>
+          <div>
+            <a-typography-text class="text-white">{{ trlang.password }}</a-typography-text>
+            <a-input-password
+              v-model:value="password"
+              :placeholder="trlang.input_password"
+              class="mt-2"
+            />
+          </div>
 
-        <div v-if="captchaShow">
-          <div v-html="captcha" @click="loadCaptcha" class="text-center"></div>
-          <a-input
-            v-model:value="captchaInput"
-            :placeholder="trlang.enter_captcha"
-            required
-          />
-        </div>
+          <div v-if="captchaShow">
+            <div v-html="captcha" @click="loadCaptcha" class="text-center mb-2" style="cursor: pointer;"></div>
+            <a-input
+              v-model:value="captchaInput"
+              :placeholder="trlang.enter_captcha"
+              required
+            />
+          </div>
 
-        <div v-if="retry" class="flex flex-column">
-          <a-typography-text class="text-red">
-            {{ trlang.your_login_attempt_has_failed_3_times_or_more }}
-          </a-typography-text>
-          <a-typography-text class="text-red">
-            {{ trlang.please_try_again_later }}:
-            {{
-              Math.floor(retryRemainedTime / 60)
-                ? Math.floor(retryRemainedTime / 60) + trlang.min
-                : ''
-            }}
-            {{
-              retryRemainedTime % 60
-                ? (retryRemainedTime % 60) + trlang.sec
-                : ''
-            }}
-          </a-typography-text>
-        </div>
+          <div v-if="retry" class="flex flex-column">
+            <a-typography-text class="text-danger">
+              {{ trlang.your_login_attempt_has_failed_3_times_or_more }}
+            </a-typography-text>
+            <a-typography-text class="text-danger">
+              {{ trlang.please_try_again_later }}:
+              {{
+                Math.floor(retryRemainedTime / 60)
+                  ? Math.floor(retryRemainedTime / 60) + trlang.min
+                  : ''
+              }}
+              {{
+                retryRemainedTime % 60
+                  ? (retryRemainedTime % 60) + trlang.sec
+                  : ''
+              }}
+            </a-typography-text>
+          </div>
 
-        <a-row class="w-100" justify="space-between" align="middle">
-          <a-checkbox v-model:checked="remember">
-            {{ trlang.remember_me }}
-          </a-checkbox>
-          <router-link to="/auth/forgot-password">
-            <a-button type="link">{{ trlang.forgot_password }}</a-button>
-          </router-link>
-        </a-row>
+          <a-row class="w-100" justify="space-between" align="middle">
+            <a-checkbox v-model:checked="remember" class="text-white">
+              {{ trlang.remember_me }}
+            </a-checkbox>
+            <router-link to="/auth/forgot-password">
+              <a-button type="link" class="text-primary">{{ trlang.forgot_password }}</a-button>
+            </router-link>
+          </a-row>
 
-        <a-button class="w-100 bg-main text-white" @click="login">
-          {{ trlang.login }}
-        </a-button>
-      </a-space>
+          <a-button class="w-100 bg-primary text-white" @click="login" style="height: 45px; border-radius: 8px;">
+            {{ trlang.login }}
+          </a-button>
+        </a-space>
+      </a-card>
     </a-col>
 
     <!-- Right Panel -->
@@ -101,10 +104,18 @@ let retryTimer = null;
 
 /* Helpers */
 const getCaptcha = async () => {
-  const { data } = await getData(apiLink.get_captcha);
-  captchaText.value = data.text;
-  captcha.value = data.data;
-  captchaShow.value = true;
+  const response = await getData(apiLink.get_captcha);
+  if (response.status && response.data) {
+    captchaText.value = response.data.text;
+    captcha.value = response.data.data;
+    captchaShow.value = true;
+  } else {
+    captchaShow.value = false;
+  }
+};
+
+const loadCaptcha = () => {
+  getCaptcha();
 };
 
 const handleLoginFailed = () => {
