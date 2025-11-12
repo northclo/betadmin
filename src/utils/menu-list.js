@@ -16,6 +16,7 @@ export const menuList = () => {
       key: "main",
       label: "main_page",
       icon: HomeOutlined,
+      to: routeLink.dashboard.link,
     },
     {
       key: "basic",

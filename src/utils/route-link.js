@@ -27,6 +27,10 @@ export const routeLink = {
     name: "AdminAccountPage",
     link: "/basic/account"
   },
+  admin_menu: {
+    name: "AdminMenuManagementPage",
+    link: "/basic/menu"
+  },
   game_setting: {
     name: "GameSettingPage",
     link: "/game/setting"
@@ -34,6 +38,10 @@ export const routeLink = {
   game_partner: {
     name: "GamePartnerPage",
     link: "/game/partner"
+  },
+  betting_settlement: {
+    name: "BettingSettlementPage",
+    link: "/bet-settle"
   },
   login_information: {
     name: "LoginInformationPage",
@@ -46,5 +54,29 @@ export const routeLink = {
   current_login_user: {
     name: "CurrentLoginUserPage",
     link: '/member/current-login'
+  },
+  charging_management: {
+    name: "ChargingManagementPage",
+    link: "/charge-manage"
+  },
+  exchange_management: {
+    name: "ExchangeManagementPage",
+    link: "/exchange-manage"
+  },
+  money_usage_log: {
+    name: "MoneyUsageLogPage",
+    link: "/money-log"
+  },
+  point_usage_log: {
+    name: "PointUsageLogPage",
+    link: "/point-log"
+  },
+  announcement: {
+    name: "AnnouncementPage",
+    link: "/announcement"
+  },
+  customer_service_center: {
+    name: "CustomerServiceCenterPage",
+    link: "/service-center"
   },
 };

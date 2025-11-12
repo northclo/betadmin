@@ -8,44 +8,19 @@ Each class has a single responsibility.
 */
 
 #app {
-  background: var(--main-dark-color);
+  background: var(--page-bg-color);
+  color: var(--text-primary-color);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
 }
 
 body {
-  background: var(--main-dark-color);
-  color: var(--white-color);
-}
-
-/* Animated Gradient Background */
-#app::before {
-  content: '';
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-  animation: gradient-shift 20s ease infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  33% {
-    transform: translate(5%, 5%) rotate(5deg);
-  }
-  66% {
-    transform: translate(-5%, -5%) rotate(-5deg);
-  }
+  background: var(--page-bg-color);
+  color: var(--text-primary-color);
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .main-container {
@@ -70,11 +45,9 @@ button {
 }
 
 .bg-primary-light {
-  background: var(--glass-bg) !important;
-  backdrop-filter: var(--blur-md);
-  -webkit-backdrop-filter: var(--blur-md);
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
+  background: var(--accent-soft-color) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-xs) !important;
 }
 
 .bg-pink {
@@ -102,11 +75,9 @@ button {
 }
 
 .bg-white {
-  background: var(--glass-bg) !important;
-  backdrop-filter: var(--blur-lg);
-  -webkit-backdrop-filter: var(--blur-lg);
-  border: 1px solid var(--glass-border-light) !important;
-  box-shadow: var(--glass-shadow) !important;
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
   border-radius: 12px !important;
 }
 

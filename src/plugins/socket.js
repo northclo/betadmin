@@ -1,15 +1,15 @@
 import { io } from "socket.io-client";
-// import { config } from '@/config/index.js';
+import { config } from "@/config/index.js";
 
-// const socket = io(config.socketServerURL);
-const socket = io('https://api.superball-race.com', {
-    transports: ["websocket", "polling"]
-})
+const socket = io(config.socketServerURL, {
+  transports: ["websocket", "polling"],
+  withCredentials: true,
+});
 
 export default {
-    install: (app) => {
-        app.config.globalProperties.$socket = socket; // make it globally available
-    },
+  install: (app) => {
+    app.config.globalProperties.$socket = socket;
+  },
 };
 
 export { socket };

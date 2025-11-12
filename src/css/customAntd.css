@@ -32,7 +32,7 @@
 .ant-collapse-header {
   background: transparent !important;
   align-items: center !important;
-  color: var(--white-color) !important;
+  color: var(--text-primary-color) !important;
 }
 
 table .ant-table-thead tr th {
