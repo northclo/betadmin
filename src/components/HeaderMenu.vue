@@ -1,65 +1,58 @@
 <template>
   <div class="header-wrapper">
     <a-layout-header class="flex items-center header-content">
-      <div class="header-tools">
+      <div v-if="showMenuToggle" class="header-tools">
         <button
-          v-if="showMenuToggle"
           class="menu-toggle"
           type="button"
           @click="$emit('toggleSidebar')"
         >
           <MenuOutlined />
         </button>
-        <button
-          v-if="showMenuToggle"
-          class="menu-toggle nav-toggle"
-          type="button"
-          @click="navDrawerOpen = true"
-        >
-          <AppstoreOutlined />
-        </button>
       </div>
-      <a-layout class="flex flex-row gap-2 header-menu-list">
-        <template v-for="menu in menus" :key="menu.key">
-          <a-dropdown
-            v-if="menu.children && menu.children.length"
-            class="menu-dropdown"
-            :trigger="['click']"
-          >
-            <template #default>
-              <button
-                class="menu-btn"
-                :class="{ 'menu-btn-active': isActiveMenu(menu) }"
-                @click.stop
-              >
-                <component :is="menu.icon" class="header-icon" style="margin-right: 8px;" />
-                {{ trlang[menu.label] || menu.label }}
-              </button>
-            </template>
-            <template #overlay>
-              <a-menu class="dropdown-menu">
-                <a-menu-item
-                  v-for="child in menu.children"
-                  :key="child.key"
-                  @click="clickMenu(child.to)"
-                  :class="{ 'ant-menu-item-selected': currentRoute === child.to }"
+      <div class="header-menu-list-wrapper">
+        <a-layout class="flex flex-row header-menu-list">
+          <template v-for="menu in menus" :key="menu.key">
+            <a-dropdown
+              v-if="menu.children && menu.children.length"
+              class="menu-dropdown"
+              :trigger="['click']"
+            >
+              <template #default>
+                <button
+                  class="menu-btn"
+                  :class="{ 'menu-btn-active': isActiveMenu(menu) }"
+                  @click.stop
                 >
-                  {{ trlang[child.label] || child.label }}
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
-          <button
-            v-else
-            class="menu-btn"
-            :class="{ 'menu-btn-active': isActiveMenu(menu) }"
-            @click="clickMenu(menu.to)"
-          >
-            <component :is="menu.icon" class="header-icon" style="margin-right: 8px;" />
-            {{ trlang[menu.label] || menu.label }}
-          </button>
-        </template>
-      </a-layout>
+                  <component :is="menu.icon" class="header-icon" />
+                  <span class="menu-btn-text">{{ trlang[menu.label] || menu.label }}</span>
+                </button>
+              </template>
+              <template #overlay>
+                <a-menu class="dropdown-menu">
+                  <a-menu-item
+                    v-for="child in menu.children"
+                    :key="child.key"
+                    @click="clickMenu(child.to)"
+                    :class="{ 'ant-menu-item-selected': currentRoute === child.to }"
+                  >
+                    {{ trlang[child.label] || child.label }}
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+            <button
+              v-else
+              class="menu-btn"
+              :class="{ 'menu-btn-active': isActiveMenu(menu) }"
+              @click="clickMenu(menu.to)"
+            >
+              <component :is="menu.icon" class="header-icon" />
+              <span class="menu-btn-text">{{ trlang[menu.label] || menu.label }}</span>
+            </button>
+          </template>
+        </a-layout>
+      </div>
       <div class="log-out-btn">
         <a href="javascript:;" @click="logout">{{ trlang.logout }}</a>
       </div>

@@ -9,72 +9,72 @@
     <a-layout-header
       class="panel-toolbar flex items-center flex-wrap gap-5"
     >
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+      <div class="flex items-center gap-2 filter-group">
+        <a-typography-text class="filter-label p-2 px-5">{{
           trlang.duration
         }}</a-typography-text>
         <a-select
           v-model:value="duration"
           :options="durationOptions"
-          class="input-lg"
+          class="input-lg filter-select"
           @change="handleFilterChange"
         />
-        <a-typography-text>{{ trlang.start_date }}</a-typography-text>
+        <a-typography-text class="date-label">{{ trlang.start_date }}</a-typography-text>
         <a-date-picker
           v-model:value="startDate"
-          class="input-lg"
+          class="input-lg filter-date-picker"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
           @change="handleFilterChange"
         />
-        <a-typography-text>~</a-typography-text>
-        <a-typography-text>{{ trlang.end_date }}</a-typography-text>
+        <a-typography-text class="date-separator">~</a-typography-text>
+        <a-typography-text class="date-label">{{ trlang.end_date }}</a-typography-text>
         <a-date-picker
           v-model:value="endDate"
-          class="input-lg"
+          class="input-lg filter-date-picker"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
           @change="handleFilterChange"
         />
       </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+      <div class="flex items-center gap-2 filter-group">
+        <a-typography-text class="filter-label p-2 px-5">{{
           trlang.user_status
         }}</a-typography-text>
         <a-select
           v-model:value="userStatus"
           :options="userStatusOptions"
-          class="input-md"
+          class="input-md filter-select"
           @change="handleFilterChange"
         />
       </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+      <div class="flex items-center gap-2 filter-group">
+        <a-typography-text class="filter-label p-2 px-5">{{
           trlang.partner
         }}</a-typography-text>
         <a-select
           v-model:value="partner"
           :options="partnerOptions"
-          class="input-lg"
+          class="input-lg filter-select"
           @change="handleFilterChange"
         />
         <a-typography-text>{{ trlang.include_sub }}</a-typography-text>
         <a-checkbox v-model:checked="includeSub" @change="handleFilterChange" />
       </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
+      <div class="flex items-center gap-2 filter-group">
+        <a-typography-text class="filter-label p-2 px-5">{{
           trlang.keyword
         }}</a-typography-text>
         <a-select
           v-model:value="searchField"
           :options="searchFieldOptions"
-          class="input-lg"
+          class="input-lg filter-select"
           @change="handleFilterChange"
         />
         <a-input
           v-model:value="search"
           placeholder="Search..."
-          class="input-lg"
+          class="input-lg filter-input"
           @press-enter="handleFilterChange"
         >
           <template #prefix>
@@ -85,7 +85,7 @@
           {{ trlang.search }}
         </a-button>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 filter-group">
         <a-typography-text class="">
           {{ trlang.current_loggedin_users }}
         </a-typography-text>
@@ -94,37 +94,38 @@
           @change="handleFilterChange"
         />
       </div>
-      <a-button @click="refreshPage">{{ trlang.refresh_page }}</a-button>
-      <div class="flex items-center gap-2">
+      <a-button @click="refreshPage" class="filter-button">{{ trlang.refresh_page }}</a-button>
+      <div class="flex items-center gap-2 filter-group">
         <a-typography-text class="">
           {{ trlang.consider_users }}
         </a-typography-text>
         <a-checkbox v-model:checked="considerUser" @change="handleFilterChange" />
       </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">
+      <div class="flex items-center gap-2 filter-group">
+        <a-typography-text class="filter-label p-2 px-5">
           {{ trlang.sort }}
         </a-typography-text>
         <a-select
           v-model:value="sort"
           :options="sortOptions"
-          class="input-lg"
+          class="input-lg filter-select"
           @change="handleFilterChange"
         />
       </div>
     </a-layout-header>
 
     <a-layout-content class="table-panel">
-      <a-table
-        :columns="memberListColumn"
-        :data-source="dataSource"
-        :row-key="rowKey"
-        class="w-100 table-transparent"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
-        :pagination="paginationConfig"
-        @change="handleTableChange"
-        :row-selection="rowSelection"
-      >
+      <div class="table-wrapper">
+        <a-table
+          :columns="memberListColumn"
+          :data-source="dataSource"
+          :row-key="rowKey"
+          class="w-100 table-transparent"
+          :scroll="dataSource.length ? { x: 'max-content' } : undefined"
+          :pagination="paginationConfig"
+          @change="handleTableChange"
+          :row-selection="rowSelection"
+        >
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -167,7 +168,7 @@
                     : record.own_partners[0].partner_id
                 }})
               </a-typography-text>
-              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2">
+              <a-typography-text class="filter-badge px-2 py-1 w-fit">
                 {{
                   record.own_partners.length == 0
                     ? record.partners
@@ -281,6 +282,7 @@
           </template>
         </template>
       </a-table>
+      </div>
     </a-layout-content>
   </a-layout>
 </template>

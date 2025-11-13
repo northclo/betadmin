@@ -57,7 +57,6 @@
       </section>
 
       <section class="left-rail__section left-rail__section--list">
-        <header>{{ trlang.total }}</header>
         <ul>
           <li v-for="item in totalStats" :key="item.label">
             <span>{{ item.label }}</span>

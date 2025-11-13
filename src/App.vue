@@ -55,7 +55,6 @@ router
     routerReady.value = true;
   });
 
-// language state
 const state = reactive({
   currentLang: "en",
   translations: {},
@@ -63,6 +62,7 @@ const state = reactive({
 
 const isMobile = ref(false);
 const showSidebar = ref(false);
+const windowWidth = ref(window.innerWidth);
 
 async function loadLanguage(lang) {
   try {
@@ -75,11 +75,18 @@ async function loadLanguage(lang) {
 
 provide("langState", state);
 
+let resizeTimer = null;
 const updateViewport = () => {
-  isMobile.value = window.innerWidth <= 992;
-  if (!isMobile.value) {
-    showSidebar.value = false;
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
   }
+  resizeTimer = setTimeout(() => {
+    windowWidth.value = window.innerWidth;
+    isMobile.value = window.innerWidth <= 992;
+    if (!isMobile.value) {
+      showSidebar.value = false;
+    }
+  }, 150);
 };
 
 onMounted(() => {
@@ -89,6 +96,9 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
+  }
   window.removeEventListener("resize", updateViewport);
 });
 

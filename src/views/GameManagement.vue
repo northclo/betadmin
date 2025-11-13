@@ -7,11 +7,11 @@
 
   <a-layout class="panel-body">
     <a-layout-header class="panel-toolbar flex items-center gap-2">
-      <a-typography-text class="bg-gray text-white p-2">
+      <a-typography-text class="filter-label p-2">
         {{ trlang.game_process }}
       </a-typography-text>
       <a-select v-model:value="gameProcess" :options="gameProcessOptions" class="input-lg" @change="fetchData" />
-      <a-typography-text class="bg-gray text-white p-2">
+      <a-typography-text class="filter-label p-2">
         {{ trlang.keyword }}
       </a-typography-text>
       <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
