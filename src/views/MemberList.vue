@@ -73,7 +73,7 @@
         />
         <a-input
           v-model:value="search"
-          placeholder="Search..."
+          :placeholder="trlang.search_placeholder"
           class="input-lg filter-input"
           @press-enter="handleFilterChange"
         >
@@ -153,39 +153,39 @@
               <a-typography-text>
                 <span class="font-bold">
                   {{
-                    record.own_partners.length == 0
-                      ? record.partners
-                        ? record.partners[0].nickname
-                        : record.user_nickname
-                      : record.own_partners[0].nickname
+                    record.own_partners && record.own_partners.length > 0
+                      ? record.own_partners[0].nickname
+                      : record.partners && record.partners.length > 0
+                      ? record.partners[0].nickname
+                      : record.user_nickname || '-'
                   }}
                 </span>
                 ({{
-                  record.own_partners.length == 0
-                    ? record.partners
-                      ? record.partners[0].partner_id
-                      : record.user_nickname
-                    : record.own_partners[0].partner_id
+                  record.own_partners && record.own_partners.length > 0
+                    ? record.own_partners[0].partner_id
+                    : record.partners && record.partners.length > 0
+                    ? record.partners[0].partner_id
+                    : record.user_nickname || '-'
                 }})
               </a-typography-text>
               <a-typography-text class="filter-badge px-2 py-1 w-fit">
                 {{
-                  record.own_partners.length == 0
-                    ? record.partners
-                      ? trlang[record.partners[0].role]
-                      : ''
-                    : trlang[record.own_partners[0].role]
+                  record.own_partners && record.own_partners.length > 0
+                    ? trlang[record.own_partners[0].role] || ''
+                    : record.partners && record.partners.length > 0
+                    ? trlang[record.partners[0].role] || ''
+                    : ''
                 }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'partner'">
             {{
-              record.own_partners.length == 0
-                ? record.partners
-                  ? record.partners[0].nickname
-                  : ''
-                : record.own_partners[0].nickname
+              record.own_partners && record.own_partners.length > 0
+                ? record.own_partners[0].nickname
+                : record.partners && record.partners.length > 0
+                ? record.partners[0].nickname
+                : '-'
             }}
           </template>
           <template v-if="column.key === 'status'">
@@ -194,10 +194,10 @@
           <template v-if="column.key === 'owned_money'">
             <div class="flex flex-column">
               <a-typography-text class="text-red">
-                {{ record.own_money.toLocaleString() }}USD
+                {{ (record.own_money || 0).toLocaleString() }}USD
               </a-typography-text>
               <a-typography-text>
-                {{ record.point.toLocaleString() }}P
+                {{ (record.point || 0).toLocaleString() }}P
               </a-typography-text>
             </div>
           </template>
@@ -246,26 +246,28 @@
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_provide_point'">
-            {{ record.own_money.toLocaleString() }}P
+            {{ (record.own_money || 0).toLocaleString() }}P
           </template>
           <template v-if="column.key === 'last_import_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
-                {{ record.last_import_time?.split('T')[0] }}
+                {{ record.last_import_time ? record.last_import_time.split('T')[0] : '-' }}
               </a-typography-text>
               <a-typography-text>
-                {{ record.last_import_time?.split('T')[1].split('.')[0] }}
+                {{ record.last_import_time && record.last_import_time.includes('T') ? record.last_import_time.split('T')[1]?.split('.')[0] : '-' }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'connect_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
-                {{ record.login_history?.createdAt.split('T')[0] }}
+                {{ record.login_history?.createdAt ? record.login_history.createdAt.split('T')[0] : '-' }}
               </a-typography-text>
               <a-typography-text>
                 {{
-                  record.login_history?.createdAt.split('T')[1].split('.')[0]
+                  record.login_history?.createdAt && record.login_history.createdAt.includes('T')
+                    ? record.login_history.createdAt.split('T')[1]?.split('.')[0]
+                    : '-'
                 }}
               </a-typography-text>
             </div>
@@ -273,10 +275,10 @@
           <template v-if="column.key === 'created_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
-                {{ record.createdAt.split('T')[0] }}
+                {{ record.createdAt ? record.createdAt.split('T')[0] : '-' }}
               </a-typography-text>
               <a-typography-text>
-                {{ record.createdAt.split('T')[1].split('.')[0] }}
+                {{ record.createdAt && record.createdAt.includes('T') ? record.createdAt.split('T')[1]?.split('.')[0] : '-' }}
               </a-typography-text>
             </div>
           </template>
@@ -290,6 +292,7 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import { memberListColumn } from '@/utils/table-column/member-list.js';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -393,6 +396,9 @@ const rowSelection = computed(() => ({
 const rowKey = (record) => record.user_id;
 
 const buildQuery = () => {
+  const sortValue = sort.value || 'created_date';
+  const formattedSort = sortValue.includes(':') ? sortValue : `${sortValue}:desc`;
+  
   const params = new URLSearchParams({
     duration: duration.value || '',
     startDate: startDate.value || '',
@@ -404,7 +410,7 @@ const buildQuery = () => {
     search: search.value || '',
     currentLoggedinUser: currentLoggedinUser.value ? 'true' : 'false',
     considerUser: considerUser.value ? 'true' : 'false',
-    sort: sort.value || '',
+    sort: formattedSort,
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
@@ -416,26 +422,48 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const res = await getData(
-      `${apiLink.get_member_list}?${buildQuery()}`
+      `${apiLink.member_list}?${buildQuery()}`
     );
 
-    if (res.status) {
+    if (res && res.status) {
       const payload = res.data || {};
-      dataSource.value = payload.list || [];
-      setTotal(payload.total || 0);
-      if (payload.page) {
+      dataSource.value = Array.isArray(payload.list) ? payload.list : [];
+      setTotal(typeof payload.total === 'number' ? payload.total : 0);
+      if (typeof payload.page === 'number' && payload.page > 0) {
         paginationConfig.value.current = payload.page;
       }
-      if (payload.pageSize) {
+      if (typeof payload.pageSize === 'number' && payload.pageSize > 0) {
         paginationConfig.value.pageSize = payload.pageSize;
       }
+    } else {
+      dataSource.value = [];
+      setTotal(0);
     }
+  } catch (error) {
+    console.error('Error fetching member list:', error);
+    dataSource.value = [];
+    setTotal(0);
   } finally {
     loading.value = false;
   }
 };
 
+const validateDateRange = () => {
+  if (startDate.value && endDate.value) {
+    const start = new Date(startDate.value);
+    const end = new Date(endDate.value);
+    if (start > end) {
+      message.warning(trlang.value.end_date_must_be_after_start_date);
+      return false;
+    }
+  }
+  return true;
+};
+
 const handleFilterChange = () => {
+  if (!validateDateRange()) {
+    return;
+  }
   const isFirstPage = paginationConfig.value.current === 1;
   paginationConfig.value.current = 1;
   if (isFirstPage) {

@@ -15,16 +15,13 @@
         {{ trlang.keyword }}
       </a-typography-text>
       <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
-      <a-input v-model:value="search" placeholder="Search..." class="input-lg" @press-enter="fetchData">
+      <a-input v-model:value="search" :placeholder="trlang.search_placeholder" class="input-lg" @press-enter="fetchData">
         <template #prefix>
           <SearchOutlined />
         </template>
       </a-input>
       <a-button type="primary" @click="fetchData">
         {{ trlang.search }}
-      </a-button>
-      <a-button type="primary" @click="navigateToRealTimeBetting">
-        {{ trlang.real_time_betting }}
       </a-button>
     </a-layout-header>
 
@@ -78,7 +75,9 @@
               <a-col v-for="opt in bettingOptions[column.key]" :key="opt.label"
                 :class="['flex flex-column pt-2 pb-2', opt.active(record) ? 'bg-purple' : '']" :span="12">
                 <a-typography-text>{{ opt.label }}</a-typography-text>
-                <a-typography-text>[<span class="text-red">0</span>]</a-typography-text>
+                <a-typography-text>
+                  [<span class="text-red">{{ getBettingCount(record, opt.bettingType) }}</span>]
+                </a-typography-text>
               </a-col>
             </a-row>
           </template>
@@ -88,7 +87,9 @@
               <a-col v-for="opt in bettingOptions[column.key]" :key="opt.label"
                 :class="['flex flex-column pt-2 pb-2', opt.active(record) ? 'bg-purple' : '']" :span="12">
                 <a-typography-text>{{ opt.label }}</a-typography-text>
-                <a-typography-text>[<span class="text-red">0</span>]</a-typography-text>
+                <a-typography-text>
+                  [<span class="text-red">{{ getBettingCount(record, opt.bettingType) }}</span>]
+                </a-typography-text>
               </a-col>
             </a-row>
           </template>
@@ -111,10 +112,9 @@
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { gameManagementColumn } from '@/utils/table-column/game-management';
+import { gameManagementColumn as baseGameManagementColumn } from '@/utils/table-column/game-management';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
@@ -122,7 +122,6 @@ import { usePagination } from '@/composables/usePagination';
 
 defineOptions({ name: routeLink.game_management.name });
 
-const router = useRouter();
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
@@ -138,7 +137,7 @@ const dataSource = ref([]);
 const loading = ref(false);
 
 // Pagination
-const { paginationConfig, handleTableChange } = usePagination(10);
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 // Status Legend
 const statusLegend = computed(() => [
@@ -174,25 +173,34 @@ const statusLegend = computed(() => [
   },
 ]);
 
-// Betting Options
 const bettingOptions = computed(() => ({
   odd_even: [
-    { label: trlang.value.odd, active: (r) => r.odd },
-    { label: trlang.value.even, active: (r) => !r.odd },
+    { label: trlang.value.odd, active: (r) => r.odd, bettingType: 'odd' },
+    { label: trlang.value.even, active: (r) => !r.odd, bettingType: 'even' },
   ],
   under_over: [
-    { label: trlang.value.under, active: (r) => r.under },
-    { label: trlang.value.over, active: (r) => !r.under },
+    { label: trlang.value.under, active: (r) => r.under, bettingType: 'under' },
+    { label: trlang.value.over, active: (r) => !r.under, bettingType: 'over' },
   ],
   odd_under_over: [
-    { label: trlang.value.odd_under, active: (r) => r.odd && r.under },
-    { label: trlang.value.odd_over, active: (r) => r.odd && !r.under },
+    { label: trlang.value.odd_under, active: (r) => r.odd && r.under, bettingType: 'odd_under' },
+    { label: trlang.value.odd_over, active: (r) => r.odd && !r.under, bettingType: 'odd_over' },
   ],
   even_under_over: [
-    { label: trlang.value.even_under, active: (r) => !r.odd && r.under },
-    { label: trlang.value.even_over, active: (r) => !r.odd && !r.under },
+    { label: trlang.value.even_under, active: (r) => !r.odd && r.under, bettingType: 'even_under' },
+    { label: trlang.value.even_over, active: (r) => !r.odd && !r.under, bettingType: 'even_over' },
   ],
 }));
+
+const getBettingCount = (record, bettingType) => {
+  if (!record.bettingCounts) return 0;
+  return record.bettingCounts[bettingType] || 0;
+};
+
+const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => ({
+  ...col,
+  title: trlang.value[col.titleKey] || col.titleKey
+})));
 
 // Init Options
 const initOptions = () => {
@@ -220,10 +228,32 @@ const fetchData = async () => {
       loading.value = false;
       return;
     }
+    const page = paginationConfig.value.current;
+    const pageSize = paginationConfig.value.pageSize;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (gameProcess.value) params.append('status', gameProcess.value);
+    if (searchValue) {
+      params.append('searchField', searchField.value);
+      params.append('search', searchValue);
+    }
+    params.append('page', page);
+    params.append('pageSize', pageSize);
+    
     const res = await getData(
-      `${apiLink.get_game_management}?status=${gameProcess.value}&searchField=${searchField.value}&search=${searchValue}`
+      `${apiLink.get_game_management}?${params.toString()}`
     );
-    if (res.status) dataSource.value = res.data || [];
+    if (res.status) {
+      if (res.data && res.data.items) {
+        dataSource.value = res.data.items || [];
+        if (res.data.pagination && res.data.pagination.total !== undefined) {
+          setTotal(res.data.pagination.total);
+        }
+      } else {
+        dataSource.value = res.data || [];
+      }
+    }
   } finally {
     loading.value = false;
   }
@@ -248,11 +278,6 @@ const loadRemainedTime = (time) => {
   if (mins) parts.push(`${mins}${trlang.value.min}`);
   if (secs) parts.push(`${secs}${trlang.value.sec}`);
   return `${trlang.value.remain} ${parts.join(' ')}`;
-};
-
-// Navigate to Real-time Betting
-const navigateToRealTimeBetting = () => {
-  router.push(routeLink.real_time_betting.link);
 };
 
 onMounted(() => {

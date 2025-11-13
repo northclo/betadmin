@@ -52,8 +52,8 @@ const customerCenterRef = ref(null);
 
 const fetchData = async () => {
   const res = await getData(apiLink.site_setting);
-  if (res.status && res.data.length > 0) {
-    dataSource.value = res.data[0];
+  if (res.status && res.data) {
+    dataSource.value = res.data;
   }
 };
 
@@ -72,16 +72,27 @@ const saveData = async () => {
     return;
   }
 
+  const siteActivationState = siteActivationRef.value?.getState?.();
+  const siteSecurityState = siteSecurityRef.value?.getState?.();
+  const siteTextState = siteTextRef.value?.getState?.();
+  const membershipState = membershipRef.value?.getState?.();
+  const customerCenterState = customerCenterRef.value?.getState?.();
+
+  if (!siteActivationState || !siteSecurityState || !siteTextState || !membershipState || !customerCenterState) {
+    message.error(trlang.value.failed_to_load_settings);
+    return;
+  }
+
   const payload = {
-    siteActivation: siteActivationRef.value?.getState(),
-    security: siteSecurityRef.value?.getState().security,
-    siteText: siteTextRef.value?.getState(),
-    membership: membershipRef.value?.getState(),
+    siteActivation: siteActivationState,
+    security: siteSecurityState.security ?? true,
+    siteText: siteTextState,
+    membership: membershipState,
     charge:
       validationResults.charge?.data ?? chargeRef.value?.getState?.() ?? {},
     exchange:
       validationResults.exchange?.data ?? exchangeRef.value?.getState?.() ?? {},
-    customerCenter: customerCenterRef.value?.getState().customerCenter,
+    customerCenter: customerCenterState.customerCenter ?? true,
   };
 
   const res = await postData(apiLink.site_setting, payload);

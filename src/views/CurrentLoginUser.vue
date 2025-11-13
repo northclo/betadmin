@@ -133,7 +133,7 @@
               @click="
                 changeBlockIp(
                   record.last_login_history?.ip_address,
-                  record.blockedIp
+                  !record.blockedIp
                 )
               "
             >
@@ -173,14 +173,15 @@
           </template>
 
           <template v-if="column.key === 'final_import_date'">
-            <div class="flex flex-column">
+            <div v-if="record.last_import_date" class="flex flex-column">
               <a-typography-text class="font-bold">
-                {{ record.last_import_date?.split('T')[0] }}
+                {{ record.last_import_date.split('T')[0] }}
               </a-typography-text>
               <a-typography-text>
-                {{ record.last_import_date?.split('T')[1].split('.')[0] }}
+                {{ record.last_import_date.split('T')[1]?.split('.')[0] }}
               </a-typography-text>
             </div>
+            <span v-else>-</span>
           </template>
 
           <template v-if="column.key === 'created_date'">
@@ -195,23 +196,24 @@
           </template>
 
           <template v-if="column.key === 'connect_date'">
-            <div class="flex flex-column">
+            <div v-if="record.last_login_history?.createdAt" class="flex flex-column">
               <a-typography-text class="font-bold">
-                {{ record.last_login_history?.createdAt.split('T')[0] }}
+                {{ record.last_login_history.createdAt.split('T')[0] }}
               </a-typography-text>
               <a-typography-text>
                 {{
-                  record.last_login_history?.createdAt
+                  record.last_login_history.createdAt
                     .split('T')[1]
-                    .split('.')[0]
+                    ?.split('.')[0]
                 }}
               </a-typography-text>
             </div>
+            <span v-else>-</span>
           </template>
 
           <!-- Mobile -->
           <template v-if="column.key === 'mobile'">
-            <a-typography-text>{{ record.mobile && 'Y' }}</a-typography-text>
+            <a-typography-text>{{ record.last_login_history?.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>
         </template>
       </a-table>

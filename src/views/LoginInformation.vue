@@ -103,7 +103,7 @@
 
           <!-- Mobile -->
           <template v-if="column.key === 'mobile'">
-            <a-typography-text>{{ record.mobile && 'Y' }}</a-typography-text>
+            <a-typography-text>{{ record.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>
         </template>
       </a-table>
@@ -127,18 +127,15 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-// Filters
 const startDate = ref('');
 const endDate = ref('');
 const searchField = ref('');
 const search = ref('');
 const searchFieldOptions = ref([]);
 
-// Table Data
 const dataSource = ref([]);
 const loading = ref(false);
 
-// ✅ Use pagination composable
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const initOptions = () => {
@@ -198,7 +195,6 @@ const handleFilterChange = () => {
   }
 };
 
-// Watch pagination changes -> refetch data
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
   () => {

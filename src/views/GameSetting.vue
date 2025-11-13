@@ -10,7 +10,7 @@
   </a-layout>
 
   <a-layout class="p-2">
-    <PowerballGame ref="powerballRef" :save-data="saveData" />
+    <PowerballGame ref="powerballRef" />
   </a-layout>
 </template>
 
@@ -21,7 +21,7 @@ import PowerballGame from '@/components/partner/setting/PowerballGame.vue';
 import { SaveOutlined } from '@ant-design/icons-vue';
 
 export default {
-  name: routeLink.admin_account.name,
+  name: routeLink.game_setting.name,
   components: { PowerballGame, SaveOutlined },
   setup() {
     const langState = inject('langState');
@@ -30,7 +30,9 @@ export default {
     const powerballRef = ref(null);
 
     const handleSave = () => {
-      powerballRef.value.saveData();
+      if (powerballRef.value && typeof powerballRef.value.saveData === 'function') {
+        powerballRef.value.saveData();
+      }
     };
 
     return { trlang, handleSave, powerballRef };

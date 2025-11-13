@@ -23,7 +23,7 @@
             {{ trlang[record.label] || record.label }}
           </template>
           <template v-else-if="column.dataIndex === 'path'">
-            <a-typography-text>{{ record.to || "-" }}</a-typography-text>
+            <a-typography-text>{{ record.to }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'children'">
             <a-tag v-for="child in record.children" :key="child.key">
@@ -45,11 +45,11 @@ import { menuList } from "@/utils/menu-list";
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
-const columns = [
-  { title: trlang.value.menu_title ?? "Title", dataIndex: "label", key: "label" },
-  { title: trlang.value.menu_path ?? "Path", dataIndex: "path", key: "path" },
-  { title: trlang.value.child_menu ?? "Children", dataIndex: "children", key: "children" },
-];
+const columns = computed(() => [
+  { title: trlang.value.menu_title, dataIndex: "label", key: "label" },
+  { title: trlang.value.menu_path, dataIndex: "path", key: "path" },
+  { title: trlang.value.child_menu, dataIndex: "children", key: "children" },
+]);
 
 const menuSource = computed(() => menuList());
 </script>

@@ -7,31 +7,49 @@ export function useOnlineStatus(userId) {
     let intervalId = null;
 
     const sendOnlineStatus = () => {
-        socket.emit('user_online', userId);
+        if (socket.connected && userId) {
+            socket.emit('user_online', userId);
+        } else if (userId) {
+            socket.once('connect', () => {
+                socket.emit('user_online', userId);
+            });
+        }
     };
 
     onMounted(() => {
-        // Send immediately when tab opens
-        sendOnlineStatus();
+        if (!userId) {
+            console.warn('useOnlineStatus: No user token provided');
+            return;
+        }
 
-        // Also handle tab visibility change
+        if (socket.connected) {
+            sendOnlineStatus();
+        } else {
+            socket.once('connect', () => {
+                sendOnlineStatus();
+            });
+        }
+
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') sendOnlineStatus();
         });
 
-        // Handle tab close
         window.addEventListener('beforeunload', () => {
-            socket.emit('user_offline', userId);
+            if (socket.connected && userId) {
+                socket.emit('user_offline', userId);
+            }
         });
 
         socket.on('user_logout', () => {
             router.push(routeLink.login);
             localStorage.removeItem('token')
-        })
+        });
     });
 
     onBeforeUnmount(() => {
         clearInterval(intervalId);
-        socket.emit('user_offline', userId);
+        if (socket.connected && userId) {
+            socket.emit('user_offline', userId);
+        }
     });
 }

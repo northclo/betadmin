@@ -75,27 +75,26 @@ watch(
   { immediate: true, deep: true },
 );
 
+const buildPayload = () => {
+  const id = viewManagerId.value.trim();
+  const newPassword = password.value.trim();
+  const payload = { id };
+  if (newPassword) {
+    payload.password = newPassword;
+  }
+  return payload;
+};
+
 const validate = () => {
   const errors = [];
   const id = viewManagerId.value.trim();
   const newPassword = password.value.trim();
   const confirm = confirmPassword.value.trim();
 
-  const fields = [id, newPassword, confirm];
-  const filledCount = fields.filter((field) => !!field).length;
-
-  if (filledCount === 0) {
+  if (!id && !newPassword && !confirm) {
     return {
       valid: true,
-      errors,
-      data: null,
-    };
-  }
-
-  if (filledCount !== fields.length) {
-    return {
-      valid: true,
-      errors,
+      errors: [],
       data: null,
     };
   }
@@ -107,20 +106,18 @@ const validate = () => {
   }
 
   if (newPassword || confirm) {
-    if (newPassword.length < 8) {
+    if (!newPassword) {
+      errors.push(trlang.value.view_manager_password_required);
+    } else if (newPassword.length < 8) {
       errors.push(trlang.value.view_manager_password_min_length);
     }
-    if (newPassword !== confirm) {
+
+    if (!confirm) {
+      errors.push(trlang.value.please_confirm_view_manager_password);
+    } else if (newPassword !== confirm) {
       errors.push(trlang.value.view_manager_password_mismatch);
     }
   }
-  const buildPayload = () => {
-    const payload = { id };
-    if (newPassword) {
-      payload.password = newPassword;
-    }
-    return payload;
-  };
 
   return {
     valid: errors.length === 0,

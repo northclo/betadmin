@@ -49,8 +49,6 @@
 import { computed, inject, ref, watch } from 'vue';
 import { RightCircleFilled } from '@ant-design/icons-vue';
 
-import { checkValidEmail } from '@/helpers/Common.js';
-
 const props = defineProps({
   data: {
     type: Object,
@@ -77,8 +75,8 @@ watch(
 
 const buildPayload = () => {
   const id = adminId.value.trim();
-  const payload = { id };
   const newPassword = password.value.trim();
+  const payload = { id };
   if (newPassword) {
     payload.password = newPassword;
   }
@@ -87,29 +85,33 @@ const buildPayload = () => {
 
 const validate = () => {
   const errors = [];
-  const id = adminId.value.trim();
   const newPassword = password.value.trim();
   const confirm = confirmPassword.value.trim();
 
-  if (!id) {
-    errors.push(trlang.value.please_enter_administrator_id);
-  } else if (!checkValidEmail(id)) {
-    errors.push(trlang.value.administrator_id_must_be_valid_email);
+  if (!newPassword && !confirm) {
+    return {
+      valid: true,
+      errors: [],
+      data: null,
+    };
   }
 
-  if (newPassword || confirm) {
-    if (newPassword.length < 8) {
-      errors.push(trlang.value.administrator_password_min_length);
-    }
-    if (newPassword !== confirm) {
-      errors.push(trlang.value.administrator_password_mismatch);
-    }
+  if (!newPassword) {
+    errors.push(trlang.value.administrator_password_required);
+  } else if (newPassword.length < 8) {
+    errors.push(trlang.value.administrator_password_min_length);
+  }
+
+  if (!confirm) {
+    errors.push(trlang.value.please_confirm_administrator_password);
+  } else if (newPassword && newPassword !== confirm) {
+    errors.push(trlang.value.administrator_password_mismatch);
   }
 
   return {
     valid: errors.length === 0,
     errors,
-    data: buildPayload(),
+    data: errors.length === 0 ? buildPayload() : null,
   };
 };
 

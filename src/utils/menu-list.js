@@ -26,17 +26,17 @@ export const menuList = () => {
         {
           key: "site_setting",
           label: "site_setting",
-          to: "/basic/setting",
+          to: routeLink.site_setting.link,
         },
         {
           key: "admin_acc_manage",
           label: "administrator_account_management",
-          to: "/basic/account",
+          to: routeLink.admin_account.link,
         },
         {
           key: "menu_manage",
           label: "administrator_menu_management",
-          to: "/basic/menu",
+          to: routeLink.admin_menu.link,
         },
       ],
     },
@@ -65,7 +65,7 @@ export const menuList = () => {
         {
           key: "bet_settle",
           label: "betting_settlement_profit",
-          to: "/bet-settle",
+          to: routeLink.betting_settlement.link,
         },
       ],
     },
@@ -111,22 +111,22 @@ export const menuList = () => {
         {
           key: "charge_manage",
           label: "charging_management",
-          to: "/charge-manage",
+          to: routeLink.charging_management.link,
         },
         {
           key: "exchange_manage",
           label: "currency_exchange_management",
-          to: "/exchange-manage",
+          to: routeLink.exchange_management.link,
         },
         {
           key: "money_log",
           label: "money_usage_log",
-          to: "/money-log",
+          to: routeLink.money_usage_log.link,
         },
         {
           key: "point_log",
           label: "points_usage_log",
-          to: "/point-log",
+          to: routeLink.point_usage_log.link,
         },
       ],
     },
@@ -138,22 +138,22 @@ export const menuList = () => {
         {
           key: "announcement",
           label: "announcement",
-          to: "/announcement",
+          to: routeLink.announcement.link,
         },
         {
           key: "customer_service_center",
           label: "custom_service_center",
-          to: "/service-center",
+          to: routeLink.customer_service_center.link,
         },
         {
           key: "popup_manage",
           label: "popup_management",
-          to: "/popup-manage",
+          to: routeLink.popup_management.link,
         },
         {
           key: "note_manage",
           label: "note_management",
-          to: "/note-manage",
+          to: routeLink.note_management.link,
         },
       ],
     },

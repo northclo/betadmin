@@ -79,6 +79,7 @@ defineOptions({ name: "BettingSettlementView" });
 
 import { ref, computed, inject, onMounted } from "vue";
 import dayjs from "dayjs";
+import { message } from "ant-design-vue";
 
 import { getData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
@@ -109,7 +110,7 @@ const tableData = ref([]);
 const rawPartnerOptions = ref([]);
 
 const partnerOptions = computed(() => {
-  const allLabel = trlang.value.all ?? "All";
+  const allLabel = trlang.value.all;
   const mapped = rawPartnerOptions.value.map((partner) => {
     const fallbackId = partner.id?.slice?.(-6) || "";
     return {
@@ -123,37 +124,38 @@ const partnerOptions = computed(() => {
 const summaryCards = computed(() => [
   {
     key: "total_bet",
-    title: trlang.value.total_bet_amount ?? "Total Bet",
+    title: trlang.value.total_bet_amount,
     value: formatCurrency(summary.value.totalBetAmount),
   },
   {
     key: "total_payout",
-    title: trlang.value.total_payout ?? "Total Payout",
+    title: trlang.value.total_payout,
     value: formatCurrency(summary.value.totalPayout),
   },
   {
     key: "total_profit",
-    title: trlang.value.total_profit ?? "Profit",
+    title: trlang.value.total_profit,
     value: formatCurrency(summary.value.totalProfit),
   },
   {
     key: "settled_rounds",
-    title: trlang.value.settled_rounds ?? "Settled Rounds",
+    title: trlang.value.settled_rounds,
     value: (summary.value.settledRounds ?? 0).toLocaleString(),
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.round_no ?? "Round", dataIndex: "round", key: "round", width: 140 },
-  { title: trlang.value.partner_filter ?? "Partner", dataIndex: "partner", key: "partner", width: 180 },
-  { title: trlang.value.bet_amount ?? "Bet Amount", dataIndex: "bet_amount", key: "bet_amount", width: 160 },
-  { title: trlang.value.payout ?? "Payout", dataIndex: "payout", key: "payout", width: 160 },
-  { title: trlang.value.profit ?? "Profit", dataIndex: "profit", key: "profit", width: 160 },
-  { title: trlang.value.settled_at ?? "Settled At", dataIndex: "settled_at", key: "settled_at", width: 200 },
+  { title: trlang.value.round_no, dataIndex: "round", key: "round", width: 140 },
+  { title: trlang.value.partner_filter, dataIndex: "partner", key: "partner", width: 180 },
+  { title: trlang.value.bet_amount, dataIndex: "bet_amount", key: "bet_amount", width: 160 },
+  { title: trlang.value.payout, dataIndex: "payout", key: "payout", width: 160 },
+  { title: trlang.value.profit, dataIndex: "profit", key: "profit", width: 160 },
+  { title: trlang.value.settled_at, dataIndex: "settled_at", key: "settled_at", width: 200 },
 ]);
 
 const formatCurrency = (value) => {
-  const numericValue = Number.isFinite(value) ? value : 0;
+  if (value == null || value === undefined) return "$0";
+  const numericValue = Number.isFinite(value) ? Number(value) : 0;
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -163,28 +165,41 @@ const formatCurrency = (value) => {
 
 const buildQueryParams = () => {
   const params = new URLSearchParams();
-  params.set("page", `${pagination.value.current}`);
-  params.set("pageSize", `${pagination.value.pageSize}`);
+  const currentPage = pagination.value?.current || 1;
+  const pageSize = pagination.value?.pageSize || 20;
+  
+  params.set("page", `${currentPage}`);
+  params.set("pageSize", `${pageSize}`);
 
-  const [start, end] = filters.value.range || [];
-  if (start && dayjs.isDayjs(start)) {
+  const range = filters.value?.range || [];
+  const [start, end] = Array.isArray(range) ? range : [];
+  
+  if (start && dayjs.isDayjs(start) && start.isValid()) {
     params.set("startDate", start.toISOString());
   }
-  if (end && dayjs.isDayjs(end)) {
+  if (end && dayjs.isDayjs(end) && end.isValid()) {
     params.set("endDate", end.toISOString());
   }
 
-  if (filters.value.partner && filters.value.partner !== "all") {
-    params.set("partner", filters.value.partner);
+  const partner = filters.value?.partner;
+  if (partner && partner !== "all" && typeof partner === "string") {
+    params.set("partner", partner);
   }
 
   return params.toString();
 };
 
 const formatRoundLabel = (item) => {
-  const total = item.totalNo != null ? `#${item.totalNo}` : item.gameId ? `#${item.gameId}` : "-";
-  if (item.todayNo != null && item.todayNo !== "") {
-    return `${total}-${item.todayNo}`;
+  if (!item) return "-";
+  
+  const totalNo = item.totalNo != null ? item.totalNo : null;
+  const gameId = item.gameId || null;
+  const todayNo = item.todayNo != null && item.todayNo !== "" ? item.todayNo : null;
+  
+  const total = totalNo != null ? `#${totalNo}` : gameId ? `#${gameId}` : "-";
+  
+  if (todayNo != null) {
+    return `${total}-${todayNo}`;
   }
   return total;
 };
@@ -197,6 +212,18 @@ const fetchData = async (page = pagination.value.current) => {
     const result = await getData(`${apiLink.betting_settlement_profit}?${query}`);
 
     if (!result.status) {
+      message.error(
+        result.message || trlang.value.failed_to_load_settlement || "Failed to load settlement data"
+      );
+      // Reset to empty state on error
+      summary.value = {
+        totalBetAmount: 0,
+        totalPayout: 0,
+        totalProfit: 0,
+        settledRounds: 0,
+      };
+      tableData.value = [];
+      pagination.value.total = 0;
       return;
     }
 
@@ -204,6 +231,10 @@ const fetchData = async (page = pagination.value.current) => {
     const summaryData = data.summary || {};
     const settlementData = data.settlements || {};
     const items = Array.isArray(settlementData.items) ? settlementData.items : [];
+
+    if (!data || (!summaryData && !settlementData)) {
+      message.warning(trlang.value.no_settlement_data);
+    }
 
     summary.value = {
       totalBetAmount: summaryData.totalBetAmount || 0,
@@ -215,6 +246,18 @@ const fetchData = async (page = pagination.value.current) => {
     pagination.value.total = settlementData.total || 0;
 
     tableData.value = items.map((item, index) => {
+      if (!item || typeof item !== "object") {
+        return {
+          id: `settlement-${index}`,
+          round: "-",
+          partner: "-",
+          bet_amount: 0,
+          payout: 0,
+          profit: 0,
+          settled_at: "-",
+        };
+      }
+
       const rowKeyParts = [
         item.partnerId,
         item.totalNo ?? item.gameId ?? "",
@@ -223,14 +266,22 @@ const fetchData = async (page = pagination.value.current) => {
         .filter(Boolean)
         .join("-");
 
+      let settledAtFormatted = "-";
+      if (item.settledAt) {
+        const settledDate = dayjs(item.settledAt);
+        if (settledDate.isValid()) {
+          settledAtFormatted = settledDate.format("YYYY-MM-DD HH:mm");
+        }
+      }
+
       return {
         id: rowKeyParts || `settlement-${index}`,
         round: formatRoundLabel(item),
         partner: item.partnerName || item.partnerCode || "-",
-        bet_amount: item.betAmount || 0,
-        payout: item.payout || 0,
-        profit: item.profit || 0,
-        settled_at: item.settledAt ? dayjs(item.settledAt).format("YYYY-MM-DD HH:mm") : "-",
+        bet_amount: Number.isFinite(item.betAmount) ? Number(item.betAmount) : 0,
+        payout: Number.isFinite(item.payout) ? Number(item.payout) : 0,
+        profit: Number.isFinite(item.profit) ? Number(item.profit) : 0,
+        settled_at: settledAtFormatted,
       };
     });
 
@@ -245,6 +296,17 @@ const fetchData = async (page = pagination.value.current) => {
         filters.value.partner = "all";
       }
     }
+  } catch (error) {
+    console.error("Error fetching settlement data:", error);
+    message.error(trlang.value.failed_to_load_settlement);
+    summary.value = {
+      totalBetAmount: 0,
+      totalPayout: 0,
+      totalProfit: 0,
+      settledRounds: 0,
+    };
+    tableData.value = [];
+    pagination.value.total = 0;
   } finally {
     loading.value = false;
   }

@@ -16,7 +16,7 @@
         <P class="flex items-center text-helper">
           {{ trlang.minimum }}
         </P>
-        <a-input v-model:value="exchangeMin" style="width: 80px" />
+        <a-input v-model:value="exchangeMin" type="number" :min="0" style="width: 80px" />
         <P class="flex items-center text-helper">
           {{ trlang.from }}
         </P>
@@ -124,7 +124,7 @@
               <a-typography-text class="flex items-center">
                 {{ trlang.since_the_last_exchange }}
               </a-typography-text>
-              <a-input v-model:value="exchangeRestrictionLimit" style="width: 80px" />
+              <a-input v-model:value="exchangeRestrictionLimit" type="number" :min="1" style="width: 80px" />
               <a-typography-text class="flex items-center">
                 {{ trlang.request_for_currency_exchange_cannot_be_made_within_10minutes }}
               </a-typography-text>
@@ -142,7 +142,7 @@
               <a-typography-text class="flex items-center">
                 {{ trlang.since_the_last_charge }}
               </a-typography-text>
-              <a-input v-model:value="chargeRestrictionLimit" style="width: 80px" />
+              <a-input v-model:value="chargeRestrictionLimit" type="number" :min="1" style="width: 80px" />
               <a-typography-text class="flex items-center">
                 {{ trlang.request_for_currency_exchange_cannot_be_made_within_10minutes }}
               </a-typography-text>
@@ -260,10 +260,22 @@ watch(() => props.dataSource, loadData, { immediate: true });
 const updateRestrictionBtn = (key) => (exchangeRestriction.value = key);
 const changeExchangeMax = (val) => (exchangeMax.value = val);
 
+const isNumericInput = (value) => {
+  if (value === null || value === undefined || value === '') return true;
+  if (typeof value === 'number') return true;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '') return true;
+    return /^-?(\d+\.?\d*|\.\d+)$/.test(trimmed);
+  }
+  return false;
+};
+
 const toNumber = (value) => {
   if (value === null || value === undefined || value === '') return null;
-  const normalized =
-    typeof value === 'string' ? value.replace(/[^\d.-]/g, '') : value;
+  let normalized = typeof value === 'string' ? value : value.toString();
+  normalized = normalized.replace(/\s*USD\s*/gi, '');
+  normalized = normalized.replace(/[^\d.-]/g, '');
   const numericValue = Number(normalized);
   return Number.isFinite(numericValue) ? numericValue : null;
 };
@@ -312,8 +324,17 @@ const validate = () => {
   const state = buildState();
   const errors = [];
 
-  if (state.exchangeMin === null || state.exchangeMin < 0) {
+  if (exchangeMin.value !== null && exchangeMin.value !== undefined && exchangeMin.value !== '' && !isNumericInput(exchangeMin.value)) {
+    errors.push(trlang.value.exchange_minimum_must_be_number);
+  } else if (state.exchangeMin === null || state.exchangeMin < 0) {
     errors.push(trlang.value.please_enter_valid_minimum_exchange_amount);
+  }
+
+  const maxValue = exchangeMax.value;
+  if (maxValue && typeof maxValue === 'string' && !maxValue.includes('USD')) {
+    if (!isNumericInput(maxValue)) {
+      errors.push(trlang.value.exchange_maximum_must_be_number);
+    }
   }
   if (state.exchangeMax === null || state.exchangeMax <= 0) {
     errors.push(trlang.value.please_enter_valid_maximum_exchange_amount);

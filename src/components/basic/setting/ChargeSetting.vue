@@ -18,7 +18,7 @@
         <p class="flex items-center text-helper">
           {{ trlang.minimum }}
         </p>
-        <a-input v-model:value="chargeMin" style="width: 80px" />
+        <a-input v-model:value="chargeMin" type="number" :min="0" style="width: 80px" />
         <p class="flex items-center text-helper">
           {{ trlang.from }}
         </p>
@@ -159,10 +159,22 @@ const loadData = (data) => {
 
 watch(() => props.dataSource, loadData, { immediate: true });
 
+const isNumericInput = (value) => {
+  if (value === null || value === undefined || value === '') return true;
+  if (typeof value === 'number') return true;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '') return true;
+    return /^-?(\d+\.?\d*|\.\d+)$/.test(trimmed);
+  }
+  return false;
+};
+
 const toNumber = (value) => {
   if (value === null || value === undefined || value === '') return null;
-  const normalized =
-    typeof value === 'string' ? value.replace(/[^\d.-]/g, '') : value;
+  let normalized = typeof value === 'string' ? value : value.toString();
+  normalized = normalized.replace(/\s*USD\s*/gi, '');
+  normalized = normalized.replace(/[^\d.-]/g, '');
   const numericValue = Number(normalized);
   return Number.isFinite(numericValue) ? numericValue : null;
 };
@@ -202,8 +214,17 @@ const validate = () => {
   const state = buildState();
   const errors = [];
 
-  if (state.chargeMin === null || state.chargeMin < 0) {
+  if (chargeMin.value !== null && chargeMin.value !== undefined && chargeMin.value !== '' && !isNumericInput(chargeMin.value)) {
+    errors.push(trlang.value.charge_minimum_must_be_number);
+  } else if (state.chargeMin === null || state.chargeMin < 0) {
     errors.push(trlang.value.please_enter_valid_minimum_charge_amount);
+  }
+
+  const maxValue = chargeMax.value;
+  if (maxValue && typeof maxValue === 'string' && !maxValue.includes('USD')) {
+    if (!isNumericInput(maxValue)) {
+      errors.push(trlang.value.charge_maximum_must_be_number);
+    }
   }
   if (state.chargeMax === null || state.chargeMax <= 0) {
     errors.push(trlang.value.please_enter_valid_maximum_charge_amount);

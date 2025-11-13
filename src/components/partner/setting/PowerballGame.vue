@@ -50,7 +50,13 @@
           <a-typography-text class="text-dark-brown">
             {{ trlang.when_same_round_same_pick_same_amount }}
           </a-typography-text>
-          <a-input v-model:value="duplicateBettingLimit" class="text-center input-sm" />
+          <a-input 
+            v-model:value="duplicateBettingLimit" 
+            type="number" 
+            min="0"
+            class="text-center input-sm" 
+            :disabled="!duplicateBetting || loading"
+          />
           <a-typography-text class="text-dark-brown">
             {{ trlang.no_duplicate_betting_within_the_first_second }}
           </a-typography-text>
@@ -69,12 +75,12 @@
         <a-layout
           class="w-50 bg-gray flex flex-row justify-center items-center border p-2"
         >
-          <a-typography-text class="text-white"> A </a-typography-text>
+          <a-typography-text class="text-white"> {{ trlang.division_a }} </a-typography-text>
         </a-layout>
         <a-typography-text
           class="w-50 bg-gray text-white flex justify-center items-center border"
         >
-          B
+          {{ trlang.division_b }}
         </a-typography-text>
       </a-layout-content>
     </a-layout>
@@ -88,11 +94,25 @@
       </a-layout-sider>
       <a-layout-content class="flex">
         <a-space class="flex-1 justify-center border p-2">
-          <a-input v-model:value="item.valueA" class="text-end input-sm" />
+          <a-input 
+            v-model:value="item.valueA" 
+            type="number" 
+            min="0"
+            step="0.01"
+            class="text-end input-sm" 
+            :disabled="loading"
+          />
           <a-typography-text>%</a-typography-text>
         </a-space>
         <a-space class="flex-1 justify-center border p-2">
-          <a-input v-model:value="item.valueB" class="text-end input-sm" />
+          <a-input 
+            v-model:value="item.valueB" 
+            type="number" 
+            min="0"
+            step="0.01"
+            class="text-end input-sm" 
+            :disabled="loading"
+          />
           <a-typography-text>%</a-typography-text>
         </a-space>
       </a-layout-content>
@@ -115,127 +135,150 @@ const inactiveMessage = ref('');
 const duplicateBetting = ref(true);
 const duplicateBettingLimit = ref(0);
 const options = ref([]);
+const loading = ref(false);
+const saving = ref(false);
+
+// Field mapping structure to replace hardcoded array indices
+const optionFieldMapping = computed(() => [
+  { field: 'odd', labelKey: 'odd' },
+  { field: 'even', labelKey: 'even' },
+  { field: 'under', labelKey: 'under' },
+  { field: 'over', labelKey: 'over' },
+  { field: 'odd_under', labelKey: 'odd_under' },
+  { field: 'odd_over', labelKey: 'odd_over' },
+  { field: 'even_under', labelKey: 'even_under' },
+  { field: 'even_over', labelKey: 'even_over' },
+  { field: 'match_number1', labelKey: 'match_number', suffixKey: 'match_number_1_3' },
+  { field: 'match_number2', labelKey: 'match_number', suffixKey: 'match_number_1_4' },
+  { field: 'match_number3', labelKey: 'match_number', suffixKey: 'match_number_1_6' },
+]);
 
 // Helper to safely cast to number
 const toNumber = (val) => {
+  if (val === null || val === undefined || val === '') {
+    return 0;
+  }
   const n = Number(val);
   return isNaN(n) ? 0 : n;
 };
 
+const validateNumber = (value, fieldName) => {
+  const num = toNumber(value);
+  if (num < 0) {
+    return { valid: false, error: `${fieldName} ${trlang.value.must_be_non_negative_number}` };
+  }
+  return { valid: true, value: num };
+};
+
+const validateDuplicateBettingLimit = (value) => {
+  if (!duplicateBetting.value) {
+    return { valid: true, value: 0 };
+  }
+  return validateNumber(value, trlang.value.duplicate_betting_limit);
+};
+
 const fetchData = async () => {
-  const res = await getData(`${apiLink.game_setting}?name=PowerballGame`);
+  try {
+    loading.value = true;
+    const res = await getData(`${apiLink.game_setting}?name=PowerballGame`);
 
-  if (res.status) {
-    activate.value = res.data.activate;
-    inactiveMessage.value = res.data.inactive_message;
-    duplicateBetting.value = res.data.duplicate_betting;
-    duplicateBettingLimit.value = toNumber(res.data.duplicate_betting_limit);
+    if (res.status && res.data) {
+      activate.value = res.data.activate ?? true;
+      inactiveMessage.value = res.data.inactive_message ?? '';
+      duplicateBetting.value = res.data.duplicate_betting ?? true;
+      duplicateBettingLimit.value = toNumber(res.data.duplicate_betting_limit);
 
-    const optionA = res.data.option?.find((item) => item.name === 'A') || {};
-    const optionB = res.data.option?.find((item) => item.name === 'B') || {};
+      const optionA = res.data.option?.find((item) => item.name === 'A') || {};
+      const optionB = res.data.option?.find((item) => item.name === 'B') || {};
 
-    options.value = [
-      {
-        name: trlang.value.odd,
-        valueA: toNumber(optionA.odd),
-        valueB: toNumber(optionB.odd),
-      },
-      {
-        name: trlang.value.even,
-        valueA: toNumber(optionA.even),
-        valueB: toNumber(optionB.even),
-      },
-      {
-        name: trlang.value.under,
-        valueA: toNumber(optionA.under),
-        valueB: toNumber(optionB.under),
-      },
-      {
-        name: trlang.value.over,
-        valueA: toNumber(optionA.over),
-        valueB: toNumber(optionB.over),
-      },
-      {
-        name: trlang.value.odd_under,
-        valueA: toNumber(optionA.odd_under),
-        valueB: toNumber(optionB.odd_under),
-      },
-      {
-        name: trlang.value.odd_over,
-        valueA: toNumber(optionA.odd_over),
-        valueB: toNumber(optionB.odd_over),
-      },
-      {
-        name: trlang.value.even_under,
-        valueA: toNumber(optionA.even_under),
-        valueB: toNumber(optionB.even_under),
-      },
-      {
-        name: trlang.value.even_over,
-        valueA: toNumber(optionA.even_over),
-        valueB: toNumber(optionB.even_over),
-      },
-      {
-        name: trlang.value.match_number + ' (1 - 3)',
-        valueA: toNumber(optionA.match_number1),
-        valueB: toNumber(optionB.match_number1),
-      },
-      {
-        name: trlang.value.match_number + ' (1 - 4)',
-        valueA: toNumber(optionA.match_number2),
-        valueB: toNumber(optionB.match_number2),
-      },
-      {
-        name: trlang.value.match_number + ' (1 - 6)',
-        valueA: toNumber(optionA.match_number3),
-        valueB: toNumber(optionB.match_number3),
-      },
-    ];
+      options.value = optionFieldMapping.value.map((mapping) => {
+        const label = mapping.suffixKey
+          ? trlang.value[mapping.labelKey] + trlang.value[mapping.suffixKey]
+          : trlang.value[mapping.labelKey];
+        
+        return {
+          field: mapping.field,
+          name: label,
+          valueA: toNumber(optionA[mapping.field]),
+          valueB: toNumber(optionB[mapping.field]),
+        };
+      });
+    } else {
+      message.error(trlang.value.load_failed);
+    }
+  } catch (error) {
+    console.error('[PowerballGame] Error fetching data:', error);
+    message.error(trlang.value.load_failed);
+  } finally {
+    loading.value = false;
   }
 };
 
 const saveData = async () => {
-  const payload = {
-    activate: activate.value,
-    inactive_message: inactiveMessage.value,
-    duplicate_betting: duplicateBetting.value,
-    duplicate_betting_limit: toNumber(duplicateBettingLimit.value),
-    option: [
-      {
-        name: 'A',
-        odd: toNumber(options.value[0].valueA),
-        even: toNumber(options.value[1].valueA),
-        under: toNumber(options.value[2].valueA),
-        over: toNumber(options.value[3].valueA),
-        odd_under: toNumber(options.value[4].valueA),
-        odd_over: toNumber(options.value[5].valueA),
-        even_under: toNumber(options.value[6].valueA),
-        even_over: toNumber(options.value[7].valueA),
-        match_number1: toNumber(options.value[8].valueA),
-        match_number2: toNumber(options.value[9].valueA),
-        match_number3: toNumber(options.value[10].valueA),
-      },
-      {
-        name: 'B',
-        odd: toNumber(options.value[0].valueB),
-        even: toNumber(options.value[1].valueB),
-        under: toNumber(options.value[2].valueB),
-        over: toNumber(options.value[3].valueB),
-        odd_under: toNumber(options.value[4].valueB),
-        odd_over: toNumber(options.value[5].valueB),
-        even_under: toNumber(options.value[6].valueB),
-        even_over: toNumber(options.value[7].valueB),
-        match_number1: toNumber(options.value[8].valueB),
-        match_number2: toNumber(options.value[9].valueB),
-        match_number3: toNumber(options.value[10].valueB),
-      },
-    ],
-  };
+  try {
+    const limitValidation = validateDuplicateBettingLimit(duplicateBettingLimit.value);
+    if (!limitValidation.valid) {
+      message.error(limitValidation.error);
+      return;
+    }
 
-  const res = await postData(`${apiLink.game_setting}?name=PowerballGame`, payload);
+    const errors = [];
+    for (let i = 0; i < options.value.length; i++) {
+      const option = options.value[i];
+      
+      const fieldNameA = `${trlang.value.option_label} ${option.name} ${trlang.value.option_a}`;
+      const fieldNameB = `${trlang.value.option_label} ${option.name} ${trlang.value.option_b}`;
+      const validationA = validateNumber(option.valueA, fieldNameA);
+      const validationB = validateNumber(option.valueB, fieldNameB);
+      
+      if (!validationA.valid) {
+        errors.push(validationA.error);
+      }
+      if (!validationB.valid) {
+        errors.push(validationB.error);
+      }
+    }
 
-  if (res.status) {
-    message.success(trlang.value.saved_successful);
+    if (errors.length > 0) {
+      message.error(errors[0]);
+      return;
+    }
+
+    if (!activate.value && !inactiveMessage.value.trim()) {
+      message.warning(trlang.value.inactive_message_required);
+    }
+
+    saving.value = true;
+
+    const optionA = { name: 'A' };
+    const optionB = { name: 'B' };
+
+    options.value.forEach((option) => {
+      optionA[option.field] = toNumber(option.valueA);
+      optionB[option.field] = toNumber(option.valueB);
+    });
+
+    const payload = {
+      activate: activate.value,
+      inactive_message: inactiveMessage.value || '',
+      duplicate_betting: duplicateBetting.value,
+      duplicate_betting_limit: limitValidation.value,
+      option: [optionA, optionB],
+    };
+
+    const res = await postData(`${apiLink.game_setting}?name=PowerballGame`, payload);
+
+    if (res.status) {
+      message.success(trlang.value.settings_saved_successfully);
+      await fetchData();
+    } else {
+      message.error(trlang.value.save_failed);
+    }
+  } catch (error) {
+    console.error('[PowerballGame] Error saving data:', error);
+    message.error(trlang.value.save_failed);
+  } finally {
+    saving.value = false;
   }
 };
 

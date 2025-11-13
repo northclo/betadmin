@@ -79,7 +79,7 @@
                 size="small"
                 @click="handleAction(record, 'approve')"
               >
-                {{ trlang.approve || 'Approve' }}
+                {{ trlang.approve }}
               </a-button>
               <a-button 
                 v-if="record.status === 'pending'"
@@ -87,7 +87,7 @@
                 size="small"
                 @click="handleAction(record, 'reject')"
               >
-                {{ trlang.reject || 'Reject' }}
+                {{ trlang.reject }}
               </a-button>
             </a-space>
           </template>
@@ -126,34 +126,34 @@ const summaryData = ref({
 const summaryCards = computed(() => [
   {
     key: "total_requests",
-    title: trlang.value.total_requests ?? "Total Requests",
+    title: trlang.value.total_requests,
     value: summaryData.value.total_requests,
   },
   {
     key: "pending_requests",
-    title: trlang.value.pending_requests ?? "Pending",
+    title: trlang.value.pending_requests,
     value: summaryData.value.pending_requests,
   },
   {
     key: "completed_amount",
-    title: trlang.value.completed_amount ?? "Completed Amount",
+    title: trlang.value.completed_amount,
     value: formatCurrency(summaryData.value.completed_amount),
   },
   {
     key: "average_processing",
-    title: trlang.value.average_processing_time ?? "Avg. Processing",
+    title: trlang.value.average_processing_time,
     value: summaryData.value.average_processing_time,
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.request_id ?? "Request ID", dataIndex: "id", key: "id", width: 140 },
-  { title: trlang.value.member ?? "Member", dataIndex: "member", key: "member", width: 160 },
-  { title: trlang.value.amount ?? "Amount", dataIndex: "amount", key: "amount", width: 160 },
-  { title: trlang.value.status ?? "Status", dataIndex: "status", key: "status", width: 140 },
-  { title: trlang.value.submitted_at ?? "Submitted At", dataIndex: "submitted_at", key: "submitted_at", width: 200 },
-  { title: trlang.value.processed_by ?? "Processed By", dataIndex: "processed_by", key: "processed_by", width: 160 },
-  { title: trlang.value.action ?? "Action", dataIndex: "action", key: "action", width: 150 },
+  { title: trlang.value.request_id, dataIndex: "id", key: "id", width: 140 },
+  { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
+  { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
+  { title: trlang.value.submitted_at, dataIndex: "submitted_at", key: "submitted_at", width: 200 },
+  { title: trlang.value.processed_by, dataIndex: "processed_by", key: "processed_by", width: 160 },
+  { title: trlang.value.action, dataIndex: "action", key: "action", width: 150 },
 ]);
 
 const tableData = ref([]);
@@ -250,17 +250,16 @@ const fetchSummary = async () => {
     }
   } catch (error) {
     console.error("Error fetching summary:", error);
+    message.error(trlang.value.failed_to_fetch_summary_data);
   }
 };
 
 const handleAction = async (record, action) => {
   try {
-    // Extract transaction ID from the record
-    // The record._id is the MongoDB ObjectId as string, or we can extract from record.id
     const transactionId = record._id || record.id?.replace("REQ-", "");
 
     if (!transactionId) {
-      message.error("Transaction ID not found");
+      message.error(trlang.value.transaction_id_not_found);
       return;
     }
 
@@ -270,13 +269,14 @@ const handleAction = async (record, action) => {
     });
 
     if (res.status) {
-      message.success(res.message || `Transaction ${action === "approve" ? "approved" : "rejected"} successfully`);
+      const successMessage = res.message || (action === "approve" ? trlang.value.transaction_approved_successfully : trlang.value.transaction_rejected_successfully);
+      message.success(successMessage);
       await fetchData();
       await fetchSummary();
     }
   } catch (error) {
     console.error("Error updating transaction:", error);
-    message.error("Failed to update transaction");
+    message.error(trlang.value.failed_to_update_transaction);
   }
 };
 

@@ -1,83 +1,83 @@
 export const bettingListColumn = [
   {
-    title: "No",
+    titleKey: "no",
     dataIndex: "no",
     key: "no",
   },
   {
-    title: "Round",
+    titleKey: "round",
     dataIndex: "round",
     key: "round",
   },
   {
-    title: "Game Time",
+    titleKey: "game_time",
     dataIndex: "game_time",
     key: "game_time",
     align: 'center',
     width: '200px'
   },
   {
-    title: "Result List",
+    titleKey: "result_list",
     dataIndex: "result_list",
     key: "result_list",
     align: 'center',
   },
   {
-    title: "Odd/Even",
+    titleKey: "odd_even",
     dataIndex: "odd_even",
     key: "odd_even",
     align: 'center',
   },
   {
-    title: "User",
+    titleKey: "user",
     dataIndex: "user",
     key: "user",
   },
   {
-    title: "Partner",
+    titleKey: "partner",
     dataIndex: "partner",
     key: "partner",
   },
   {
-    title: "Betting Type",
+    titleKey: "betting_type",
     dataIndex: "betting_type",
     key: "betting_type",
   },
   {
-    title: "Number Sort",
+    titleKey: "number_sort",
     dataIndex: "number_sort",
     key: "number_sort",
   },
   {
-    title: "Bet Amount",
+    titleKey: "bet_amount",
     dataIndex: "bet_amount",
     key: "bet_amount",
     align: 'end'
   },
   {
-    title: "Betting Rate",
+    titleKey: "betting_rate",
     dataIndex: "betting_rate",
     key: "betting_rate",
     align: 'end'
   },
   {
-    title: "Earning Amount",
+    titleKey: "earning_amount",
     dataIndex: "earning_amount",
     key: "earning_amount",
     align: 'end'
   },
   {
-    title: "Win",
+    titleKey: "win",
     dataIndex: "win",
     key: "win",
   },
   {
-    title: "Status",
+    titleKey: "status",
     dataIndex: "betting_status",
     key: "betting_status",
   },
   {
-    title: "Created Date",
+    titleKey: "created_date",
     dataIndex: "created_date",
     key: "created_date",
   },

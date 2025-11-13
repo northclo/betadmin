@@ -105,7 +105,7 @@ export default {
       }
 
       if (!payload.admin && !payload.viewManager) {
-        message.error(trlang.value.invalid_data);
+        message.error(trlang.value.please_fill_at_least_one_field);
         return;
       }
 

@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { config } from "@/config/index.js";
 
-const socket = io(config.socketServerURL, {
+const socket = io(config.socketURL, {
   transports: ["websocket", "polling"],
   withCredentials: true,
 });

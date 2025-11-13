@@ -27,7 +27,7 @@
       />
       <a-input
         v-model:value="search"
-        placeholder="Search..."
+        :placeholder="trlang.search_placeholder"
         class="input-lg"
         @pressEnter="fetchData"
       >
@@ -103,9 +103,9 @@
                 ]"
               >
                 <a-typography-text>{{ opt.label }}</a-typography-text>
-                <a-typography-text
-                  >[<span class="text-red">0</span>]</a-typography-text
-                >
+                <a-typography-text>
+                  [<span class="text-red">{{ getBettingCount(record, opt.bettingType) }}</span>]
+                </a-typography-text>
               </a-col>
             </a-row>
           </template>
@@ -126,9 +126,9 @@
                 ]"
               >
                 <a-typography-text>{{ opt.label }}</a-typography-text>
-                <a-typography-text
-                  >[<span class="text-red">0</span>]</a-typography-text
-                >
+                <a-typography-text>
+                  [<span class="text-red">{{ getBettingCount(record, opt.bettingType) }}</span>]
+                </a-typography-text>
               </a-col>
             </a-row>
           </template>
@@ -157,7 +157,7 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
-import { gameManagementColumn } from '@/utils/table-column/game-management';
+import { gameManagementColumn as baseGameManagementColumn } from '@/utils/table-column/game-management';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
@@ -180,7 +180,12 @@ const dataSource = ref([]);
 const loading = ref(false);
 
 // Pagination
-const { paginationConfig, handleTableChange } = usePagination(10);
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+
+const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => ({
+  ...col,
+  title: trlang.value[col.titleKey] || col.titleKey
+})));
 
 // Status Legend
 const statusLegend = computed(() => [
@@ -219,22 +224,27 @@ const statusLegend = computed(() => [
 // Betting Options
 const bettingOptions = computed(() => ({
   odd_even: [
-    { label: trlang.value.odd, active: (r) => r.odd },
-    { label: trlang.value.even, active: (r) => !r.odd },
+    { label: trlang.value.odd, active: (r) => r.odd, bettingType: 'odd' },
+    { label: trlang.value.even, active: (r) => !r.odd, bettingType: 'even' },
   ],
   under_over: [
-    { label: trlang.value.under, active: (r) => r.under },
-    { label: trlang.value.over, active: (r) => !r.under },
+    { label: trlang.value.under, active: (r) => r.under, bettingType: 'under' },
+    { label: trlang.value.over, active: (r) => !r.under, bettingType: 'over' },
   ],
   odd_under_over: [
-    { label: trlang.value.odd_under, active: (r) => r.odd && r.under },
-    { label: trlang.value.odd_over, active: (r) => r.odd && !r.under },
+    { label: trlang.value.odd_under, active: (r) => r.odd && r.under, bettingType: 'odd_under' },
+    { label: trlang.value.odd_over, active: (r) => r.odd && !r.under, bettingType: 'odd_over' },
   ],
   even_under_over: [
-    { label: trlang.value.even_under, active: (r) => !r.odd && r.under },
-    { label: trlang.value.even_over, active: (r) => !r.odd && !r.under },
+    { label: trlang.value.even_under, active: (r) => !r.odd && r.under, bettingType: 'even_under' },
+    { label: trlang.value.even_over, active: (r) => !r.odd && !r.under, bettingType: 'even_over' },
   ],
 }));
+
+const getBettingCount = (record, bettingType) => {
+  if (!record.bettingCounts) return 0;
+  return record.bettingCounts[bettingType] || 0;
+};
 
 // Init Options
 const initOptions = () => {
@@ -256,10 +266,32 @@ const initOptions = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
+    const searchValue = search.value?.toString().trim() ?? '';
+    const page = paginationConfig.value.current;
+    const pageSize = paginationConfig.value.pageSize;
+    
+    const params = new URLSearchParams();
+    if (gameProcess.value) params.append('status', gameProcess.value);
+    if (searchValue) {
+      params.append('searchField', searchField.value);
+      params.append('search', searchValue);
+    }
+    params.append('page', page);
+    params.append('pageSize', pageSize);
+    
     const res = await getData(
-      `${apiLink.get_game_management}?status=${gameProcess.value}&searchField=${searchField.value}&search=${search.value}`
+      `${apiLink.get_game_management}?${params.toString()}`
     );
-    if (res.status) dataSource.value = res.data || [];
+    if (res.status) {
+      if (res.data && res.data.items) {
+        dataSource.value = res.data.items || [];
+        if (res.data.pagination && res.data.pagination.total !== undefined) {
+          setTotal(res.data.pagination.total);
+        }
+      } else {
+        dataSource.value = res.data || [];
+      }
+    }
   } finally {
     loading.value = false;
   }

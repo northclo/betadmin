@@ -62,8 +62,7 @@ const loadData = (data) => {
 
 watch(() => props.dataSource, loadData, { immediate: true });
 
-// Fields array to reduce repetition
-const fields = [
+const fields = computed(() => [
   { key: 'siteName', label: trlang.value.site_name, model: siteName },
   {
     key: 'titleBar',
@@ -88,7 +87,7 @@ const fields = [
     model: depositAccount,
     isTextarea: true,
   },
-];
+]);
 
 // Expose state to parent
 defineExpose({

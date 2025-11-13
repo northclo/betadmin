@@ -1,49 +1,49 @@
 export const gameManagementColumn = [
     {
-        title: "Round ID",
+        titleKey: "round_id",
         dataIndex: "round_id",
         key: "round_id",
         align: 'center',
     },
     {
-        title: "Game Time",
+        titleKey: "game_time",
         dataIndex: "game_time",
         key: "game_time",
         align: 'center',
         width: '200px'
     },
     {
-        title: "Result List",
+        titleKey: "result_list",
         dataIndex: "result_list",
         key: "result_list",
         align: 'center',
     },
     {
-        title: "Odd/Even",
+        titleKey: "odd_even",
         dataIndex: "odd_even",
         key: "odd_even",
         align: 'center',
     },
     {
-        title: "Under/Over",
+        titleKey: "under_over",
         dataIndex: "under_over",
         key: "under_over",
         align: 'center',
     },
     {
-        title: "Odd+Under/Over",
+        titleKey: "odd_under_over",
         dataIndex: "odd_under_over",
         key: "odd_under_over",
         align: 'center',
     },
     {
-        title: "Even+Under/Over",
+        titleKey: "even_under_over",
         dataIndex: "even_under_over",
         key: "even_under_over",
         align: 'center',
     },
     {
-        title: "Game Status",
+        titleKey: "game_status",
         dataIndex: "game_status",
         key: "game_status",
         align: 'center',

@@ -100,7 +100,7 @@
         />
         <a-input
           v-model:value="search"
-          placeholder="Search..."
+          :placeholder="trlang.search_placeholder"
           class="input-lg"
           @press-enter="handleFilterChange"
         >
@@ -155,6 +155,29 @@
               </a-typography-text>
             </div>
           </template>
+          <template v-if="column.key === 'game_time'">
+            <div class="flex flex-column justify-center items-center">
+              <a-typography-text v-if="record.game_start_time">
+                {{ new Date(record.game_start_time).toLocaleString() }}
+              </a-typography-text>
+              <a-typography-text v-else>-</a-typography-text>
+            </div>
+          </template>
+          <template v-if="column.key === 'result_list'">
+            <div class="flex justify-center items-center gap-1">
+              <span v-if="record.game_list && record.game_list.length > 0">
+                {{ record.game_list.join(', ') }}
+              </span>
+              <span v-else>-</span>
+            </div>
+          </template>
+          <template v-if="column.key === 'odd_even'">
+            <div class="flex justify-center items-center">
+              <a-tag :color="record.game_odd ? 'blue' : 'purple'">
+                {{ record.game_odd ? trlang.odd : trlang.even }}
+              </a-tag>
+            </div>
+          </template>
           <template v-if="column.key === 'user'">
             <div class="flex flex-column">
               <a-typography-text class="font-bold">
@@ -174,6 +197,9 @@
                 {{ trlang[record.own_partner_role || record.partner_role] || '' }}
               </a-typography-text>
             </div>
+          </template>
+          <template v-if="column.key === 'betting_type'">
+            <span>{{ record.betting_type || '-' }}</span>
           </template>
           <template v-if="column.key === 'number_sort'">
             <span v-if="record.number_sort && record.number_sort.length > 0">
@@ -221,7 +247,7 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
-import { bettingListColumn } from '@/utils/table-column/betting-list.js';
+import { bettingListColumn as baseBettingListColumn } from '@/utils/table-column/betting-list.js';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
@@ -259,6 +285,11 @@ const loading = ref(false);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
+const bettingListColumn = computed(() => baseBettingListColumn.map(col => ({
+  ...col,
+  title: trlang.value[col.titleKey] || col.titleKey
+})));
+
 const initOptions = () => {
   userStatusOptions.value = [
     { value: '', label: trlang.value.all },
@@ -287,17 +318,17 @@ const initOptions = () => {
   ];
   bettingTypeOptions.value = [
     { value: '', label: trlang.value.all },
-    { value: 'odd', label: 'Odd' },
-    { value: 'even', label: 'Even' },
-    { value: 'under', label: 'Under' },
-    { value: 'over', label: 'Over' },
-    { value: 'odd_under', label: 'Odd Under' },
-    { value: 'odd_over', label: 'Odd Over' },
-    { value: 'even_under', label: 'Even Under' },
-    { value: 'even_over', label: 'Even Over' },
-    { value: 'number_13', label: 'Number 13' },
-    { value: 'number_14', label: 'Number 14' },
-    { value: 'number_16', label: 'Number 16' },
+    { value: 'odd', label: trlang.value.odd },
+    { value: 'even', label: trlang.value.even },
+    { value: 'under', label: trlang.value.under },
+    { value: 'over', label: trlang.value.over },
+    { value: 'odd_under', label: trlang.value.odd_under },
+    { value: 'odd_over', label: trlang.value.odd_over },
+    { value: 'even_under', label: trlang.value.even_under },
+    { value: 'even_over', label: trlang.value.even_over },
+    { value: 'number_13', label: trlang.value.number_13 },
+    { value: 'number_14', label: trlang.value.number_14 },
+    { value: 'number_16', label: trlang.value.number_16 },
   ];
   winOptions.value = [
     { value: '', label: trlang.value.all },
@@ -308,16 +339,18 @@ const initOptions = () => {
   searchFieldOptions.value = [
     { value: 'user_id', label: trlang.value.id },
     { value: 'user_nickname', label: trlang.value.nickname },
-    { value: 'game_id', label: 'Game ID' },
+    { value: 'game_id', label: trlang.value.game_id },
     { value: 'betting_type', label: trlang.value.betting_type },
+    { value: 'total_no', label: trlang.value.total_no },
+    { value: 'today_no', label: trlang.value.today_no },
   ];
-  sort.value = 'created_date';
+  sort.value = 'created_date:desc';
   sortOptions.value = [
-    { value: 'created_date', label: trlang.value.created_date },
-    { value: 'bet_amount', label: trlang.value.bet_amount },
-    { value: 'earning_amount', label: trlang.value.earning_amount },
-    { value: 'game_id', label: 'Game ID' },
-    { value: 'total_no', label: 'Total No' },
+    { value: 'created_date:desc', label: trlang.value.created_date },
+    { value: 'bet_amount:desc', label: trlang.value.bet_amount },
+    { value: 'earning_amount:desc', label: trlang.value.earning_amount },
+    { value: 'game_id:desc', label: trlang.value.game_id },
+    { value: 'total_no:desc', label: trlang.value.total_no },
   ];
 };
 
