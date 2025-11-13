@@ -64,7 +64,7 @@ export const menuList = () => {
       children: [
         {
           key: "bet_settle",
-          label: "betting_settlement_profit_new",
+          label: "betting_settlement_profit",
           to: "/bet-settle",
         },
       ],

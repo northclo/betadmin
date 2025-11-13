@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="bg-white px-5 sticky-header">
+  <a-layout class="bg-white px-5">
     <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.login_information }}
     </a-typography-text>
@@ -8,19 +8,39 @@
   <a-layout class="p-2 flex flex-column gap-2">
     <a-layout-header class="bg-white flex items-center gap-2 shadow">
       <a-typography-text>{{ trlang.start_date }}</a-typography-text>
-      <a-date-picker v-model:value="startDate" class="input-lg" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
-        @change="fetchData" />
+      <a-date-picker
+        v-model:value="startDate"
+        class="input-lg"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        @change="handleFilterChange"
+      />
       <a-typography-text>~</a-typography-text>
       <a-typography-text>{{ trlang.end_date }}</a-typography-text>
-      <a-date-picker v-model:value="endDate" class="input-lg" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
-        @change="fetchData" />
-      <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
-      <a-input v-model:value="search" placeholder="Search..." class="input-lg" @press-enter="fetchData">
+      <a-date-picker
+        v-model:value="endDate"
+        class="input-lg"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        @change="handleFilterChange"
+      />
+      <a-select
+        v-model:value="searchField"
+        :options="searchFieldOptions"
+        class="input-lg"
+        @change="handleFilterChange"
+      />
+      <a-input
+        v-model:value="search"
+        placeholder="Search..."
+        class="input-lg"
+        @press-enter="handleFilterChange"
+      >
         <template #prefix>
           <SearchOutlined />
         </template>
       </a-input>
-      <a-button type="primary" @click="fetchData">
+      <a-button type="primary" @click="handleFilterChange">
         {{ trlang.search }}
       </a-button>
     </a-layout-header>
@@ -122,6 +142,7 @@ const loading = ref(false);
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const initOptions = () => {
+  searchField.value = '';
   searchFieldOptions.value = [
     { value: '', label: '--Search term--' },
     { value: 'user_nickname', label: 'User nickname' },
@@ -133,26 +154,56 @@ const initOptions = () => {
   ];
 };
 
+const buildQuery = () => {
+  const params = new URLSearchParams({
+    startDate: startDate.value || '',
+    endDate: endDate.value || '',
+    searchField: searchField.value || '',
+    search: search.value || '',
+    page: paginationConfig.value.current.toString(),
+    pageSize: paginationConfig.value.pageSize.toString(),
+  });
+
+  return params.toString();
+};
+
 const fetchData = async () => {
   loading.value = true;
   try {
     const res = await getData(
-      `${apiLink.get_login_information}?startDate=${startDate.value}&endDate=${endDate.value}&searchField=${searchField.value}&search=${search.value}`
+      `${apiLink.get_login_information}?${buildQuery()}`
     );
 
     if (res.status) {
-      dataSource.value = res.data || [];
-      if (res.total) setTotal(res.total); // ✅ update total if backend provides
+      const payload = res.data || {};
+      dataSource.value = payload.list || [];
+      setTotal(payload.total || 0);
+      if (payload.page) {
+        paginationConfig.value.current = payload.page;
+      }
+      if (payload.pageSize) {
+        paginationConfig.value.pageSize = payload.pageSize;
+      }
     }
   } finally {
     loading.value = false;
   }
 };
 
+const handleFilterChange = () => {
+  const isFirstPage = paginationConfig.value.current === 1;
+  paginationConfig.value.current = 1;
+  if (isFirstPage) {
+    fetchData();
+  }
+};
+
 // Watch pagination changes -> refetch data
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
-  fetchData
+  () => {
+    fetchData();
+  }
 );
 
 const changeBlockIp = async (ip, block) => {

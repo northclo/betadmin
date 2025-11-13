@@ -1,6 +1,6 @@
 <template>
   <a-layout>
-    <a-layout class="sticky-header">
+    <a-layout class="">
       <a-typography-text class="text-dark-gray fs-1">
         {{ trlang.partner_management }}
       </a-typography-text>

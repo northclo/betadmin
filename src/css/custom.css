@@ -574,6 +574,15 @@
   color: var(--text-muted-color) !important;
 }
 
+.ant-input-password .ant-input {
+  border: none !important;
+}
+
+.ant-input-password:focus .ant-input {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* Button Styling */
 .ant-btn {
   border-radius: 12px !important;

@@ -13,13 +13,13 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 border p-2 flex-wrap">
-        <a-typography-text class="flex items-center text-yellow">
+        <P class="flex items-center text-helper">
           {{ trlang.minimum }}
-        </a-typography-text>
+        </P>
         <a-input v-model:value="exchangeMin" style="width: 80px" />
-        <a-typography-text class="flex items-center text-yellow">
+        <P class="flex items-center text-helper">
           {{ trlang.from }}
-        </a-typography-text>
+        </P>
         <a-typography-text class="flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
@@ -36,9 +36,9 @@
             {{ item.amount }}
           </a-select-option>
         </a-select>
-        <a-typography-text class="flex items-center text-yellow">
+        <P class="flex items-center text-helper">
           {{ trlang.can_be_exchanged_for }}
-        </a-typography-text>
+        </P>
       </a-layout-content>
     </a-layout>
 
@@ -69,12 +69,12 @@
                 </a-typography-text>
                 <a-input v-model:value="exchangeEndTime" style="width: 80px" />
               </a-layout>
-              <a-typography-text class="flex items-center text-yellow">
+              <p class="flex items-center text-helper">
                 {{
                   trlang.please_enter_the_time_zone_where_currency_exchange_is_available
                 }}
                 {{ trlang.enter_in_24hour_format }}
-              </a-typography-text>
+              </p>
             </a-layout-content>
           </a-layout>
           <a-layout class="w-100">
@@ -177,19 +177,19 @@ const props = defineProps({
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-const exchangeMin = ref(0);
+const exchangeMin = ref('');
 const exchangeMax = ref('');
 const exchangeMaxOption = ref([]);
 const exchangeTimezone = ref(true);
 const exchangeImpossibleTimezoneMessage = ref('');
-const exchangeStartTime = ref(0);
-const exchangeEndTime = ref(0);
+const exchangeStartTime = ref('');
+const exchangeEndTime = ref('');
 const exchangeRestrictionOption = ref([]);
 const exchangeRestriction = ref(0);
 const exchangeRestrictionUse = ref(true);
-const exchangeRestrictionLimit = ref(0);
+const exchangeRestrictionLimit = ref('');
 const chargeRestrictionUse = ref(true);
-const chargeRestrictionLimit = ref(0);
+const chargeRestrictionLimit = ref('');
 const exchangeCompleteMessage = ref('');
 
 const getComponentData = () => {
@@ -218,21 +218,40 @@ const getComponentData = () => {
   ];
 };
 
+const formatTime = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return value.toString();
+  const digits = numericValue.toString().padStart(4, '0');
+  return `${digits.slice(0, 2)}:${digits.slice(2, 4)}`;
+};
+
 const loadData = (data) => {
-  exchangeMin.value = data.exchange_min ?? null;
+  exchangeMin.value =
+    data.exchange_min !== undefined && data.exchange_min !== null
+      ? data.exchange_min.toString()
+      : '';
   exchangeMax.value = data.exchange_max
     ? data.exchange_max + ' USD'
     : exchangeMaxOption.value[0]?.amount;
   exchangeTimezone.value = data.exchange_timezone ?? true;
-  exchangeStartTime.value = data.exchange_start_time ?? null;
-  exchangeEndTime.value = data.exchange_end_time ?? null;
+  exchangeStartTime.value = formatTime(data.exchange_start_time);
+  exchangeEndTime.value = formatTime(data.exchange_end_time);
   exchangeImpossibleTimezoneMessage.value =
     data.exchange_impossible_timezone_message ?? '';
   exchangeRestriction.value = data.exchange_restriction ?? '';
   exchangeRestrictionUse.value = data.exchange_restriction_use ?? true;
-  exchangeRestrictionLimit.value = data.exchange_restriction_limit ?? null;
+  exchangeRestrictionLimit.value =
+    data.exchange_restriction_limit !== undefined &&
+    data.exchange_restriction_limit !== null
+      ? data.exchange_restriction_limit.toString()
+      : '';
   chargeRestrictionUse.value = data.charge_restriction_use ?? true;
-  chargeRestrictionLimit.value = data.charge_restriction_limit ?? null;
+  chargeRestrictionLimit.value =
+    data.charge_restriction_limit !== undefined &&
+    data.charge_restriction_limit !== null
+      ? data.charge_restriction_limit.toString()
+      : '';
   exchangeCompleteMessage.value = data.exchange_complete_message ?? '';
 };
 
@@ -241,21 +260,106 @@ watch(() => props.dataSource, loadData, { immediate: true });
 const updateRestrictionBtn = (key) => (exchangeRestriction.value = key);
 const changeExchangeMax = (val) => (exchangeMax.value = val);
 
+const toNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const normalized =
+    typeof value === 'string' ? value.replace(/[^\d.-]/g, '') : value;
+  const numericValue = Number(normalized);
+  return Number.isFinite(numericValue) ? numericValue : null;
+};
+
+const toTimeNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const trimmed = value.toString().trim();
+  let digits = trimmed;
+  if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
+    digits = trimmed.replace(':', '');
+  }
+  if (!/^\d{3,4}$/.test(digits)) {
+    return null;
+  }
+  if (digits.length === 3) {
+    digits = `0${digits}`;
+  }
+  const hours = Number(digits.slice(0, 2));
+  const minutes = Number(digits.slice(2, 4));
+  if (hours > 23 || minutes > 59) {
+    return null;
+  }
+  return hours * 100 + minutes;
+};
+
+const buildState = () => ({
+  exchangeMin: toNumber(exchangeMin.value),
+  exchangeMax: toNumber(exchangeMax.value),
+  exchangeTimezone: exchangeTimezone.value,
+  exchangeStartTime: exchangeTimezone.value ? toTimeNumber(exchangeStartTime.value) : null,
+  exchangeEndTime: exchangeTimezone.value ? toTimeNumber(exchangeEndTime.value) : null,
+  exchangeImpossibleTimezoneMessage: exchangeImpossibleTimezoneMessage.value,
+  exchangeRestriction: exchangeRestriction.value,
+  exchangeRestrictionUse: exchangeRestrictionUse.value,
+  exchangeRestrictionLimit: exchangeRestrictionUse.value
+    ? toNumber(exchangeRestrictionLimit.value)
+    : null,
+  chargeRestrictionUse: chargeRestrictionUse.value,
+  chargeRestrictionLimit: chargeRestrictionUse.value
+    ? toNumber(chargeRestrictionLimit.value)
+    : null,
+  exchangeCompleteMessage: exchangeCompleteMessage.value,
+});
+
+const validate = () => {
+  const state = buildState();
+  const errors = [];
+
+  if (state.exchangeMin === null || state.exchangeMin < 0) {
+    errors.push(trlang.value.please_enter_valid_minimum_exchange_amount);
+  }
+  if (state.exchangeMax === null || state.exchangeMax <= 0) {
+    errors.push(trlang.value.please_enter_valid_maximum_exchange_amount);
+  }
+  if (
+    state.exchangeMin !== null &&
+    state.exchangeMax !== null &&
+    state.exchangeMin > state.exchangeMax
+  ) {
+    errors.push(trlang.value.exchange_min_cannot_exceed_exchange_max);
+  }
+
+  if (state.exchangeTimezone) {
+    if (state.exchangeStartTime === null) {
+      errors.push(trlang.value.please_enter_valid_exchange_start_time);
+    }
+    if (state.exchangeEndTime === null) {
+      errors.push(trlang.value.please_enter_valid_exchange_end_time);
+    }
+    if (
+      state.exchangeStartTime !== null &&
+      state.exchangeEndTime !== null &&
+      state.exchangeStartTime >= state.exchangeEndTime
+    ) {
+      errors.push(trlang.value.exchange_start_time_must_be_before_end_time);
+    }
+  }
+
+  if (state.exchangeRestrictionUse && state.exchangeRestrictionLimit === null) {
+    errors.push(trlang.value.please_enter_valid_exchange_restriction_limit);
+  }
+
+  if (state.chargeRestrictionUse && state.chargeRestrictionLimit === null) {
+    errors.push(trlang.value.please_enter_valid_charge_restriction_limit);
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    data: state,
+  };
+};
+
 defineExpose({
-  getState: () => ({
-    exchangeMin: exchangeMin.value,
-    exchangeMax: Number(exchangeMax.value.replace(' USD', '')),
-    exchangeTimezone: exchangeTimezone.value,
-    exchangeStartTime: exchangeStartTime.value,
-    exchangeEndTime: exchangeEndTime.value,
-    exchangeImpossibleTimezoneMessage: exchangeImpossibleTimezoneMessage.value,
-    exchangeRestriction: exchangeRestriction.value,
-    exchangeRestrictionUse: exchangeRestrictionUse.value,
-    exchangeRestrictionLimit: exchangeRestrictionLimit.value,
-    chargeRestrictionUse: chargeRestrictionUse.value,
-    chargeRestrictionLimit: chargeRestrictionLimit.value,
-    exchangeCompleteMessage: exchangeCompleteMessage.value,
-  }),
+  getState: () => buildState(),
+  validate,
 });
 
 onBeforeMount(getComponentData);

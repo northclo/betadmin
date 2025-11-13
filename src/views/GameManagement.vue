@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="panel-heading sticky-header">
+  <a-layout class="panel-heading">
     <a-typography-text class="panel-heading__title">
       {{ trlang.game_management }}
     </a-typography-text>
@@ -109,6 +109,7 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import { gameManagementColumn } from '@/utils/table-column/game-management';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -208,8 +209,14 @@ const initOptions = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
+    const searchValue = search.value?.toString().trim() ?? '';
+    if (searchValue && Number.isNaN(Number(searchValue))) {
+      message.error(trlang.value.invalid_data);
+      loading.value = false;
+      return;
+    }
     const res = await getData(
-      `${apiLink.get_game_management}?status=${gameProcess.value}&searchField=${searchField.value}&search=${search.value}`
+      `${apiLink.get_game_management}?status=${gameProcess.value}&searchField=${searchField.value}&search=${searchValue}`
     );
     if (res.status) dataSource.value = res.data || [];
   } finally {

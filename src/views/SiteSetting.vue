@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="bg-white flex flex-row justify-between items-center px-5 sticky-header">
+  <a-layout class="bg-white flex flex-row justify-between items-center px-5">
     <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.site_setting }}
     </a-typography-text>
@@ -16,7 +16,6 @@
     <MembershipSetting v-if="dataSource" ref="membershipRef" :data-source="dataSource" />
     <ChargeSetting v-if="dataSource" ref="chargeRef" :data-source="dataSource" />
     <CurrencyExchangeSetting v-if="dataSource" ref="exchangeRef" :data-source="dataSource" />
-    <BankCardSetting v-if="dataSource" ref="bankCardRef" :data-source="dataSource" />
     <CustomerCenterSetting v-if="dataSource" ref="customerCenterRef" :data-source="dataSource" />
   </a-collapse>
 </template>
@@ -34,7 +33,6 @@ import SiteTextSetting from '@/components/basic/setting/SiteText.vue';
 import MembershipSetting from '@/components/basic/setting/MembershipSetting.vue';
 import ChargeSetting from '@/components/basic/setting/ChargeSetting.vue';
 import CurrencyExchangeSetting from '@/components/basic/setting/CurrencyExchange.vue';
-import BankCardSetting from '@/components/basic/setting/BankCard.vue';
 import CustomerCenterSetting from '@/components/basic/setting/CustomerCenter.vue';
 
 defineOptions({ name: routeLink.site_setting.name });
@@ -50,7 +48,6 @@ const siteTextRef = ref(null);
 const membershipRef = ref(null);
 const chargeRef = ref(null);
 const exchangeRef = ref(null);
-const bankCardRef = ref(null);
 const customerCenterRef = ref(null);
 
 const fetchData = async () => {
@@ -61,13 +58,29 @@ const fetchData = async () => {
 };
 
 const saveData = async () => {
+  const validationResults = {
+    charge: chargeRef.value?.validate?.(),
+    exchange: exchangeRef.value?.validate?.(),
+  };
+
+  const validationErrors = Object.values(validationResults)
+    .filter((result) => result && !result.valid)
+    .flatMap((result) => result.errors);
+
+  if (validationErrors.length) {
+    validationErrors.forEach((error) => message.error(error));
+    return;
+  }
+
   const payload = {
     siteActivation: siteActivationRef.value?.getState(),
     security: siteSecurityRef.value?.getState().security,
     siteText: siteTextRef.value?.getState(),
     membership: membershipRef.value?.getState(),
-    charge: chargeRef.value?.getState(),
-    exchange: exchangeRef.value?.getState(),
+    charge:
+      validationResults.charge?.data ?? chargeRef.value?.getState?.() ?? {},
+    exchange:
+      validationResults.exchange?.data ?? exchangeRef.value?.getState?.() ?? {},
     customerCenter: customerCenterRef.value?.getState().customerCenter,
   };
 

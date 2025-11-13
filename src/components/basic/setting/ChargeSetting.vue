@@ -2,7 +2,7 @@
   <a-collapse-panel class="bg-white">
     <!-- Header -->
     <template #header>
-      <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
+      <a-typography-text class="font-bold fs-4 leading-0">
         {{ trlang.charge_setting }}
       </a-typography-text>
     </template>
@@ -15,13 +15,13 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 border p-2 flex-wrap">
-        <a-typography-text class="flex items-center text-yellow">
+        <p class="flex items-center text-helper">
           {{ trlang.minimum }}
-        </a-typography-text>
+        </p>
         <a-input v-model:value="chargeMin" style="width: 80px" />
-        <a-typography-text class="flex items-center text-yellow">
+        <p class="flex items-center text-helper">
           {{ trlang.from }}
-        </a-typography-text>
+        </p>
         <a-typography-text class="flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
@@ -34,9 +34,9 @@
             {{ item.amount }}
           </a-select-option>
         </a-select>
-        <a-typography-text class="flex items-center text-yellow">
+        <p class="flex items-center text-helper">
           {{ trlang.rechargeable_with }}
-        </a-typography-text>
+        </p>
       </a-layout-content>
     </a-layout>
 
@@ -68,10 +68,10 @@
                 </a-typography-text>
                 <a-input v-model:value="chargeEndTime" style="width: 80px" />
               </a-layout>
-              <a-typography-text class="flex items-center text-yellow">
+              <p class="flex items-center text-helper">
                 {{ trlang.please_enter_the_charging_time_zone }}
                 {{ trlang.enter_in_24hour_format }}
-              </a-typography-text>
+              </p>
             </a-layout-content>
           </a-layout>
           <a-layout class="w-100">
@@ -117,13 +117,13 @@ const props = defineProps({
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-const chargeMin = ref(null);
+const chargeMin = ref('');
 const chargeMax = ref('');
 const chargeMaxOption = ref([]);
 const chargeTimezone = ref(true);
 const chargeImpossibleTimezoneMessage = ref('');
-const chargeStartTime = ref(null);
-const chargeEndTime = ref(null);
+const chargeStartTime = ref('');
+const chargeEndTime = ref('');
 const chargeCompleteMessage = ref('');
 
 const initOptions = () => {
@@ -133,30 +133,115 @@ const initOptions = () => {
   }));
 };
 
+const formatTime = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return value.toString();
+  const digits = numericValue.toString().padStart(4, '0');
+  return `${digits.slice(0, 2)}:${digits.slice(2, 4)}`;
+};
+
 const loadData = (data) => {
-  chargeMin.value = data.charge_min ?? null;
+  chargeMin.value =
+    data.charge_min !== undefined && data.charge_min !== null
+      ? data.charge_min.toString()
+      : '';
   chargeMax.value = data.charge_max
-    ? data.charge_max + ' USD'
-    : chargeMaxOption.value[0]?.amount;
+    ? `${data.charge_max} USD`
+    : chargeMaxOption.value[0]?.amount ?? '';
   chargeTimezone.value = data.charge_timezone ?? true;
-  chargeStartTime.value = data.charge_start_time ?? null;
-  chargeEndTime.value = data.charge_end_time ?? null;
-  chargeImpossibleTimezoneMessage.value = data.charge_impossible_timezone_message ?? '';
+  chargeStartTime.value = formatTime(data.charge_start_time);
+  chargeEndTime.value = formatTime(data.charge_end_time);
+  chargeImpossibleTimezoneMessage.value =
+    data.charge_impossible_timezone_message ?? '';
   chargeCompleteMessage.value = data.charge_complete_message ?? '';
 };
 
 watch(() => props.dataSource, loadData, { immediate: true });
 
+const toNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const normalized =
+    typeof value === 'string' ? value.replace(/[^\d.-]/g, '') : value;
+  const numericValue = Number(normalized);
+  return Number.isFinite(numericValue) ? numericValue : null;
+};
+
+const toTimeNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const trimmed = value.toString().trim();
+  let digits = trimmed;
+  if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
+    digits = trimmed.replace(':', '');
+  }
+  if (!/^\d{3,4}$/.test(digits)) {
+    return null;
+  }
+  if (digits.length === 3) {
+    digits = `0${digits}`;
+  }
+  const hours = Number(digits.slice(0, 2));
+  const minutes = Number(digits.slice(2, 4));
+  if (hours > 23 || minutes > 59) {
+    return null;
+  }
+  return hours * 100 + minutes;
+};
+
+const buildState = () => ({
+  chargeMin: toNumber(chargeMin.value),
+  chargeMax: toNumber(chargeMax.value),
+  chargeTimezone: chargeTimezone.value,
+  chargeStartTime: chargeTimezone.value ? toTimeNumber(chargeStartTime.value) : null,
+  chargeEndTime: chargeTimezone.value ? toTimeNumber(chargeEndTime.value) : null,
+  chargeImpossibleTimezoneMessage: chargeImpossibleTimezoneMessage.value,
+  chargeCompleteMessage: chargeCompleteMessage.value,
+});
+
+const validate = () => {
+  const state = buildState();
+  const errors = [];
+
+  if (state.chargeMin === null || state.chargeMin < 0) {
+    errors.push(trlang.value.please_enter_valid_minimum_charge_amount);
+  }
+  if (state.chargeMax === null || state.chargeMax <= 0) {
+    errors.push(trlang.value.please_enter_valid_maximum_charge_amount);
+  }
+  if (
+    state.chargeMin !== null &&
+    state.chargeMax !== null &&
+    state.chargeMin > state.chargeMax
+  ) {
+    errors.push(trlang.value.charge_min_cannot_exceed_charge_max);
+  }
+
+  if (state.chargeTimezone) {
+    if (state.chargeStartTime === null) {
+      errors.push(trlang.value.please_enter_valid_charge_start_time);
+    }
+    if (state.chargeEndTime === null) {
+      errors.push(trlang.value.please_enter_valid_charge_end_time);
+    }
+    if (
+      state.chargeStartTime !== null &&
+      state.chargeEndTime !== null &&
+      state.chargeStartTime >= state.chargeEndTime
+    ) {
+      errors.push(trlang.value.charge_start_time_must_be_before_end_time);
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    data: state,
+  };
+};
+
 defineExpose({
-  getState: () => ({
-    chargeMin: chargeMin.value,
-    chargeMax: Number(chargeMax.value.replace(' USD', '')),
-    chargeTimezone: chargeTimezone.value,
-    chargeStartTime: chargeStartTime.value,
-    chargeEndTime: chargeEndTime.value,
-    chargeImpossibleTimezoneMessage: chargeImpossibleTimezoneMessage.value,
-    chargeCompleteMessage: chargeCompleteMessage.value,
-  }),
+  getState: () => buildState(),
+  validate,
 });
 
 onBeforeMount(initOptions);

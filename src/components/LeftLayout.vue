@@ -2,7 +2,7 @@
   <a-layout-sider :trigger="null" collapsible class="left-rail">
     <div class="left-rail__wrap">
       <header class="left-rail__hero">
-        <span class="left-rail__eyebrow">{{ trlang.betting_settlement_profit_new }}</span>
+        <span class="left-rail__eyebrow">{{ trlang.betting_settlement_profit }}</span>
         <div class="left-rail__hero-value">
           <span class="num">479,450</span>
           <span class="unit">USD</span>

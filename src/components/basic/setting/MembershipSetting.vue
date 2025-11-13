@@ -39,16 +39,16 @@
             {{ membershipApproval ? trlang.use : trlang.no_use }}
           </a-typography-text>
         </a-layout>
-        <a-typography-text class="text-yellow mt-2">
+        <p class="text-helper mt-2">
           {{
             trlang.if_you_set_approval_for_membership_registration_the_pending_message_will_appear_at_the_top_of_the_screen_when_registering
           }}
-        </a-typography-text>
-        <a-typography-text class="text-yellow">
+        </p>
+        <p class="text-helper">
           {{
             trlang.if_you_change_your_mind_please_edit_the_notification_message_for_membership_registration_text_below
           }}
-        </a-typography-text>
+        </p>
       </a-layout-content>
     </a-layout>
 

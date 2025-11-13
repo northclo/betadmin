@@ -19,16 +19,16 @@
             v-model:value="field.model.value"
             v-bind="field.isTextarea ? { rows: field.rows || 4, allowClear: true } : {}"
           />
-          <a-typography-text v-if="field.helperText" class="text-dark-brown">
+          <p v-if="field.helperText" class="text-dark-brown text-helper mt-1">
             {{ field.helperText }}
-          </a-typography-text>
+          </p>
         </a-layout-content>
       </a-layout>
     </div>
 
-    <a-typography-text class="text-dark-brown">
+    <p class="text-dark-brown text-helper mt-1">
       * {{ trlang.the_applicability_of_this_item_may_vary_depending_on_the_design }}
-    </a-typography-text>
+    </p>
   </a-collapse-panel>
 </template>
 

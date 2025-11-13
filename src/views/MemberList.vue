@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="panel-heading sticky-header">
+  <a-layout class="panel-heading">
     <a-typography-text class="panel-heading__title">
       {{ trlang.member_list }}
     </a-typography-text>
@@ -17,7 +17,7 @@
           v-model:value="duration"
           :options="durationOptions"
           class="input-lg"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
         <a-typography-text>{{ trlang.start_date }}</a-typography-text>
         <a-date-picker
@@ -25,7 +25,7 @@
           class="input-lg"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
         <a-typography-text>~</a-typography-text>
         <a-typography-text>{{ trlang.end_date }}</a-typography-text>
@@ -34,7 +34,7 @@
           class="input-lg"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
       </div>
       <div class="flex items-center gap-2">
@@ -45,7 +45,7 @@
           v-model:value="userStatus"
           :options="userStatusOptions"
           class="input-md"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
       </div>
       <div class="flex items-center gap-2">
@@ -56,10 +56,10 @@
           v-model:value="partner"
           :options="partnerOptions"
           class="input-lg"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
         <a-typography-text>{{ trlang.include_sub }}</a-typography-text>
-        <a-checkbox v-model:checked="includeSub" @change="fetchData" />
+        <a-checkbox v-model:checked="includeSub" @change="handleFilterChange" />
       </div>
       <div class="flex items-center gap-2">
         <a-typography-text class="bg-gray text-white p-2 px-5">{{
@@ -69,18 +69,19 @@
           v-model:value="searchField"
           :options="searchFieldOptions"
           class="input-lg"
+          @change="handleFilterChange"
         />
         <a-input
           v-model:value="search"
           placeholder="Search..."
           class="input-lg"
-          @press-enter="fetchData"
+          @press-enter="handleFilterChange"
         >
           <template #prefix>
             <SearchOutlined />
           </template>
         </a-input>
-        <a-button type="primary" @click="fetchData">
+        <a-button type="primary" @click="handleFilterChange">
           {{ trlang.search }}
         </a-button>
       </div>
@@ -88,14 +89,17 @@
         <a-typography-text class="">
           {{ trlang.current_loggedin_users }}
         </a-typography-text>
-        <a-checkbox v-model:checked="currentLoggedinUser" @change="fetchData" />
+        <a-checkbox
+          v-model:checked="currentLoggedinUser"
+          @change="handleFilterChange"
+        />
       </div>
       <a-button @click="refreshPage">{{ trlang.refresh_page }}</a-button>
       <div class="flex items-center gap-2">
         <a-typography-text class="">
           {{ trlang.consider_users }}
         </a-typography-text>
-        <a-checkbox v-model:checked="considerUser" @change="fetchData" />
+        <a-checkbox v-model:checked="considerUser" @change="handleFilterChange" />
       </div>
       <div class="flex items-center gap-2">
         <a-typography-text class="bg-gray text-white p-2 px-5">
@@ -105,7 +109,7 @@
           v-model:value="sort"
           :options="sortOptions"
           class="input-lg"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
       </div>
     </a-layout-header>
@@ -386,43 +390,78 @@ const rowSelection = computed(() => ({
 
 const rowKey = (record) => record.user_id;
 
+const buildQuery = () => {
+  const params = new URLSearchParams({
+    duration: duration.value || '',
+    startDate: startDate.value || '',
+    endDate: endDate.value || '',
+    userStatus: userStatus.value || '',
+    partner: partner.value || '',
+    includeSub: includeSub.value ? 'true' : 'false',
+    searchField: searchField.value || '',
+    search: search.value || '',
+    currentLoggedinUser: currentLoggedinUser.value ? 'true' : 'false',
+    considerUser: considerUser.value ? 'true' : 'false',
+    sort: sort.value || '',
+    page: paginationConfig.value.current.toString(),
+    pageSize: paginationConfig.value.pageSize.toString(),
+  });
+
+  return params.toString();
+};
+
 const fetchData = async () => {
   loading.value = true;
   try {
     const res = await getData(
-      `${apiLink.get_member_list}?duration=${duration.value}&startDate=${startDate.value}&endDate=${endDate.value}&userStatus=${userStatus.value}&partner=${partner.value}&includeSub=${includeSub.value}&searchField=${searchField.value}&search=${search.value}&currentLoggedinUser=${currentLoggedinUser.value}&considerUser=${considerUser.value}&sort=${sort.value}`
+      `${apiLink.get_member_list}?${buildQuery()}`
     );
 
     if (res.status) {
-      dataSource.value = res.data || [];
-      if (res.total) setTotal(res.total);
+      const payload = res.data || {};
+      dataSource.value = payload.list || [];
+      setTotal(payload.total || 0);
+      if (payload.page) {
+        paginationConfig.value.current = payload.page;
+      }
+      if (payload.pageSize) {
+        paginationConfig.value.pageSize = payload.pageSize;
+      }
     }
   } finally {
     loading.value = false;
   }
 };
 
+const handleFilterChange = () => {
+  const isFirstPage = paginationConfig.value.current === 1;
+  paginationConfig.value.current = 1;
+  if (isFirstPage) {
+    fetchData();
+  }
+};
+
 const refreshPage = () => {
-  duration.value = '';
+  initOptions();
   startDate.value = '';
   endDate.value = '';
   userStatus.value = '';
   partner.value = '';
   includeSub.value = false;
   search.value = '';
-  searchField.value = '';
   currentLoggedinUser.value = false;
   considerUser.value = false;
-  sort.value = '';
   loading.value = false;
   selectedRowKeys.value = [];
-
+  paginationConfig.value.current = 1;
   fetchData();
 };
 
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
-  fetchData
+  () => {
+    fetchData();
+  }
 );
 
 onMounted(() => {

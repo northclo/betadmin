@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="bg-white px-5 sticky-header">
+  <a-layout class="bg-white px-5">
     <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.game_management }}
     </a-typography-text>

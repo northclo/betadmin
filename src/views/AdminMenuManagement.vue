@@ -11,7 +11,7 @@
       <a-table
         :data-source="menuSource"
         :columns="columns"
-        :pagination="{ pageSize: 10 }"
+        :pagination="false"
         row-key="key"
       >
         <template #headerCell="{ column }">

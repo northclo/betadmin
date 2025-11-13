@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="bg-white px-5 sticky-header">
+  <a-layout class="bg-white px-5">
     <a-typography-text class="text-dark-gray fs-1">
       {{ trlang.current_loggedin_users }}
     </a-typography-text>
@@ -14,8 +14,8 @@
           v-model:value="startDate"
           class="input-lg"
           format="YYYY-MM-DD"
-          valueFormat="YYYY-MM-DD"
-          @change="fetchData"
+          value-format="YYYY-MM-DD"
+          @change="handleFilterChange"
         />
         <a-typography-text>~</a-typography-text>
         <a-typography-text>{{ trlang.end_date }}</a-typography-text>
@@ -23,25 +23,26 @@
           v-model:value="endDate"
           class="input-lg"
           format="YYYY-MM-DD"
-          valueFormat="YYYY-MM-DD"
-          @change="fetchData"
+          value-format="YYYY-MM-DD"
+          @change="handleFilterChange"
         />
         <a-select
           v-model:value="searchField"
           :options="searchFieldOptions"
           class="input-lg"
+          @change="handleFilterChange"
         />
         <a-input
           v-model:value="search"
           placeholder="Search..."
           class="input-lg"
-          @pressEnter="fetchData"
+          @press-enter="handleFilterChange"
         >
           <template #prefix>
             <SearchOutlined />
           </template>
         </a-input>
-        <a-button type="primary" @click="fetchData">{{
+        <a-button type="primary" @click="handleFilterChange">{{
           trlang.search
         }}</a-button>
       </a-layout>
@@ -51,7 +52,7 @@
           v-model:value="userStatus"
           :options="userStatusOptions"
           class="input-lg"
-          @change="fetchData"
+          @change="handleFilterChange"
         />
       </a-layout>
     </a-layout-header>
@@ -60,8 +61,8 @@
     <a-layout-content class="bg-white p-2 shadow">
       <a-table
         :columns="currentLoginUserColumn"
-        :dataSource="dataSource"
-        rowKey="key"
+        :data-source="dataSource"
+        :row-key="rowKey"
         class="w-100"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
@@ -91,9 +92,7 @@
                 <a-typography-text class="me-2">{{
                   record.user_nickname
                 }}</a-typography-text>
-                <a-typography-text
-                  >({{ record.user_nickname }})</a-typography-text
-                >
+                <a-typography-text>({{ record.user_id }})</a-typography-text>
               </div>
               <a-typography-text class="bg-gray text-white px-2 w-fit radius-2">
                 {{
@@ -230,7 +229,7 @@ import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
 
 defineOptions({
-  name: routeLink.login_information.name,
+  name: routeLink.current_login_user.name,
 });
 
 const langState = inject('langState');
@@ -247,9 +246,12 @@ const userStatusOptions = ref([]);
 const dataSource = ref([]);
 const loading = ref(false);
 
-const { paginationConfig, handleTableChange } = usePagination(10);
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+
+const rowKey = (record) => record.key || record.user_id;
 
 const initOptions = () => {
+  searchField.value = '';
   searchFieldOptions.value = [
     { value: '', label: '--Search term--' },
     { value: 'user_nickname', label: 'User nickname' },
@@ -260,6 +262,7 @@ const initOptions = () => {
     { value: 'organ', label: 'Organ' },
   ];
 
+  userStatus.value = '';
   userStatusOptions.value = [
     { value: '', label: 'All users' },
     { value: 'wait', label: 'Wait' },
@@ -271,32 +274,62 @@ const initOptions = () => {
   ];
 };
 
+const buildQuery = () => {
+  const params = new URLSearchParams({
+    startDate: startDate.value || '',
+    endDate: endDate.value || '',
+    searchField: searchField.value || '',
+    search: search.value || '',
+    userStatus: userStatus.value || '',
+    page: paginationConfig.value.current.toString(),
+    pageSize: paginationConfig.value.pageSize.toString(),
+  });
+
+  return params.toString();
+};
+
 const fetchData = async () => {
   loading.value = true;
   try {
     const res = await getData(
-      `${apiLink.get_current_loggedin_user}?start_date=${startDate.value}&end_date=${endDate.value}&search_field=${searchField.value}&search=${search.value}&user_status=${userStatus.value}`
+      `${apiLink.get_current_loggedin_user}?${buildQuery()}`
     );
 
     if (res.status) {
-      console.log(res.data);
-      dataSource.value = res.data || [];
+      const payload = res.data || {};
+      dataSource.value = payload.list || [];
+      setTotal(payload.total || 0);
+      if (payload.page) {
+        paginationConfig.value.current = payload.page;
+      }
+      if (payload.pageSize) {
+        paginationConfig.value.pageSize = payload.pageSize;
+      }
     }
   } finally {
     loading.value = false;
   }
 };
 
-// Watch pagination changes -> refetch data
+const handleFilterChange = () => {
+  const isFirstPage = paginationConfig.value.current === 1;
+  paginationConfig.value.current = 1;
+  if (isFirstPage) {
+    fetchData();
+  }
+};
+
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
-  fetchData
+  () => {
+    fetchData();
+  }
 );
 
 const changeBlockIp = async (ip, block) => {
   const result = await putData(apiLink.block_ip, {
-    ip: ip,
-    block: block,
+    ip,
+    block,
   });
 
   if (result.status) {
@@ -306,7 +339,7 @@ const changeBlockIp = async (ip, block) => {
 
 const logoutUser = async (user_nickname) => {
   const result = await postData(apiLink.logout_user, {
-    user_nickname: user_nickname,
+    user_nickname,
   });
 
   if (result.status) {

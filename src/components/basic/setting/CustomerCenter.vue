@@ -20,14 +20,14 @@
           </a-typography-text>
         </a-layout>
 
-        <a-typography-text class="text-dark-brown mt-2">
+        <p class="text-helper mt-2">
           {{
             trlang.if_you_use_the_Prevent_Additional_Inquiries_feature_and_dont_respond_to_existing_inquiries_members_will_be_prevented_from_posting_additional_messages_to_the_customer_center
           }}
-        </a-typography-text>
-        <a-typography-text class="text-dark-brown">
+        </p>
+        <p class="text-helper">
           {{ trlang.please_keep_your_pending_inquiries_under_constant_review }}
-        </a-typography-text>
+        </p>
       </a-layout-content>
     </a-layout>
   </a-collapse-panel>

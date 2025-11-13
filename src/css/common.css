@@ -201,6 +201,10 @@ button {
   color: var(--main-dark-color) !important;
 }
 
+.text-helper {
+  color: var(--helper-color) !important;
+}
+
 /* ================================
    FONT WEIGHT UTILITIES
 ================================= */

@@ -3,6 +3,7 @@ export const apiLink = {
   get_captcha: 'admin/auth/captcha',
   forgot_password: "admin/auth/forgot-password",
   reset_password: "admin/auth/reset-password",
+  admin_account: "admin/account",
   member_list: 'admin/member/list',
   get_member_list: "admin/member/list",
   game_setting: 'admin/partner/setting',
@@ -17,5 +18,6 @@ export const apiLink = {
   block_ip: 'admin/member/block-ip',
   get_game_management: "admin/game",
   get_current_loggedin_user: "admin/member/current-login",
-  logout_user: 'admin/member/logout'
+  logout_user: 'admin/member/logout',
+  betting_settlement_profit: "admin/settlement/betting-profit",
 };
