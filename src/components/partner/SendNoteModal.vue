@@ -69,7 +69,7 @@ import { message } from 'ant-design-vue';
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-defineProps({
+const props = defineProps({
   open: Boolean,
   dataSource: Object,
 });
@@ -96,7 +96,7 @@ const initOption = () => {
     { value: '30 minutes', label: '30 minutes' },
     { value: '5 minutes', label: '5 minutes' },
   ];
-  expire.value = '::No period set::';
+  expire.value = '0';
 };
 
 onMounted(() => {
@@ -109,14 +109,17 @@ const sendNote = async () => {
 
   const result = await postData(apiLink.send_partner_message, {
     title: title.value,
-    message: message.value,
+    content: noteMessage.value,
     expire: expire.value,
     type: 'note',
-    // receiver: dataSource.value
+    partnerId: props.dataSource?.id || null
   });
 
   if (result.status) {
     message.success(trlang.value.sent_successful);
+    title.value = '';
+    noteMessage.value = '';
+    expire.value = '0';
     emit('update:open', false);
   }
 };

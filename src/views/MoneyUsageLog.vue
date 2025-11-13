@@ -34,7 +34,7 @@
           </a-col>
         </a-row>
         <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="fetchData">
+          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
             {{ trlang.search }}
           </a-button>
           <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
@@ -58,15 +58,16 @@
         :columns="columns"
         :data-source="tableData"
         :loading="loading"
-        :pagination="{ pageSize: 10 }"
-        row-key="id"
+        :pagination="paginationConfig"
+        row-key="transaction_id"
+        @change="handleTableChange"
       >
-        <template #bodyCell="{ column, text }">
+        <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'amount' || column.dataIndex === 'balance_after'">
-            {{ formatCurrency(text) }}
+            {{ formatCurrency(record[column.dataIndex]) }}
           </template>
           <template v-else-if="column.dataIndex === 'type'">
-            <a-tag>{{ trlang[text] || text }}</a-tag>
+            <a-tag>{{ trlang[record.type] || record.type }}</a-tag>
           </template>
         </template>
       </a-table>
@@ -75,10 +76,14 @@
 </template>
 
 <script setup>
-defineOptions({ name: "MoneyUsageLogView" });
-
-import { computed, inject, ref } from "vue";
+import { computed, inject, ref, onMounted, watch } from "vue";
+import { message } from "ant-design-vue";
 import dayjs from "dayjs";
+import { getData } from "@/helpers/Axios";
+import { apiLink } from "@/utils/api-link";
+import { usePagination } from "@/composables/usePagination";
+
+defineOptions({ name: "MoneyUsageLogView" });
 
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
@@ -90,31 +95,38 @@ const filters = ref({
   member: "",
 });
 
+const summaryData = ref({
+  total_transactions: 0,
+  total_inflow: 0,
+  total_outflow: 0,
+  net_change: 0,
+});
+
 const summaryCards = computed(() => [
   {
     key: "total_transactions",
     title: trlang.value.total_transactions ?? "Total Transactions",
-    value: "245",
+    value: summaryData.value.total_transactions,
   },
   {
     key: "total_inflow",
     title: trlang.value.total_inflow ?? "Total Inflow",
-    value: formatCurrency(420000),
+    value: formatCurrency(summaryData.value.total_inflow),
   },
   {
     key: "total_outflow",
     title: trlang.value.total_outflow ?? "Total Outflow",
-    value: formatCurrency(315000),
+    value: formatCurrency(summaryData.value.total_outflow),
   },
   {
     key: "net_change",
     title: trlang.value.net_change ?? "Net Change",
-    value: formatCurrency(105000),
+    value: formatCurrency(summaryData.value.net_change),
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.transaction_id ?? "Transaction ID", dataIndex: "id", key: "id", width: 160 },
+  { title: trlang.value.transaction_id ?? "Transaction ID", dataIndex: "transaction_id", key: "transaction_id", width: 160 },
   { title: trlang.value.member ?? "Member", dataIndex: "member", key: "member", width: 160 },
   { title: trlang.value.transaction_type ?? "Type", dataIndex: "type", key: "type", width: 140 },
   { title: trlang.value.amount ?? "Amount", dataIndex: "amount", key: "amount", width: 160 },
@@ -123,37 +135,11 @@ const columns = computed(() => [
   { title: trlang.value.processed_at ?? "Processed At", dataIndex: "processed_at", key: "processed_at", width: 200 },
 ]);
 
-const tableData = ref([
-  {
-    id: "TX-88412",
-    member: "user_023",
-    type: "charge",
-    amount: 45000,
-    balance_after: 178000,
-    description: "Charge approved by admin01",
-    processed_at: "2024-04-20 11:42",
-  },
-  {
-    id: "TX-88411",
-    member: "user_532",
-    type: "bet",
-    amount: -12000,
-    balance_after: 98500,
-    description: "Bet settled (Round #2024-04-110)",
-    processed_at: "2024-04-20 11:29",
-  },
-  {
-    id: "TX-88410",
-    member: "user_203",
-    type: "exchange",
-    amount: -40000,
-    balance_after: 62100,
-    description: "Exchange processed by admin03",
-    processed_at: "2024-04-20 10:58",
-  },
-]);
+const tableData = ref([]);
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const formatCurrency = (value) => {
+  if (!value && value !== 0) return "$0";
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -161,9 +147,95 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
+const buildQuery = () => {
+  const params = new URLSearchParams({
+    type: filters.value.type || "all",
+    page: paginationConfig.value.current.toString(),
+    pageSize: paginationConfig.value.pageSize.toString(),
+  });
+
+  if (filters.value.range && filters.value.range.length === 2) {
+    if (filters.value.range[0]) {
+      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+    }
+    if (filters.value.range[1]) {
+      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    }
+  }
+
+  if (filters.value.member) {
+    params.append("member", filters.value.member);
+  }
+
+  return params.toString();
+};
+
+const buildSummaryQuery = () => {
+  const params = new URLSearchParams({
+    type: filters.value.type || "all",
+  });
+
+  if (filters.value.range && filters.value.range.length === 2) {
+    if (filters.value.range[0]) {
+      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+    }
+    if (filters.value.range[1]) {
+      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    }
+  }
+
+  if (filters.value.member) {
+    params.append("member", filters.value.member);
+  }
+
+  return params.toString();
+};
+
 const fetchData = async () => {
   loading.value = true;
-  setTimeout(() => (loading.value = false), 600);
+  try {
+    const res = await getData(`${apiLink.get_money_usage_list}?${buildQuery()}`);
+
+    if (res.status) {
+      const payload = res.data || {};
+      tableData.value = payload.list || [];
+      setTotal(payload.total || 0);
+      if (payload.page) {
+        paginationConfig.value.current = payload.page;
+      }
+      if (payload.pageSize) {
+        paginationConfig.value.pageSize = payload.pageSize;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching money usage log:", error);
+    message.error("Failed to fetch money usage log");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchSummary = async () => {
+  try {
+    const res = await getData(`${apiLink.get_money_usage_summary}?${buildSummaryQuery()}`);
+
+    if (res.status) {
+      summaryData.value = res.data || {
+        total_transactions: 0,
+        total_inflow: 0,
+        total_outflow: 0,
+        net_change: 0,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+  }
+};
+
+const handleFilterChange = () => {
+  paginationConfig.value.current = 1;
+  fetchData();
+  fetchSummary();
 };
 
 const resetFilters = () => {
@@ -172,7 +244,22 @@ const resetFilters = () => {
     type: "all",
     member: "",
   };
+  paginationConfig.value.current = 1;
+  fetchData();
+  fetchSummary();
 };
+
+watch(
+  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
+  () => {
+    fetchData();
+  }
+);
+
+onMounted(() => {
+  fetchData();
+  fetchSummary();
+});
 </script>
 
 <style scoped>

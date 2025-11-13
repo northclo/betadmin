@@ -33,7 +33,7 @@
           </a-col>
         </a-row>
         <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="fetchData">
+          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
             {{ trlang.search }}
           </a-button>
           <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
@@ -57,15 +57,16 @@
         :columns="columns"
         :data-source="tableData"
         :loading="loading"
-        :pagination="{ pageSize: 10 }"
+        :pagination="paginationConfig"
         row-key="id"
+        @change="handleTableChange"
       >
-        <template #bodyCell="{ column, text }">
+        <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'points' || column.dataIndex === 'balance_after'">
-            {{ formatPoints(text) }}
+            {{ formatPoints(record[column.dataIndex]) }}
           </template>
           <template v-else-if="column.dataIndex === 'type'">
-            <a-tag :color="typeColor(text)">{{ trlang[text] || text }}</a-tag>
+            <a-tag :color="typeColor(record.type)">{{ trlang[record.type] || record.type }}</a-tag>
           </template>
         </template>
       </a-table>
@@ -74,10 +75,14 @@
 </template>
 
 <script setup>
-defineOptions({ name: "PointUsageLogView" });
-
-import { computed, inject, ref } from "vue";
+import { computed, inject, ref, onMounted, watch } from "vue";
+import { message } from "ant-design-vue";
 import dayjs from "dayjs";
+import { getData } from "@/helpers/Axios";
+import { apiLink } from "@/utils/api-link";
+import { usePagination } from "@/composables/usePagination";
+
+defineOptions({ name: "PointUsageLogView" });
 
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
@@ -89,26 +94,33 @@ const filters = ref({
   member: "",
 });
 
+const summaryData = ref({
+  total_transactions: 0,
+  total_points_earned: 0,
+  total_points_spent: 0,
+  net_points: 0,
+});
+
 const summaryCards = computed(() => [
   {
     key: "total_transactions",
     title: trlang.value.total_transactions ?? "Total Transactions",
-    value: "189",
+    value: summaryData.value.total_transactions,
   },
   {
     key: "total_earned",
     title: trlang.value.total_points_earned ?? "Total Earned",
-    value: formatPoints(128000),
+    value: formatPoints(summaryData.value.total_points_earned),
   },
   {
     key: "total_spent",
     title: trlang.value.total_points_spent ?? "Total Spent",
-    value: formatPoints(94000),
+    value: formatPoints(summaryData.value.total_points_spent),
   },
   {
     key: "net_points",
     title: trlang.value.net_points ?? "Net Points",
-    value: formatPoints(34000),
+    value: formatPoints(summaryData.value.net_points),
   },
 ]);
 
@@ -122,35 +134,8 @@ const columns = computed(() => [
   { title: trlang.value.processed_at ?? "Processed At", dataIndex: "processed_at", key: "processed_at", width: 200 },
 ]);
 
-const tableData = ref([
-  {
-    id: "PT-55021",
-    member: "user_023",
-    type: "earn",
-    points: 3200,
-    balance_after: 15890,
-    description: "Bet win reward (Round #2024-04-110)",
-    processed_at: "2024-04-20 11:42",
-  },
-  {
-    id: "PT-55020",
-    member: "user_118",
-    type: "spend",
-    points: -1800,
-    balance_after: 9200,
-    description: "Used for bonus exchange",
-    processed_at: "2024-04-20 10:58",
-  },
-  {
-    id: "PT-55019",
-    member: "user_781",
-    type: "earn",
-    points: 950,
-    balance_after: 1840,
-    description: "Daily login bonus",
-    processed_at: "2024-04-20 09:01",
-  },
-]);
+const tableData = ref([]);
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const typeColor = (type) => {
   switch (type) {
@@ -164,12 +149,99 @@ const typeColor = (type) => {
 };
 
 const formatPoints = (value) => {
+  if (!value && value !== 0) return "0 P";
   return `${value.toLocaleString()} P`;
+};
+
+const buildQuery = () => {
+  const params = new URLSearchParams({
+    type: filters.value.type || "all",
+    page: paginationConfig.value.current.toString(),
+    pageSize: paginationConfig.value.pageSize.toString(),
+  });
+
+  if (filters.value.range && filters.value.range.length === 2) {
+    if (filters.value.range[0]) {
+      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+    }
+    if (filters.value.range[1]) {
+      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    }
+  }
+
+  if (filters.value.member) {
+    params.append("member", filters.value.member);
+  }
+
+  return params.toString();
+};
+
+const buildSummaryQuery = () => {
+  const params = new URLSearchParams({
+    type: filters.value.type || "all",
+  });
+
+  if (filters.value.range && filters.value.range.length === 2) {
+    if (filters.value.range[0]) {
+      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+    }
+    if (filters.value.range[1]) {
+      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    }
+  }
+
+  if (filters.value.member) {
+    params.append("member", filters.value.member);
+  }
+
+  return params.toString();
 };
 
 const fetchData = async () => {
   loading.value = true;
-  setTimeout(() => (loading.value = false), 600);
+  try {
+    const res = await getData(`${apiLink.get_point_usage_list}?${buildQuery()}`);
+
+    if (res.status) {
+      const payload = res.data || {};
+      tableData.value = payload.list || [];
+      setTotal(payload.total || 0);
+      if (payload.page) {
+        paginationConfig.value.current = payload.page;
+      }
+      if (payload.pageSize) {
+        paginationConfig.value.pageSize = payload.pageSize;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching point usage log:", error);
+    message.error("Failed to fetch point usage log");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchSummary = async () => {
+  try {
+    const res = await getData(`${apiLink.get_point_usage_summary}?${buildSummaryQuery()}`);
+
+    if (res.status) {
+      summaryData.value = res.data || {
+        total_transactions: 0,
+        total_points_earned: 0,
+        total_points_spent: 0,
+        net_points: 0,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+  }
+};
+
+const handleFilterChange = () => {
+  paginationConfig.value.current = 1;
+  fetchData();
+  fetchSummary();
 };
 
 const resetFilters = () => {
@@ -178,7 +250,22 @@ const resetFilters = () => {
     type: "all",
     member: "",
   };
+  paginationConfig.value.current = 1;
+  fetchData();
+  fetchSummary();
 };
+
+watch(
+  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
+  () => {
+    fetchData();
+  }
+);
+
+onMounted(() => {
+  fetchData();
+  fetchSummary();
+});
 </script>
 
 <style scoped>

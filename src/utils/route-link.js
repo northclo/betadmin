@@ -43,6 +43,10 @@ export const routeLink = {
     name: "BettingSettlementPage",
     link: "/bet-settle"
   },
+  betting_list: {
+    name: "BettingListPage",
+    link: "/betting-list"
+  },
   login_information: {
     name: "LoginInformationPage",
     link: "/member/login"
@@ -78,5 +82,17 @@ export const routeLink = {
   customer_service_center: {
     name: "CustomerServiceCenterPage",
     link: "/service-center"
+  },
+  popup_management: {
+    name: "PopupManagementPage",
+    link: "/popup-manage"
+  },
+  note_management: {
+    name: "NoteManagementPage",
+    link: "/note-manage"
+  },
+  real_time_betting: {
+    name: "RealTimeBettingPage",
+    link: "/real-time-betting"
   },
 };

@@ -16,12 +16,16 @@ const CurrentLoginUserPage = () => import('@/views/CurrentLoginUser.vue');
 const DashboardView = () => import('@/views/Dashboard.vue');
 const AdminMenuManagement = () => import('@/views/AdminMenuManagement.vue');
 const BettingSettlementView = () => import('@/views/BettingSettlement.vue');
+const BettingListView = () => import('@/views/BettingList.vue');
 const ChargingManagementView = () => import('@/views/ChargingManagement.vue');
 const ExchangeManagementView = () => import('@/views/ExchangeManagement.vue');
 const MoneyUsageLogView = () => import('@/views/MoneyUsageLog.vue');
 const PointUsageLogView = () => import('@/views/PointUsageLog.vue');
 const AnnouncementView = () => import('@/views/Announcement.vue');
 const CustomerServiceCenterView = () => import('@/views/CustomerServiceCenter.vue');
+const PopupManagementView = () => import('@/views/PopupManagement.vue');
+const NoteManagementView = () => import('@/views/NoteManagement.vue');
+const RealTimeBettingView = () => import('@/views/RealTimeBetting.vue');
 
 const routes = [
   {
@@ -98,6 +102,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: routeLink.betting_list.link,
+    name: routeLink.betting_list.name,
+    component: BettingListView,
+    meta: { requiresAuth: true },
+  },
+  {
     path: routeLink.charging_management.link,
     name: routeLink.charging_management.name,
     component: ChargingManagementView,
@@ -131,6 +141,24 @@ const routes = [
     path: routeLink.customer_service_center.link,
     name: routeLink.customer_service_center.name,
     component: CustomerServiceCenterView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: routeLink.popup_management.link,
+    name: routeLink.popup_management.name,
+    component: PopupManagementView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: routeLink.note_management.link,
+    name: routeLink.note_management.name,
+    component: NoteManagementView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: routeLink.real_time_betting.link,
+    name: routeLink.real_time_betting.name,
+    component: RealTimeBettingView,
     meta: { requiresAuth: true },
   },
   {

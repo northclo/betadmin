@@ -14,7 +14,12 @@
         <a-row :gutter="[16, 16]">
           <a-col :xs="24" :md="8">
             <a-form-item :label="trlang.request_range">
-              <a-range-picker v-model:value="filters.range" style="width: 100%" />
+              <a-range-picker 
+                v-model:value="filters.range" 
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="8">
@@ -36,13 +41,13 @@
               </a-select>
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="8" class="actions">
+            <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
+          </a-col>
         </a-row>
-        <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="fetchData">
-            {{ trlang.search }}
-          </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
-        </div>
       </a-form>
     </a-card>
 
@@ -62,15 +67,36 @@
         :columns="columns"
         :data-source="tableData"
         :loading="loading"
-        :pagination="{ pageSize: 10 }"
+        :pagination="paginationConfig"
         row-key="id"
+        @change="handleTableChange"
       >
-        <template #bodyCell="{ column, text }">
+        <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'amount'">
-            {{ formatCurrency(text) }}
+            {{ formatCurrency(record.amount) }}
           </template>
           <template v-else-if="column.dataIndex === 'status'">
-            <a-tag :color="statusColor(text)">{{ trlang[text] || text }}</a-tag>
+            <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
+          </template>
+          <template v-else-if="column.dataIndex === 'action'">
+            <a-space>
+              <a-button 
+                v-if="record.status === 'pending'"
+                type="primary" 
+                size="small"
+                @click="handleAction(record, 'approve')"
+              >
+                {{ trlang.approve || 'Approve' }}
+              </a-button>
+              <a-button 
+                v-if="record.status === 'pending'"
+                danger 
+                size="small"
+                @click="handleAction(record, 'reject')"
+              >
+                {{ trlang.reject || 'Reject' }}
+              </a-button>
+            </a-space>
           </template>
         </template>
       </a-table>
@@ -79,10 +105,14 @@
 </template>
 
 <script setup>
-defineOptions({ name: "ExchangeManagementView" });
-
-import { computed, inject, ref } from "vue";
+import { computed, inject, ref, onMounted, watch } from "vue";
+import { message } from "ant-design-vue";
 import dayjs from "dayjs";
+import { getData, postData } from "@/helpers/Axios";
+import { apiLink } from "@/utils/api-link";
+import { usePagination } from "@/composables/usePagination";
+
+defineOptions({ name: "ExchangeManagementView" });
 
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
@@ -91,29 +121,36 @@ const loading = ref(false);
 const filters = ref({
   range: [dayjs().subtract(7, "day"), dayjs()],
   status: "all",
-  currency: "krw",
+  currency: null,
+});
+
+const summaryData = ref({
+  total_requests: 0,
+  pending_requests: 0,
+  completed_amount: 0,
+  average_exchange_rate: "0 ₩/$",
 });
 
 const summaryCards = computed(() => [
   {
     key: "total_requests",
     title: trlang.value.exchange_total_requests ?? "Total Requests",
-    value: "92",
+    value: summaryData.value.total_requests,
   },
   {
     key: "pending_requests",
     title: trlang.value.pending_requests ?? "Pending Requests",
-    value: "11",
+    value: summaryData.value.pending_requests,
   },
   {
     key: "completed_amount",
     title: trlang.value.completed_amount ?? "Completed Amount",
-    value: formatCurrency(670000),
+    value: formatCurrency(summaryData.value.completed_amount),
   },
   {
     key: "average_rate",
     title: trlang.value.average_exchange_rate ?? "Avg. Rate",
-    value: "1,325 ₩/$",
+    value: summaryData.value.average_exchange_rate,
   },
 ]);
 
@@ -125,37 +162,11 @@ const columns = computed(() => [
   { title: trlang.value.status ?? "Status", dataIndex: "status", key: "status", width: 140 },
   { title: trlang.value.submitted_at ?? "Submitted At", dataIndex: "submitted_at", key: "submitted_at", width: 200 },
   { title: trlang.value.processed_by ?? "Processed By", dataIndex: "processed_by", key: "processed_by", width: 160 },
+  { title: trlang.value.action ?? "Action", dataIndex: "action", key: "action", width: 150 },
 ]);
 
-const tableData = ref([
-  {
-    id: "EX-3021",
-    member: "user_092",
-    currency: "USD → KRW",
-    amount: 180000,
-    status: "completed",
-    submitted_at: "2024-04-21 16:24",
-    processed_by: "admin02",
-  },
-  {
-    id: "EX-3020",
-    member: "user_781",
-    currency: "KRW → USD",
-    amount: 58000,
-    status: "pending",
-    submitted_at: "2024-04-21 15:42",
-    processed_by: "-",
-  },
-  {
-    id: "EX-3019",
-    member: "user_118",
-    currency: "USD → KRW",
-    amount: 124000,
-    status: "completed",
-    submitted_at: "2024-04-21 14:33",
-    processed_by: "admin01",
-  },
-]);
+const tableData = ref([]);
+const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const statusColor = (status) => {
   switch (status) {
@@ -171,6 +182,7 @@ const statusColor = (status) => {
 };
 
 const formatCurrency = (value) => {
+  if (!value && value !== 0) return "$0";
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -178,18 +190,138 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
+const buildQuery = () => {
+  const params = new URLSearchParams({
+    status: filters.value.status || "all",
+    page: paginationConfig.value.current.toString(),
+    pageSize: paginationConfig.value.pageSize.toString(),
+  });
+
+  if (filters.value.range && filters.value.range.length === 2) {
+    if (filters.value.range[0]) {
+      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+    }
+    if (filters.value.range[1]) {
+      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    }
+  }
+
+  if (filters.value.currency) {
+    params.append("currency", filters.value.currency);
+  }
+
+  return params.toString();
+};
+
+const buildSummaryQuery = () => {
+  const params = new URLSearchParams();
+
+  if (filters.value.range && filters.value.range.length === 2) {
+    if (filters.value.range[0]) {
+      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+    }
+    if (filters.value.range[1]) {
+      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    }
+  }
+
+  return params.toString();
+};
+
 const fetchData = async () => {
   loading.value = true;
-  setTimeout(() => (loading.value = false), 600);
+  try {
+    const res = await getData(`${apiLink.get_exchange_list}?${buildQuery()}`);
+
+    if (res.status) {
+      const payload = res.data || {};
+      tableData.value = payload.list || [];
+      setTotal(payload.total || 0);
+      if (payload.page) {
+        paginationConfig.value.current = payload.page;
+      }
+      if (payload.pageSize) {
+        paginationConfig.value.pageSize = payload.pageSize;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching exchange data:", error);
+    message.error("Failed to fetch exchange data");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchSummary = async () => {
+  try {
+    const res = await getData(`${apiLink.get_exchange_summary}?${buildSummaryQuery()}`);
+
+    if (res.status) {
+      summaryData.value = res.data || {
+        total_requests: 0,
+        pending_requests: 0,
+        completed_amount: 0,
+        average_exchange_rate: "0 ₩/$",
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+  }
+};
+
+const handleAction = async (record, action) => {
+  try {
+    const transactionId = record._id || record.id?.replace("EX-", "");
+
+    if (!transactionId) {
+      message.error("Transaction ID not found");
+      return;
+    }
+
+    const res = await postData(apiLink.update_exchange_status, {
+      transactionId,
+      action,
+    });
+
+    if (res.status) {
+      message.success(res.message || `Exchange transaction ${action === "approve" ? "approved" : "rejected"} successfully`);
+      await fetchData();
+      await fetchSummary();
+    }
+  } catch (error) {
+    console.error("Error updating exchange transaction:", error);
+    message.error("Failed to update exchange transaction");
+  }
+};
+
+const handleFilterChange = () => {
+  paginationConfig.value.current = 1;
+  fetchData();
+  fetchSummary();
 };
 
 const resetFilters = () => {
   filters.value = {
     range: [dayjs().subtract(7, "day"), dayjs()],
     status: "all",
-    currency: "krw",
+    currency: null,
   };
+  paginationConfig.value.current = 1;
+  fetchData();
+  fetchSummary();
 };
+
+watch(
+  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
+  () => {
+    fetchData();
+  }
+);
+
+onMounted(() => {
+  fetchData();
+  fetchSummary();
+});
 </script>
 
 <style scoped>
@@ -211,8 +343,8 @@ const resetFilters = () => {
 
 .actions {
   display: flex;
+  align-items: flex-end;
   gap: 12px;
-  margin-top: 8px;
 }
 
 .summary-card {

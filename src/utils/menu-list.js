@@ -101,6 +101,7 @@ export const menuList = () => {
       key: "bet_list",
       label: "betting_list",
       icon: WalletOutlined,
+      to: routeLink.betting_list.link,
     },
     {
       key: "charge_exchange",
@@ -160,6 +161,7 @@ export const menuList = () => {
       key: "real_time_bet",
       label: "real_time_betting",
       icon: PrinterOutlined,
+      to: routeLink.real_time_betting.link,
     },
   ];
 };

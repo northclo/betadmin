@@ -23,6 +23,9 @@
       <a-button type="primary" @click="fetchData">
         {{ trlang.search }}
       </a-button>
+      <a-button type="primary" @click="navigateToRealTimeBetting">
+        {{ trlang.real_time_betting }}
+      </a-button>
     </a-layout-header>
 
     <a-layout-content class="table-panel">
@@ -108,6 +111,7 @@
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { gameManagementColumn } from '@/utils/table-column/game-management';
@@ -116,8 +120,9 @@ import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
 
-defineOptions({ name: routeLink.login_information.name });
+defineOptions({ name: routeLink.game_management.name });
 
+const router = useRouter();
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
@@ -243,6 +248,11 @@ const loadRemainedTime = (time) => {
   if (mins) parts.push(`${mins}${trlang.value.min}`);
   if (secs) parts.push(`${secs}${trlang.value.sec}`);
   return `${trlang.value.remain} ${parts.join(' ')}`;
+};
+
+// Navigate to Real-time Betting
+const navigateToRealTimeBetting = () => {
+  router.push(routeLink.real_time_betting.link);
 };
 
 onMounted(() => {

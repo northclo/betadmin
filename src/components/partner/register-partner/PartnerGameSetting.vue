@@ -324,7 +324,6 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 /* Reactive toggle state */
-const isActive = ref(false);
 const activeSetting = ref("");
 const partnerOptions = ref([]);
 const dividendType = ref("");
@@ -403,6 +402,23 @@ const changeActivePartner = () => {
 
 /* Expose state for parent access */
 defineExpose({
-  getState: () => ({ isActive: isActive.value }),
+  getState: () => ({
+    activeSetting: activeSetting.value,
+    dividendType: dividendType.value,
+    deadline: deadline.value,
+    cancelBet: cancelBet.value,
+    cancelBetEndTime: cancelBetEndTime.value,
+    cancelBetMaxTime: cancelBetMaxTime.value,
+    cancelBetPerday: cancelBetPerday.value,
+    betUnit: betUnit.value,
+    oneTimeBetMin: oneTimeBetMin.value,
+    oneTimeBetMax: oneTimeBetMax.value,
+    oneTimeEarningMax: oneTimeEarningMax.value,
+    oneRoundBetMax: oneRoundBetMax.value,
+    oneRoundEarningMax: oneRoundEarningMax.value,
+    oneRoundBetMaxPerSlot: oneRoundBetMaxPerSlot.value,
+    oneRoundEarningMaxPerSlot: oneRoundEarningMaxPerSlot.value,
+    allRoundsBetMax: allRoundsBetMax.value,
+  }),
 });
 </script>
