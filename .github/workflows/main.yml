@@ -52,7 +52,7 @@ jobs:
       # ===================================================================
 
       - name: Fetch latest lang/en.js from S3
-        run: aws s3 cp s3://${{ secrets.STORAGE_BUCKET }}/lang-customer.js src/lang/en.js
+        run: aws s3 cp s3://${{ secrets.STORAGE_BUCKET }}/lang-admin.js src/lang/en.js
       
       - name: Build frontend for bucket 2
         run: npm run build
