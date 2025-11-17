@@ -215,7 +215,6 @@ const fetchData = async (page = pagination.value.current) => {
       message.error(
         result.message || trlang.value.failed_to_load_settlement || "Failed to load settlement data"
       );
-      // Reset to empty state on error
       summary.value = {
         totalBetAmount: 0,
         totalPayout: 0,

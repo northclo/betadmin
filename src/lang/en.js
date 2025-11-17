@@ -18,6 +18,7 @@ export default {
   pending_approvals: "Member approvals",
   pending_charges: "Charge requests",
   support_tickets: "Support tickets",
+  new_support_message: "New Support Message",
   recent_activity: "Recent Activity",
   no_recent_activity: "No recent updates",
   activity_member_registered: "A new member completed registration.",

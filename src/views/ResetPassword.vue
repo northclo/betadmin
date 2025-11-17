@@ -1,7 +1,6 @@
 <template>
   <div class="reset-password-page-container">
     <a-row class="reset-password-row h-100vh" :gutter="0">
-      <!-- Form Column -->
       <a-col 
         :xs="24" 
         :sm="24" 
@@ -57,7 +56,6 @@
         </a-card>
       </a-col>
 
-      <!-- Right Image Panel -->
       <a-col 
         :xs="0" 
         :sm="0" 

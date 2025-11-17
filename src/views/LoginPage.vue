@@ -1,7 +1,6 @@
 <template>
   <div class="login-page-container">
     <a-row class="login-row h-100vh" :gutter="0">
-      <!-- Login Form Column -->
       <a-col 
         :xs="24" 
         :sm="24" 

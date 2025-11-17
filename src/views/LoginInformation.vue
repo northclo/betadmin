@@ -55,12 +55,10 @@
         </template>
 
         <template #bodyCell="{ column, record, index }">
-          <!-- No -->
           <template v-if="column.key === 'no'">
             {{ index + 1 }}
           </template>
 
-          <!-- User -->
           <template v-if="column.key === 'user_id'">
             <span>
               {{ record.own_partner_nickname || record.user_nickname }}
@@ -78,7 +76,6 @@
             </span>
           </template>
 
-          <!-- Distributor -->
           <template v-if="column.key === 'distributor'">
             <a-typography-text :class="record.own_partner_nickname || record.partner_nickname
               ? 'bg-yellow border radius-1 flex flex-column'
@@ -93,7 +90,6 @@
             </a-typography-text>
           </template>
 
-          <!-- IP -->
           <template v-if="column.key === 'ip_address'">
             <a-typography-text>{{ record.ip_address }}</a-typography-text>
             <a-button class="bg-gray text-white ms-2" @click="changeBlockIp(record.ip_address, record.block_ip)">
@@ -101,7 +97,6 @@
             </a-button>
           </template>
 
-          <!-- Mobile -->
           <template v-if="column.key === 'mobile'">
             <a-typography-text>{{ record.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>

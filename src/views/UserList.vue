@@ -6,7 +6,6 @@
   </a-layout>
 
   <a-layout class="p-2 flex flex-column gap-2">
-    <!-- Filters -->
     <a-layout-header class="bg-white px-5 flex items-center gap-2 shadow">
       <a-typography-text class="bg-gray text-white p-2">
         {{ trlang.game_process }}
@@ -38,9 +37,7 @@
       </a-button>
     </a-layout-header>
 
-    <!-- Table -->
     <a-layout-content class="bg-white p-2 shadow">
-      <!-- Status Legend -->
       <a-space class="p-2">
         <template v-for="status in statusLegend" :key="status.key">
           <a-typography-text>
@@ -168,18 +165,15 @@ defineOptions({ name: routeLink.login_information.name });
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-// Filters
 const searchField = ref('total_no');
 const search = ref('');
 const gameProcess = ref('');
 const searchFieldOptions = ref([]);
 const gameProcessOptions = ref([]);
 
-// Table Data
 const dataSource = ref([]);
 const loading = ref(false);
 
-// Pagination
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => ({
@@ -187,7 +181,6 @@ const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => 
   title: trlang.value[col.titleKey] || col.titleKey
 })));
 
-// Status Legend
 const statusLegend = computed(() => [
   {
     key: 'R',
@@ -221,7 +214,6 @@ const statusLegend = computed(() => [
   },
 ]);
 
-// Betting Options
 const bettingOptions = computed(() => ({
   odd_even: [
     { label: trlang.value.odd, active: (r) => r.odd, bettingType: 'odd' },
@@ -246,7 +238,6 @@ const getBettingCount = (record, bettingType) => {
   return record.bettingCounts[bettingType] || 0;
 };
 
-// Init Options
 const initOptions = () => {
   gameProcessOptions.value = [
     { value: '', label: `:: ${trlang.value.all_process} ::` },
@@ -262,7 +253,6 @@ const initOptions = () => {
   ];
 };
 
-// Fetch Data
 const fetchData = async () => {
   loading.value = true;
   try {
@@ -297,13 +287,11 @@ const fetchData = async () => {
   }
 };
 
-// Watch pagination
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
   fetchData
 );
 
-// Format Remained Time
 const loadRemainedTime = (time) => {
   if (time < 0) return '';
   const parts = [];

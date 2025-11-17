@@ -199,14 +199,12 @@
     </a-layout>
 
     <a-layout class="bg-none">
-      <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.setting }}
         </a-typography-text>
       </a-layout-sider>
 
-      <!-- Main content -->
       <a-layout-content class="border p-2">
         <a-layout class="bg-none">
           <a-layout-sider class="bg-gray p-2 border setting-sider">

@@ -70,7 +70,6 @@ const disableStyleOptions = ref([]);
 const disableStyle = ref(null);
 const deactiveMessage = ref('');
 
-// Initialize display options
 const getDisplayOptions = () => {
   disableStyleOptions.value = [
     { key: 'simple_text', text: trlang.value.simple_text },
@@ -81,7 +80,6 @@ const getDisplayOptions = () => {
 
 onBeforeMount(getDisplayOptions);
 
-// Sync with dataSource
 watch(
   () => props.dataSource,
   (newVal) => {
@@ -93,7 +91,6 @@ watch(
   { immediate: true }
 );
 
-// Expose state for parent
 defineExpose({
   getState: () => ({
     siteActivation: siteActivation.value,

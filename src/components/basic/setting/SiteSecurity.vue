@@ -1,6 +1,5 @@
 <template>
   <a-collapse-panel key="2" class="bg-white">
-    <!-- Header -->
     <template #header>
       <a-typography-text class="text-dark-gray font-bold fs-4 lh-0">
         {{ trlang.site_security_setting }}
@@ -8,14 +7,12 @@
     </template>
 
     <a-layout class="bg-white">
-      <!-- Sidebar -->
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.use_security_code_when_loggin_in }}
         </a-typography-text>
       </a-layout-sider>
 
-      <!-- Main content -->
       <a-layout-content class="border p-2 flex items-center gap-2">
         <a-switch v-model:checked="security" class="w-fit" />
         <a-typography-text class="flex items-center">

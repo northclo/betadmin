@@ -74,7 +74,6 @@ import { ref, inject, computed, onMounted } from "vue";
 export default {
   name: "LeftLayout",
   setup() {
-    // Inject the provided state
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 

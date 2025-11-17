@@ -15,11 +15,9 @@ import "./css/header.css";
 import VueLazyload from "vue3-lazyload";
 import socketPlugin from './plugins/socket';
 
-// Create app instance
 const app = createApp(App);
 app.use(socketPlugin);
 
-// Use plugins
 app.use(Antd);
 app.use(router);
 app.use(store);

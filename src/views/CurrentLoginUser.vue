@@ -6,7 +6,6 @@
   </a-layout>
 
   <a-layout class="p-2 flex flex-column gap-2">
-    <!-- Filters -->
     <a-layout-header class="bg-white flex justify-between shadow px-5">
       <a-layout class="bg-white flex flex-row items-center gap-2">
         <a-typography-text>{{ trlang.start_date }}</a-typography-text>
@@ -57,7 +56,6 @@
       </a-layout>
     </a-layout-header>
 
-    <!-- Table -->
     <a-layout-content class="bg-white p-2 shadow">
       <a-table
         :columns="currentLoginUserColumn"
@@ -74,7 +72,6 @@
         </template>
 
         <template #bodyCell="{ column, record, index }">
-          <!-- No -->
           <template v-if="column.key === 'no'">
             {{ index + 1 }}
           </template>
@@ -122,7 +119,6 @@
             </a-typography-text>
           </template>
 
-          <!-- IP -->
           <template v-if="column.key === 'ip_address'">
             <a-typography-text>{{
               record.last_login_history?.ip_address
@@ -211,7 +207,6 @@
             <span v-else>-</span>
           </template>
 
-          <!-- Mobile -->
           <template v-if="column.key === 'mobile'">
             <a-typography-text>{{ record.last_login_history?.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>

@@ -91,7 +91,6 @@
       </a-table>
     </a-card>
 
-    <!-- Create/Edit Modal -->
     <a-modal
       v-model:open="modalVisible"
       :title="editingRecord ? trlang.edit_notice_message : trlang.add_notice_message"

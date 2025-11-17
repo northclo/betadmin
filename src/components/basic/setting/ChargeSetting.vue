@@ -1,13 +1,11 @@
 <template>
   <a-collapse-panel class="bg-white">
-    <!-- Header -->
     <template #header>
       <a-typography-text class="font-bold fs-4 leading-0">
         {{ trlang.charge_setting }}
       </a-typography-text>
     </template>
 
-    <!-- Recharge Amount -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -40,7 +38,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Charging Time Zone -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -92,7 +89,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Completion Message -->
     <a-layout class="bg-white">
       <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">

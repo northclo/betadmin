@@ -89,7 +89,6 @@
       </a-table>
     </a-card>
 
-    <!-- Create/Edit Modal -->
     <a-modal
       v-model:open="modalVisible"
       :title="editingRecord ? trlang.edit_announcement : trlang.create_announcement"
@@ -146,7 +145,6 @@
       </a-form>
     </a-modal>
 
-    <!-- View Modal -->
     <a-modal
       v-model:open="viewModalVisible"
       :title="viewingRecord?.title"
@@ -177,7 +175,6 @@
           <a-typography-paragraph>{{ viewingRecord.description }}</a-typography-paragraph>
         </div>
         <div v-if="viewingRecord.image" style="margin-top: 24px;">
-          <!-- eslint-disable-next-line vue/html-self-closing -->
           <img :src="viewingRecord.image" :alt="trlang.announcement_image_alt" style="max-width: 100%; height: auto;" />
         </div>
       </div>

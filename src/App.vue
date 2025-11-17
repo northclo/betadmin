@@ -37,8 +37,10 @@
 <script setup>
 import { reactive, provide, onMounted, computed, ref, onBeforeUnmount, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { notification } from "ant-design-vue";
 import LeftLayout from "./components/LeftLayout.vue";
 import HeaderMenu from "./components/HeaderMenu.vue";
+import { socket } from "@/plugins/socket.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -89,10 +91,52 @@ const updateViewport = () => {
   }, 150);
 };
 
+const playAlertSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  } catch (error) {
+    console.error("Error playing alert sound:", error);
+  }
+};
+
+const handleNewSupportMessage = (data) => {
+  playAlertSound();
+
+  const translations = state.translations || {};
+  notification.open({
+    message: translations.new_support_message || "New Support Message",
+    description: `${translations.user || "User"}: ${data.user_nickname || "Unknown"} - ${data.title || ""}`,
+    duration: 5,
+    placement: "topRight",
+    onClick: () => {
+      router.push("/service-center");
+    },
+  });
+};
+
 onMounted(() => {
   loadLanguage(state.currentLang);
   updateViewport();
   window.addEventListener("resize", updateViewport);
+
+  if (!isAuthPage.value) {
+    socket.on("new_support_message", handleNewSupportMessage);
+  }
 });
 
 onBeforeUnmount(() => {
@@ -100,6 +144,8 @@ onBeforeUnmount(() => {
     clearTimeout(resizeTimer);
   }
   window.removeEventListener("resize", updateViewport);
+  
+  socket.off("new_support_message", handleNewSupportMessage);
 });
 
 watch(
@@ -107,5 +153,17 @@ watch(
   () => {
     showSidebar.value = false;
   }
+);
+
+watch(
+  () => isAuthPage.value,
+  (newVal) => {
+    if (!newVal) {
+      socket.on("new_support_message", handleNewSupportMessage);
+    } else {
+      socket.off("new_support_message", handleNewSupportMessage);
+    }
+  },
+  { immediate: true }
 );
 </script>

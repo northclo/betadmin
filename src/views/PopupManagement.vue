@@ -92,7 +92,6 @@
       </a-table>
     </a-card>
 
-    <!-- Create/Edit Modal -->
     <a-modal
       v-model:open="modalVisible"
       :title="editingRecord ? trlang.edit_popup : trlang.create_popup"
@@ -189,7 +188,6 @@
       </a-form>
     </a-modal>
 
-    <!-- View Modal -->
     <a-modal
       v-model:open="viewModalVisible"
       :title="viewingRecord?.title"

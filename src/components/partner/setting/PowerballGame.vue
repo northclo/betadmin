@@ -5,7 +5,6 @@
       {{ trlang.game_settings_powerball_game }}
     </a-typography-text>
 
-    <!-- Activate -->
     <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -20,7 +19,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Inactive message -->
     <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -32,7 +30,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Duplicate betting -->
     <a-layout class="bg-none">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -64,7 +61,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Division -->
     <a-layout class="bg-none mt-2">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
@@ -85,7 +81,6 @@
       </a-layout-content>
     </a-layout>
 
-    <!-- Options -->
     <a-layout v-for="(item, idx) in options" :key="idx" class="bg-white">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
         <a-typography-text class="text-white text-center">

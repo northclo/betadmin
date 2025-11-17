@@ -158,10 +158,10 @@ watch(
   () => props.loading,
   async (newVal) => {
     if (newVal === false) {
-      await nextTick(); // ensure container exists
+      await nextTick();
       createGraph();
     } else if (newVal === true && graph) {
-      graph.destroy(); // cleanup when going back to loading
+      graph.destroy();
       graph = null;
     }
   },
