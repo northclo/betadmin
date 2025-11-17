@@ -124,7 +124,7 @@ const handleNewSupportMessage = (data) => {
     duration: 5,
     placement: "topRight",
     onClick: () => {
-      router.push("/service-center");
+      router.push("/customer-center");
     },
   });
 };

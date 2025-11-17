@@ -81,7 +81,7 @@ export const routeLink = {
   },
   customer_service_center: {
     name: "CustomerServiceCenterPage",
-    link: "/service-center"
+    link: "/customer-center"
   },
   popup_management: {
     name: "PopupManagementPage",
