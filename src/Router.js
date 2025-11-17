@@ -22,7 +22,7 @@ const PointUsageLogView = () => import('@/views/PointUsageLog.vue');
 const AnnouncementView = () => import('@/views/Announcement.vue');
 const CustomerServiceCenterView = () => import('@/views/CustomerServiceCenter.vue');
 const PopupManagementView = () => import('@/views/PopupManagement.vue');
-const NoteManagementView = () => import('@/views/NoteManagement.vue');
+const NoticeManagementView = () => import('@/views/NoticeManagement.vue');
 const RealTimeBettingView = () => import('@/views/RealTimeBetting.vue');
 
 const routes = [
@@ -136,9 +136,9 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: routeLink.note_management.link,
-    name: routeLink.note_management.name,
-    component: NoteManagementView,
+    path: routeLink.notice_management.link,
+    name: routeLink.notice_management.name,
+    component: NoticeManagementView,
     meta: { requiresAuth: true },
   },
   {

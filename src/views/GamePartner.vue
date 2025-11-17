@@ -34,13 +34,13 @@
 
         <PartnerTable :columns="columns" :data-source="dataSource" :loading="loading" :fetch-data="fetchData"
           @open-register-user="openRegisterUser = true" @open-cash-modal="openCashModal"
-          @open-note-modal="openNoteModal" @open-group-message-modal="openGroupMessageModal"
+          @open-notice-modal="openNoticeModal" @open-group-message-modal="openGroupMessageModal"
           @open-remove-modal="openRemoveModal" />
       </a-layout>
       <RegisterUserModal v-model:open="openRegisterUser" :data-source="selectedRecord" :fetch-data="fetchData" />
       <RegisterPartnerModal v-model:open="openRegisterPartner" :data-source="selectedRecord" :fetch-data="fetchData" />
       <CashModal v-model:open="openCash" :data-source="selectedRecord" :fetch-data="fetchData" />
-      <SendNoteModal v-model:open="openNote" :data-source="selectedRecord" />
+      <!-- <SendNoticeModal v-model:open="openNotice" :data-source="selectedRecord" /> -->
       <GroupMessageModal v-model:open="openGroupMessage" :data-source="selectedRecord" />
       <RemovePartnerModal v-model:open="openRemove" :data-source="selectedRecord" :fetch-data="fetchData" />
     </a-layout>
@@ -59,7 +59,7 @@ import PartnerTable from '@/components/partner/PartnerTable.vue';
 import RegisterUserModal from '@/components/partner/RegisterUserModal.vue';
 import RegisterPartnerModal from '@/components/partner/RegisterPartnerModal.vue';
 import CashModal from '@/components/partner/CashModal.vue';
-import SendNoteModal from '@/components/partner/SendNoteModal.vue';
+// import SendNoticeModal from '@/components/partner/SendNoticeModal.vue';
 import GroupMessageModal from '@/components/partner/GroupMessageModal.vue';
 import RemovePartnerModal from '@/components/partner/RemovePartnerModal.vue';
 
@@ -78,7 +78,7 @@ const loading = ref(true);
 const openRegisterUser = ref(false);
 const openRegisterPartner = ref(false);
 const openCash = ref(false);
-const openNote = ref(false);
+const openNotice = ref(false);
 const openGroupMessage = ref(false);
 const openRemove = ref(false);
 const selectedRecord = ref(null);
@@ -113,9 +113,9 @@ const openCashModal = (record) => {
   openCash.value = true;
 };
 
-const openNoteModal = (record) => {
+const openNoticeModal = (record) => {
   selectedRecord.value = record;
-  openNote.value = true;
+  openNotice.value = true;
 };
 
 const openGroupMessageModal = (record) => {

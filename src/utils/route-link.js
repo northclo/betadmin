@@ -87,9 +87,9 @@ export const routeLink = {
     name: "PopupManagementPage",
     link: "/popup-manage"
   },
-  note_management: {
-    name: "NoteManagementPage",
-    link: "/note-manage"
+  notice_management: {
+    name: "NoticeManagementPage",
+    link: "/notice-manage"
   },
   real_time_betting: {
     name: "RealTimeBettingPage",

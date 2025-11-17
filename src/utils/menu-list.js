@@ -151,9 +151,9 @@ export const menuList = () => {
           to: routeLink.popup_management.link,
         },
         {
-          key: "note_manage",
-          label: "note_management",
-          to: routeLink.note_management.link,
+          key: "notice_manage",
+          label: "notice_management",
+          to: routeLink.notice_management.link,
         },
       ],
     },

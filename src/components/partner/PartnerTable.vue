@@ -136,8 +136,8 @@
           " class="bg-gray text-white">
             <CheckCircleOutlined /> {{ trlang.add_sub }}
           </a-button>
-          <a-button v-if="record.role === 'user'" class="bg-gray text-white" @click="$emit('openNoteModal', record)">
-            <CheckCircleOutlined /> {{ trlang.note }}
+          <a-button v-if="record.role === 'user'" class="bg-gray text-white" @click="$emit('openNoticeModal', record)">
+            <CheckCircleOutlined /> {{ trlang.notice }}
           </a-button>
           <a-button v-if="record.role !== 'user'" class="bg-green text-white" @click="$emit('openRegisterUser')">
             <UserAddOutlined /> {{ trlang.member_registration }}

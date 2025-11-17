@@ -1020,12 +1020,11 @@
   box-shadow: var(--shadow-sm) !important;
   border-radius: 20px !important;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: box-shadow 0.25s ease;
   margin-bottom: 24px;
 }
 
 .ant-card:hover {
-  transform: translateY(-4px);
   box-shadow: var(--shadow-md) !important;
 }
 
@@ -1091,7 +1090,6 @@
 .ant-btn:focus {
   color: var(--main-color-strong) !important;
   box-shadow: var(--shadow-xs) !important;
-  transform: translateY(-1px);
 }
 
 .ant-btn-primary {
@@ -1102,7 +1100,6 @@
 }
 
 .ant-btn-primary:hover {
-  transform: translateY(-1px);
   box-shadow: 0 14px 32px rgba(14, 165, 233, 0.25) !important;
 }
 
@@ -1787,11 +1784,9 @@
 
 .filter-label:hover {
   box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
-  transform: translateY(-2px) !important;
 }
 
 .filter-label:active {
-  transform: translateY(0) !important;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2) !important;
 }
 
