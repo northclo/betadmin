@@ -67,7 +67,7 @@
           </template>
           <template v-else-if="column.dataIndex === 'status'">
             <a-tag :color="statusColor(record.status)">
-              {{ record.status }}
+              {{ trlang[record.status] || record.status }}
             </a-tag>
           </template>
           <template v-else-if="column.dataIndex === 'published_at'">
@@ -78,7 +78,7 @@
               <a-button type="link" @click="handleView(record)">{{ trlang.view }}</a-button>
               <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
               <a-popconfirm
-                :title="trlang.confirm_delete || 'Are you sure you want to delete this announcement?'"
+                :title="trlang.confirm_delete"
                 @confirm="handleDelete(record.id)"
               >
                 <a-button type="link" danger>{{ trlang.delete }}</a-button>
@@ -104,18 +104,18 @@
         <a-form-item
           :label="trlang.title"
           name="title"
-          :rules="[{ required: true, message: trlang.title_required || 'Title is required' }]"
+          :rules="[{ required: true, message: trlang.title_required }]"
         >
-          <a-input v-model:value="formData.title" :placeholder="trlang.title_placeholder" />
+          <a-input v-model:value="formData.title" :placeholder="trlang.title_announcement_placeholder" />
         </a-form-item>
         <a-form-item
           :label="trlang.description"
           name="description"
-          :rules="[{ required: true, message: trlang.description_required || 'Description is required' }]"
+          :rules="[{ required: true, message: trlang.description_required }]"
         >
           <a-textarea
             v-model:value="formData.description"
-            :placeholder="trlang.description_placeholder"
+            :placeholder="trlang.description_announcement_placeholder"
             :rows="6"
           />
         </a-form-item>
@@ -132,16 +132,16 @@
           <a-col :span="12">
             <a-form-item :label="trlang.status" name="status">
               <a-select v-model:value="formData.status">
-                <a-select-option value="draft">Draft</a-select-option>
-                <a-select-option value="published">Published</a-select-option>
-                <a-select-option value="archived">Archived</a-select-option>
-                <a-select-option value="hidden">Hidden</a-select-option>
+                <a-select-option value="draft">{{ trlang.draft }}</a-select-option>
+                <a-select-option value="published">{{ trlang.published }}</a-select-option>
+                <a-select-option value="archived">{{ trlang.archived }}</a-select-option>
+                <a-select-option value="hidden">{{ trlang.hidden }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item :label="trlang.image || 'Image'">
-          <a-input v-model:value="formData.image" :placeholder="trlang.image_url_placeholder || 'Image URL (optional)'" />
+        <a-form-item :label="trlang.image">
+          <a-input v-model:value="formData.image" :placeholder="trlang.image_url_placeholder" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -162,7 +162,7 @@
           </a-descriptions-item>
           <a-descriptions-item :label="trlang.status">
             <a-tag :color="statusColor(viewingRecord.status)">
-              {{ viewingRecord.status }}
+              {{ trlang[viewingRecord.status] || viewingRecord.status }}
             </a-tag>
           </a-descriptions-item>
           <a-descriptions-item :label="trlang.author">
@@ -177,7 +177,8 @@
           <a-typography-paragraph>{{ viewingRecord.description }}</a-typography-paragraph>
         </div>
         <div v-if="viewingRecord.image" style="margin-top: 24px;">
-          <img :src="viewingRecord.image" alt="Announcement image" style="max-width: 100%; height: auto;" />
+          <!-- eslint-disable-next-line vue/html-self-closing -->
+          <img :src="viewingRecord.image" :alt="trlang.announcement_image_alt" style="max-width: 100%; height: auto;" />
         </div>
       </div>
     </a-modal>
@@ -220,13 +221,13 @@ const formData = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.post_id ?? "ID", dataIndex: "id", key: "id", width: 120, ellipsis: true },
-  { title: trlang.value.title ?? "Title", dataIndex: "title", key: "title", ellipsis: true },
-  { title: trlang.value.category ?? "Category", dataIndex: "category", key: "category", width: 140 },
-  { title: trlang.value.author ?? "Author", dataIndex: "author", key: "author", width: 160 },
-  { title: trlang.value.published_at ?? "Published At", dataIndex: "published_at", key: "published_at", width: 200 },
-  { title: trlang.value.status ?? "Status", dataIndex: "status", key: "status", width: 140 },
-  { title: trlang.value.actions ?? "Actions", dataIndex: "actions", key: "actions", width: 200 },
+  { title: trlang.value.post_id, dataIndex: "id", key: "id", width: 120, ellipsis: true },
+  { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
+  { title: trlang.value.category, dataIndex: "category", key: "category", width: 140 },
+  { title: trlang.value.author, dataIndex: "author", key: "author", width: 160 },
+  { title: trlang.value.published_at, dataIndex: "published_at", key: "published_at", width: 200 },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
+  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
 ]);
 
 const tableData = ref([]);
@@ -309,7 +310,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching announcements:", error);
-    message.error("Failed to fetch announcements");
+    message.error(trlang.value.failed_to_fetch_announcements);
   } finally {
     loading.value = false;
   }
@@ -380,7 +381,7 @@ const handleSave = async () => {
     }
 
     if (res.status) {
-      message.success(res.message || (editingRecord.value ? "Announcement updated successfully" : "Announcement created successfully"));
+      message.success(res.message || (editingRecord.value ? trlang.value.announcement_updated_successfully : trlang.value.announcement_created_successfully));
       modalVisible.value = false;
       fetchData();
     }
@@ -390,7 +391,7 @@ const handleSave = async () => {
       return;
     }
     console.error("Error saving announcement:", error);
-    message.error("Failed to save announcement");
+    message.error(trlang.value.failed_to_save_announcement);
   } finally {
     saving.value = false;
   }
@@ -412,12 +413,12 @@ const handleDelete = async (announcementId) => {
   try {
     const res = await deleteData(`${apiLink.delete_announcement}/${announcementId}`);
     if (res.status) {
-      message.success(res.message || "Announcement deleted successfully");
+      message.success(res.message || trlang.value.announcement_deleted_successfully);
       fetchData();
     }
   } catch (error) {
     console.error("Error deleting announcement:", error);
-    message.error("Failed to delete announcement");
+    message.error(trlang.value.failed_to_delete_announcement);
   }
 };
 

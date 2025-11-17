@@ -66,6 +66,9 @@
           <template v-if="column.dataIndex === 'amount' || column.dataIndex === 'balance_after'">
             {{ formatCurrency(record[column.dataIndex]) }}
           </template>
+          <template v-else-if="column.dataIndex === 'member_nickname'">
+            {{ record.member_nickname || '-' }}
+          </template>
           <template v-else-if="column.dataIndex === 'type'">
             <a-tag>{{ trlang[record.type] || record.type }}</a-tag>
           </template>
@@ -105,34 +108,34 @@ const summaryData = ref({
 const summaryCards = computed(() => [
   {
     key: "total_transactions",
-    title: trlang.value.total_transactions ?? "Total Transactions",
+    title: trlang.value.total_transactions,
     value: summaryData.value.total_transactions,
   },
   {
     key: "total_inflow",
-    title: trlang.value.total_inflow ?? "Total Inflow",
+    title: trlang.value.total_inflow,
     value: formatCurrency(summaryData.value.total_inflow),
   },
   {
     key: "total_outflow",
-    title: trlang.value.total_outflow ?? "Total Outflow",
+    title: trlang.value.total_outflow,
     value: formatCurrency(summaryData.value.total_outflow),
   },
   {
     key: "net_change",
-    title: trlang.value.net_change ?? "Net Change",
+    title: trlang.value.net_change,
     value: formatCurrency(summaryData.value.net_change),
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.transaction_id ?? "Transaction ID", dataIndex: "transaction_id", key: "transaction_id", width: 160 },
-  { title: trlang.value.member ?? "Member", dataIndex: "member", key: "member", width: 160 },
-  { title: trlang.value.transaction_type ?? "Type", dataIndex: "type", key: "type", width: 140 },
-  { title: trlang.value.amount ?? "Amount", dataIndex: "amount", key: "amount", width: 160 },
-  { title: trlang.value.balance_after ?? "Balance After", dataIndex: "balance_after", key: "balance_after", width: 160 },
-  { title: trlang.value.description ?? "Description", dataIndex: "description", key: "description" },
-  { title: trlang.value.processed_at ?? "Processed At", dataIndex: "processed_at", key: "processed_at", width: 200 },
+  { title: trlang.value.transaction_id, dataIndex: "transaction_id", key: "transaction_id", width: 160 },
+  { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
+  { title: trlang.value.transaction_type, dataIndex: "type", key: "type", width: 140 },
+  { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
+  { title: trlang.value.balance_after, dataIndex: "balance_after", key: "balance_after", width: 160 },
+  { title: trlang.value.description, dataIndex: "description", key: "description" },
+  { title: trlang.value.processed_at, dataIndex: "processed_at", key: "processed_at", width: 200 },
 ]);
 
 const tableData = ref([]);
@@ -209,7 +212,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching money usage log:", error);
-    message.error("Failed to fetch money usage log");
+    message.error(trlang.value.failed_to_fetch_money_usage_log);
   } finally {
     loading.value = false;
   }

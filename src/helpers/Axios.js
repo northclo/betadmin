@@ -1,9 +1,16 @@
 import axios from "axios";
 import { message } from "ant-design-vue";
-import httpStatusCodes from 'http-status-codes'
+// import httpStatusCodes from 'http-status-codes'
 import router from '@/Router'
 import { config } from "@/config/index.js";
 import { routeLink } from '@/utils/route-link.js';
+
+const clearAuthData = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('currency');
+  localStorage.removeItem('pass');
+};
 
 /**
  * @summary
@@ -20,14 +27,19 @@ const handleError =
       } catch (error) {
         if (error.response) {
           // in the case of unautherized user
-          if (error.response.status == httpStatusCodes.UNAUTHORIZED) {
-            router.push(routeLink.login.link)
-          }
+          // if (error.response.status == httpStatusCodes.UNAUTHORIZED) {
+          //   clearAuthData();
+          //   router.push(routeLink.login.link)
+          // }
+          clearAuthData();
+          router.push(routeLink.login.link);
           message.error(`${error.response.data.message}`);
           return {
             status: false,
           };
         } else {
+          clearAuthData();
+          router.push(routeLink.login.link);
           message.error("No response from server. Please check your network.");
           return {
             status: false,
@@ -44,7 +56,7 @@ export const getData = handleError(async (url) => {
     headers: {
       authorization: token
     },
-    timeout: 5000
+    timeout: 20000
   })
 
   return {
@@ -61,7 +73,7 @@ export const postData = handleError(async (url, data = {}) => {
     headers: {
       authorization: token
     },
-    timeout: 5000,
+    timeout: 20000,
   });
 
   return {
@@ -78,7 +90,7 @@ export const putData = handleError(async (url, data = {}) => {
     headers: {
       authorization: token
     },
-    timeout: 5000,
+    timeout: 20000,
   });
 
   return {
@@ -95,7 +107,7 @@ export const deleteData = handleError(async (url) => {
     headers: {
       authorization: token
     },
-    timeout: 5000
+    timeout: 20000
   })
 
   return {

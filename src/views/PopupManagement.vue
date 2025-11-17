@@ -5,7 +5,7 @@
         {{ trlang.popup_management }}
       </a-typography-title>
       <a-typography-text type="secondary">
-        {{ trlang.popup_management_description || "Manage popup notifications and announcements" }}
+        {{ trlang.popup_management_description }}
       </a-typography-text>
     </header>
 
@@ -13,30 +13,30 @@
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
           <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.post_range || 'Date Range'">
+            <a-form-item :label="trlang.post_range">
               <a-range-picker v-model:value="filters.range" style="width: 100%" />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.status || 'Status'">
+            <a-form-item :label="trlang.status">
               <a-select v-model:value="filters.status" allow-clear>
-                <a-select-option value="">{{ trlang.all || 'All' }}</a-select-option>
-                <a-select-option value="active">{{ trlang.active || 'Active' }}</a-select-option>
-                <a-select-option value="inactive">{{ trlang.inactive || 'Inactive' }}</a-select-option>
+                <a-select-option value="">{{ trlang.all }}</a-select-option>
+                <a-select-option value="active">{{ trlang.active }}</a-select-option>
+                <a-select-option value="inactive">{{ trlang.inactive }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.keyword_filter || 'Keyword'">
-              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder || 'Search...'" allow-clear />
+            <a-form-item :label="trlang.keyword_filter">
+              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
             </a-form-item>
           </a-col>
         </a-row>
         <div class="actions">
           <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
-            {{ trlang.search || 'Search' }}
+            {{ trlang.search }}
           </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset || 'Reset' }}</a-button>
+          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
         </div>
       </a-form>
     </a-card>
@@ -44,9 +44,9 @@
     <a-card class="table-card">
       <template #title>
         <div class="table-title">
-          <span>{{ trlang.popup_list || 'Popup List' }}</span>
+          <span>{{ trlang.popup_list }}</span>
           <a-button type="primary" class="bg-main text-white" @click="handleCreate">
-            {{ trlang.create_popup || 'Create Popup' }}
+            {{ trlang.create_popup }}
           </a-button>
         </div>
       </template>
@@ -61,7 +61,7 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'status'">
             <a-tag :color="statusColor(record.status)">
-              {{ record.status === 'active' ? (trlang.active || 'Active') : (trlang.inactive || 'Inactive') }}
+              {{ record.status === 'active' ? trlang.active : trlang.inactive }}
             </a-tag>
           </template>
           <template v-else-if="column.dataIndex === 'start_date'">
@@ -71,20 +71,20 @@
             {{ record.end_date ? formatDate(record.end_date) : '-' }}
           </template>
           <template v-else-if="column.dataIndex === 'position'">
-            <a-tag>{{ record.position || 'center' }}</a-tag>
+            <a-tag>{{ record.position || trlang.center }}</a-tag>
           </template>
           <template v-else-if="column.dataIndex === 'size'">
-            <a-tag>{{ record.size || 'medium' }}</a-tag>
+            <a-tag>{{ record.size || trlang.medium }}</a-tag>
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
             <a-space>
-              <a-button type="link" @click="handleView(record)">{{ trlang.view || 'View' }}</a-button>
-              <a-button type="link" @click="handleEdit(record)">{{ trlang.edit || 'Edit' }}</a-button>
+              <a-button type="link" @click="handleView(record)">{{ trlang.view }}</a-button>
+              <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
               <a-popconfirm
-                :title="trlang.confirm_delete || 'Are you sure you want to delete this popup?'"
+                :title="trlang.confirm_delete_popup"
                 @confirm="handleDelete(record.id)"
               >
-                <a-button type="link" danger>{{ trlang.delete || 'Delete' }}</a-button>
+                <a-button type="link" danger>{{ trlang.delete }}</a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -95,9 +95,9 @@
     <!-- Create/Edit Modal -->
     <a-modal
       v-model:open="modalVisible"
-      :title="editingRecord ? (trlang.edit_popup || 'Edit Popup') : (trlang.create_popup || 'Create Popup')"
-      :ok-text="trlang.save || 'Save'"
-      :cancel-text="trlang.cancel || 'Cancel'"
+      :title="editingRecord ? trlang.edit_popup : trlang.create_popup"
+      :ok-text="trlang.save"
+      :cancel-text="trlang.cancel"
       :confirm-loading="saving"
       @ok="handleSave"
       @cancel="handleCancel"
@@ -105,91 +105,85 @@
     >
       <a-form :model="formData" layout="vertical" ref="formRef">
         <a-form-item
-          :label="trlang.title || 'Title'"
+          :label="trlang.title"
           name="title"
-          :rules="[{ required: true, message: trlang.title_required || 'Title is required' }]"
+          :rules="[{ required: true, message: trlang.title_required }]"
         >
-          <a-input v-model:value="formData.title" :placeholder="trlang.title_placeholder || 'Enter popup title'" />
+          <a-input v-model:value="formData.title" :placeholder="trlang.title_popup_placeholder" />
         </a-form-item>
         <a-form-item
-          :label="trlang.content || 'Content'"
+          :label="trlang.content"
           name="content"
-          :rules="[{ required: true, message: trlang.content_required || 'Content is required' }]"
+          :rules="[{ required: true, message: trlang.content_popup_required }]"
         >
           <a-textarea
             v-model:value="formData.content"
-            :placeholder="trlang.content_placeholder || 'Enter popup content'"
+            :placeholder="trlang.content_popup_placeholder"
             :rows="6"
           />
         </a-form-item>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item :label="trlang.status || 'Status'">
+            <a-form-item :label="trlang.status">
               <a-select v-model:value="formData.status">
-                <a-select-option value="active">{{ trlang.active || 'Active' }}</a-select-option>
-                <a-select-option value="inactive">{{ trlang.inactive || 'Inactive' }}</a-select-option>
+                <a-select-option value="active">{{ trlang.active }}</a-select-option>
+                <a-select-option value="inactive">{{ trlang.inactive }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="trlang.display_order || 'Display Order'">
+            <a-form-item :label="trlang.display_order">
               <a-input-number v-model:value="formData.display_order" :min="0" style="width: 100%" />
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item :label="trlang.start_date || 'Start Date'">
+            <a-form-item :label="trlang.start_date">
               <a-date-picker
                 v-model:value="formData.start_date"
                 show-time
                 style="width: 100%"
-                :placeholder="trlang.select_start_date || 'Select start date'"
+                :placeholder="trlang.select_start_date"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="trlang.end_date || 'End Date'">
+            <a-form-item :label="trlang.end_date">
               <a-date-picker
                 v-model:value="formData.end_date"
                 show-time
                 style="width: 100%"
-                :placeholder="trlang.select_end_date || 'Select end date'"
+                :placeholder="trlang.select_end_date"
               />
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item :label="trlang.position || 'Position'">
+            <a-form-item :label="trlang.position">
               <a-select v-model:value="formData.position">
-                <a-select-option value="top">{{ trlang.top || 'Top' }}</a-select-option>
-                <a-select-option value="center">{{ trlang.center || 'Center' }}</a-select-option>
-                <a-select-option value="bottom">{{ trlang.bottom || 'Bottom' }}</a-select-option>
-                <a-select-option value="fullscreen">{{ trlang.fullscreen || 'Fullscreen' }}</a-select-option>
+                <a-select-option value="top">{{ trlang.top }}</a-select-option>
+                <a-select-option value="center">{{ trlang.center }}</a-select-option>
+                <a-select-option value="bottom">{{ trlang.bottom }}</a-select-option>
+                <a-select-option value="fullscreen">{{ trlang.fullscreen }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="trlang.size || 'Size'">
+            <a-form-item :label="trlang.size">
               <a-select v-model:value="formData.size">
-                <a-select-option value="small">{{ trlang.small || 'Small' }}</a-select-option>
-                <a-select-option value="medium">{{ trlang.medium || 'Medium' }}</a-select-option>
-                <a-select-option value="large">{{ trlang.large || 'Large' }}</a-select-option>
-                <a-select-option value="fullscreen">{{ trlang.fullscreen || 'Fullscreen' }}</a-select-option>
+                <a-select-option value="small">{{ trlang.small }}</a-select-option>
+                <a-select-option value="medium">{{ trlang.medium }}</a-select-option>
+                <a-select-option value="large">{{ trlang.large }}</a-select-option>
+                <a-select-option value="fullscreen">{{ trlang.fullscreen }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item :label="trlang.link_url || 'Link URL (Optional)'">
-          <a-input v-model:value="formData.link_url" :placeholder="trlang.link_url_placeholder || 'Enter link URL (optional)'" />
-        </a-form-item>
-        <a-form-item :label="trlang.image || 'Image URL (Optional)'">
-          <a-input v-model:value="formData.image" :placeholder="trlang.image_url_placeholder || 'Enter image URL (optional)'" />
-        </a-form-item>
         <a-form-item>
           <a-checkbox v-model:checked="formData.is_closable">
-            {{ trlang.is_closable || 'User can close this popup' }}
+            {{ trlang.is_closable }}
           </a-checkbox>
         </a-form-item>
       </a-form>
@@ -204,42 +198,36 @@
     >
       <div v-if="viewingRecord">
         <a-descriptions :column="2" bordered>
-          <a-descriptions-item :label="trlang.status || 'Status'">
+          <a-descriptions-item :label="trlang.status">
             <a-tag :color="statusColor(viewingRecord.status)">
-              {{ viewingRecord.status === 'active' ? (trlang.active || 'Active') : (trlang.inactive || 'Inactive') }}
+              {{ viewingRecord.status === 'active' ? trlang.active : trlang.inactive }}
             </a-tag>
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.display_order || 'Display Order'">
+          <a-descriptions-item :label="trlang.display_order">
             {{ viewingRecord.display_order || 0 }}
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.position || 'Position'">
-            {{ viewingRecord.position || 'center' }}
+          <a-descriptions-item :label="trlang.position">
+            {{ viewingRecord.position || trlang.center }}
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.size || 'Size'">
-            {{ viewingRecord.size || 'medium' }}
+          <a-descriptions-item :label="trlang.size">
+            {{ viewingRecord.size || trlang.medium }}
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.start_date || 'Start Date'">
+          <a-descriptions-item :label="trlang.start_date">
             {{ viewingRecord.start_date ? formatDate(viewingRecord.start_date) : '-' }}
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.end_date || 'End Date'">
+          <a-descriptions-item :label="trlang.end_date">
             {{ viewingRecord.end_date ? formatDate(viewingRecord.end_date) : '-' }}
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.author || 'Author'">
-            {{ viewingRecord.author || 'Unknown' }}
+          <a-descriptions-item :label="trlang.author">
+            {{ viewingRecord.author || trlang.unknown }}
           </a-descriptions-item>
-          <a-descriptions-item :label="trlang.is_closable || 'Closable'">
-            {{ viewingRecord.is_closable ? (trlang.yes || 'Yes') : (trlang.no || 'No') }}
-          </a-descriptions-item>
-          <a-descriptions-item v-if="viewingRecord.link_url" :label="trlang.link_url || 'Link URL'">
-            <a :href="viewingRecord.link_url" target="_blank">{{ viewingRecord.link_url }}</a>
+          <a-descriptions-item :label="trlang.closable">
+            {{ viewingRecord.is_closable ? trlang.yes : trlang.no }}
           </a-descriptions-item>
         </a-descriptions>
         <div style="margin-top: 24px;">
-          <a-typography-title :level="5">{{ trlang.content || 'Content' }}</a-typography-title>
+          <a-typography-title :level="5">{{ trlang.content }}</a-typography-title>
           <a-typography-paragraph>{{ viewingRecord.content }}</a-typography-paragraph>
-        </div>
-        <div v-if="viewingRecord.image" style="margin-top: 24px;">
-          <img :src="viewingRecord.image" alt="Popup image" style="max-width: 100%; height: auto;" />
         </div>
       </div>
     </a-modal>
@@ -282,21 +270,19 @@ const formData = ref({
   display_order: 0,
   position: "center",
   size: "medium",
-  link_url: "",
-  image: "",
   is_closable: true,
 });
 
 const columns = computed(() => [
-  { title: trlang.value.id || "ID", dataIndex: "id", key: "id", width: 120, ellipsis: true },
-  { title: trlang.value.title || "Title", dataIndex: "title", key: "title", ellipsis: true },
-  { title: trlang.value.status || "Status", dataIndex: "status", key: "status", width: 100 },
-  { title: trlang.value.start_date || "Start Date", dataIndex: "start_date", key: "start_date", width: 180 },
-  { title: trlang.value.end_date || "End Date", dataIndex: "end_date", key: "end_date", width: 180 },
-  { title: trlang.value.position || "Position", dataIndex: "position", key: "position", width: 100 },
-  { title: trlang.value.size || "Size", dataIndex: "size", key: "size", width: 100 },
-  { title: trlang.value.display_order || "Order", dataIndex: "display_order", key: "display_order", width: 80 },
-  { title: trlang.value.actions || "Actions", dataIndex: "actions", key: "actions", width: 200 },
+  { title: trlang.value.id, dataIndex: "id", key: "id", width: 120, ellipsis: true },
+  { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 100 },
+  { title: trlang.value.start_date, dataIndex: "start_date", key: "start_date", width: 180 },
+  { title: trlang.value.end_date, dataIndex: "end_date", key: "end_date", width: 180 },
+  { title: trlang.value.position, dataIndex: "position", key: "position", width: 100 },
+  { title: trlang.value.size, dataIndex: "size", key: "size", width: 100 },
+  { title: trlang.value.order, dataIndex: "display_order", key: "display_order", width: 80 },
+  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
 ]);
 
 const tableData = ref([]);
@@ -362,7 +348,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching popups:", error);
-    message.error("Failed to fetch popups");
+    message.error(trlang.value.failed_to_fetch_popups);
   } finally {
     loading.value = false;
   }
@@ -394,8 +380,6 @@ const handleCreate = () => {
     display_order: 0,
     position: "center",
     size: "medium",
-    link_url: "",
-    image: "",
     is_closable: true,
   };
   modalVisible.value = true;
@@ -412,21 +396,42 @@ const handleEdit = (record) => {
     display_order: record.display_order || 0,
     position: record.position || "center",
     size: record.size || "medium",
-    link_url: record.link_url || "",
-    image: record.image || "",
     is_closable: record.is_closable !== undefined ? record.is_closable : true,
   };
   modalVisible.value = true;
 };
 
-const handleView = (record) => {
-  viewingRecord.value = record;
-  viewModalVisible.value = true;
+const handleView = async (record) => {
+  try {
+    loading.value = true;
+    const res = await getData(`${apiLink.get_popup}/${record.id}`);
+    if (res.status) {
+      viewingRecord.value = res.data;
+      viewModalVisible.value = true;
+    } else {
+      message.error(res.message || trlang.value.failed_to_fetch_popup_details);
+    }
+  } catch (error) {
+    console.error("Error fetching popup:", error);
+    message.error(trlang.value.failed_to_fetch_popup_details);
+    viewingRecord.value = record;
+    viewModalVisible.value = true;
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleSave = async () => {
   try {
     await formRef.value.validate();
+    
+    if (formData.value.start_date && formData.value.end_date) {
+      if (formData.value.start_date.isAfter(formData.value.end_date)) {
+        message.error(trlang.value.start_date_must_be_before_end_date);
+        return;
+      }
+    }
+    
     saving.value = true;
 
     const payload = {
@@ -436,8 +441,6 @@ const handleSave = async () => {
       display_order: formData.value.display_order || 0,
       position: formData.value.position,
       size: formData.value.size,
-      link_url: formData.value.link_url.trim() || null,
-      image: formData.value.image.trim() || null,
       is_closable: formData.value.is_closable,
     };
 
@@ -462,7 +465,7 @@ const handleSave = async () => {
     }
 
     if (res.status) {
-      message.success(res.message || (editingRecord.value ? "Popup updated successfully" : "Popup created successfully"));
+      message.success(res.message || (editingRecord.value ? trlang.value.popup_updated_successfully : trlang.value.popup_created_successfully));
       modalVisible.value = false;
       fetchData();
     }
@@ -472,7 +475,7 @@ const handleSave = async () => {
       return;
     }
     console.error("Error saving popup:", error);
-    message.error("Failed to save popup");
+    message.error(trlang.value.failed_to_save_popup);
   } finally {
     saving.value = false;
   }
@@ -490,8 +493,6 @@ const handleCancel = () => {
     display_order: 0,
     position: "center",
     size: "medium",
-    link_url: "",
-    image: "",
     is_closable: true,
   };
 };
@@ -500,12 +501,12 @@ const handleDelete = async (popupId) => {
   try {
     const res = await deleteData(`${apiLink.delete_popup}/${popupId}`);
     if (res.status) {
-      message.success(res.message || "Popup deleted successfully");
+      message.success(res.message || trlang.value.popup_deleted_successfully);
       fetchData();
     }
   } catch (error) {
     console.error("Error deleting popup:", error);
-    message.error("Failed to delete popup");
+    message.error(trlang.value.failed_to_delete_popup);
   }
 };
 

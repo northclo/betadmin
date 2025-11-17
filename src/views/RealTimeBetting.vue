@@ -4,7 +4,7 @@
       {{ trlang.real_time_betting }}
     </a-typography-text>
     <a-typography-text class="panel-heading__subtitle">
-      {{ trlang.real_time_betting_description || 'View real-time betting activities' }}
+      {{ trlang.real_time_betting_description }}
     </a-typography-text>
   </a-layout>
 
@@ -48,7 +48,7 @@
         />
         <a-input
           v-model:value="search"
-          placeholder="Search..."
+          :placeholder="trlang.search_placeholder"
           class="input-lg"
           @press-enter="handleFilterChange"
         >
@@ -63,11 +63,11 @@
       <div class="flex items-center gap-2">
         <a-switch
           v-model:checked="autoRefresh"
-          :checked-children="trlang.auto_refresh || 'Auto Refresh'"
-          :un-checked-children="trlang.auto_refresh || 'Auto Refresh'"
+          :checked-children="trlang.auto_refresh"
+          :un-checked-children="trlang.auto_refresh"
         />
         <a-typography-text v-if="autoRefresh">
-          {{ trlang.refreshing_in || 'Refreshing in' }} {{ refreshCountdown }}s
+          {{ trlang.refreshing_in }} {{ refreshCountdown }}s
         </a-typography-text>
       </div>
       <a-button @click="refreshPage">{{ trlang.refresh_page }}</a-button>
@@ -188,6 +188,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import { bettingListColumn } from '@/utils/table-column/betting-list.js';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -235,17 +236,17 @@ const initOptions = () => {
   ];
   bettingTypeOptions.value = [
     { value: '', label: trlang.value.all },
-    { value: 'odd', label: 'Odd' },
-    { value: 'even', label: 'Even' },
-    { value: 'under', label: 'Under' },
-    { value: 'over', label: 'Over' },
-    { value: 'odd_under', label: 'Odd Under' },
-    { value: 'odd_over', label: 'Odd Over' },
-    { value: 'even_under', label: 'Even Under' },
-    { value: 'even_over', label: 'Even Over' },
-    { value: 'number_13', label: 'Number 13' },
-    { value: 'number_14', label: 'Number 14' },
-    { value: 'number_16', label: 'Number 16' },
+    { value: 'odd', label: trlang.value.odd },
+    { value: 'even', label: trlang.value.even },
+    { value: 'under', label: trlang.value.under },
+    { value: 'over', label: trlang.value.over },
+    { value: 'odd_under', label: trlang.value.odd_under },
+    { value: 'odd_over', label: trlang.value.odd_over },
+    { value: 'even_under', label: trlang.value.even_under },
+    { value: 'even_over', label: trlang.value.even_over },
+    { value: 'number_13', label: trlang.value.number_13 },
+    { value: 'number_14', label: trlang.value.number_14 },
+    { value: 'number_16', label: trlang.value.number_16 },
   ];
   searchField.value = 'user_id';
   searchFieldOptions.value = [
@@ -293,7 +294,14 @@ const fetchData = async () => {
       if (payload.pageSize) {
         paginationConfig.value.pageSize = payload.pageSize;
       }
+    } else {
+      message.error(res.message || trlang.value.failed_to_fetch_betting_list);
     }
+  } catch (error) {
+    console.error('Error fetching betting list:', error);
+    message.error(trlang.value.failed_to_fetch_betting_list);
+    dataSource.value = [];
+    setTotal(0);
   } finally {
     loading.value = false;
   }
@@ -331,15 +339,17 @@ const startAutoRefresh = () => {
     refreshCountdown.value = 10;
     
     countdownInterval = setInterval(() => {
-      refreshCountdown.value--;
-      if (refreshCountdown.value <= 0) {
+      if (refreshCountdown.value > 0) {
+        refreshCountdown.value--;
+      } else {
         refreshCountdown.value = 10;
       }
     }, 1000);
 
     refreshInterval = setInterval(() => {
+      refreshCountdown.value = 10;
       fetchData();
-    }, 10000); // Refresh every 10 seconds
+    }, 10000);
   }
 };
 

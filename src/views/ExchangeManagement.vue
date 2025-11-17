@@ -37,7 +37,7 @@
               <a-select v-model:value="filters.currency" allow-clear>
                 <a-select-option value="krw">KRW</a-select-option>
                 <a-select-option value="usd">USD</a-select-option>
-                <a-select-option value="jp">JPY</a-select-option>
+                <a-select-option value="jpy">JPY</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -72,8 +72,26 @@
         @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'original_amount'">
+            <span v-if="record.original_amount && record.from_currency">
+              {{ formatCurrency(record.original_amount, record.from_currency) }}
+            </span>
+            <span v-else>-</span>
+          </template>
           <template v-if="column.dataIndex === 'amount'">
-            {{ formatCurrency(record.amount) }}
+            <span v-if="record.original_amount && record.from_currency && (record.to_currency || record.currency)">
+              {{ formatCurrency(record.original_amount, record.from_currency) }} →
+              {{ formatCurrency(record.amount, record.to_currency || record.currency) }}
+            </span>
+            <span v-else>
+              {{ formatCurrency(record.amount, record.currency) }}
+            </span>
+          </template>
+          <template v-else-if="column.dataIndex === 'exchange_rate'">
+            <span v-if="record.exchange_rate !== null && record.exchange_rate !== undefined">
+              {{ Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(record.exchange_rate) }}
+            </span>
+            <span v-else>-</span>
           </template>
           <template v-else-if="column.dataIndex === 'status'">
             <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
@@ -86,7 +104,7 @@
                 size="small"
                 @click="handleAction(record, 'approve')"
               >
-                {{ trlang.approve || 'Approve' }}
+                {{ trlang.approve }}
               </a-button>
               <a-button 
                 v-if="record.status === 'pending'"
@@ -94,7 +112,7 @@
                 size="small"
                 @click="handleAction(record, 'reject')"
               >
-                {{ trlang.reject || 'Reject' }}
+                {{ trlang.reject }}
               </a-button>
             </a-space>
           </template>
@@ -128,41 +146,45 @@ const summaryData = ref({
   total_requests: 0,
   pending_requests: 0,
   completed_amount: 0,
-  average_exchange_rate: "0 ₩/$",
+  average_exchange_rate: "",
 });
 
 const summaryCards = computed(() => [
   {
     key: "total_requests",
-    title: trlang.value.exchange_total_requests ?? "Total Requests",
+    title: trlang.value.exchange_total_requests,
     value: summaryData.value.total_requests,
   },
   {
     key: "pending_requests",
-    title: trlang.value.pending_requests ?? "Pending Requests",
+    title: trlang.value.pending_requests,
     value: summaryData.value.pending_requests,
   },
   {
     key: "completed_amount",
-    title: trlang.value.completed_amount ?? "Completed Amount",
+    title: trlang.value.completed_amount,
     value: formatCurrency(summaryData.value.completed_amount),
   },
   {
     key: "average_rate",
-    title: trlang.value.average_exchange_rate ?? "Avg. Rate",
+    title: trlang.value.average_exchange_rate,
     value: summaryData.value.average_exchange_rate,
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.request_id ?? "Request ID", dataIndex: "id", key: "id", width: 140 },
-  { title: trlang.value.member ?? "Member", dataIndex: "member", key: "member", width: 160 },
-  { title: trlang.value.currency_type ?? "Currency", dataIndex: "currency", key: "currency", width: 120 },
-  { title: trlang.value.amount ?? "Amount", dataIndex: "amount", key: "amount", width: 160 },
-  { title: trlang.value.status ?? "Status", dataIndex: "status", key: "status", width: 140 },
-  { title: trlang.value.submitted_at ?? "Submitted At", dataIndex: "submitted_at", key: "submitted_at", width: 200 },
-  { title: trlang.value.processed_by ?? "Processed By", dataIndex: "processed_by", key: "processed_by", width: 160 },
-  { title: trlang.value.action ?? "Action", dataIndex: "action", key: "action", width: 150 },
+  { title: trlang.value.request_id, dataIndex: "id", key: "id", width: 140 },
+  { title: trlang.value.member, dataIndex: "member", key: "member", width: 160 },
+  { title: trlang.value.currency_type || trlang.value.currency, dataIndex: "currency", key: "currency", width: 120 },
+  { title: trlang.value.from, dataIndex: "from_currency", key: "from_currency", width: 120 },
+  { title: trlang.value.to || trlang.value.currency, dataIndex: "to_currency", key: "to_currency", width: 120 },
+  { title: trlang.value.exchange_amount || trlang.value.amount, dataIndex: "original_amount", key: "original_amount", width: 180 },
+  { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 200 },
+  { title: trlang.value.average_exchange_rate, dataIndex: "exchange_rate", key: "exchange_rate", width: 140 },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
+  { title: trlang.value.submitted_at, dataIndex: "submitted_at", key: "submitted_at", width: 200 },
+  { title: trlang.value.processed_by, dataIndex: "processed_by", key: "processed_by", width: 160 },
+  { title: trlang.value.action, dataIndex: "action", key: "action", width: 150 },
 ]);
 
 const tableData = ref([]);
@@ -181,13 +203,22 @@ const statusColor = (status) => {
   }
 };
 
-const formatCurrency = (value) => {
+const formatCurrency = (value, currencyCode) => {
   if (!value && value !== 0) return "$0";
-  return Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
+  const code = (currencyCode || "USD").toUpperCase();
+  try {
+    return Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: code,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
 };
 
 const buildQuery = () => {
@@ -225,6 +256,13 @@ const buildSummaryQuery = () => {
     }
   }
 
+  if (filters.value.status) {
+    params.append("status", filters.value.status);
+  }
+  if (filters.value.currency) {
+    params.append("currency", filters.value.currency);
+  }
+
   return params.toString();
 };
 
@@ -246,7 +284,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching exchange data:", error);
-    message.error("Failed to fetch exchange data");
+    message.error(trlang.value.failed_to_fetch_exchange_data);
   } finally {
     loading.value = false;
   }
@@ -271,10 +309,10 @@ const fetchSummary = async () => {
 
 const handleAction = async (record, action) => {
   try {
-    const transactionId = record._id || record.id?.replace("EX-", "");
+    const transactionId = record._id;
 
     if (!transactionId) {
-      message.error("Transaction ID not found");
+      message.error(trlang.value.transaction_id_not_found);
       return;
     }
 
@@ -284,13 +322,16 @@ const handleAction = async (record, action) => {
     });
 
     if (res.status) {
-      message.success(res.message || `Exchange transaction ${action === "approve" ? "approved" : "rejected"} successfully`);
+      const successMessage = action === "approve" 
+        ? trlang.value.exchange_transaction_approved_successfully
+        : trlang.value.exchange_transaction_rejected_successfully;
+      message.success(res.message || successMessage);
       await fetchData();
       await fetchSummary();
     }
   } catch (error) {
     console.error("Error updating exchange transaction:", error);
-    message.error("Failed to update exchange transaction");
+    message.error(trlang.value.failed_to_update_exchange_transaction);
   }
 };
 

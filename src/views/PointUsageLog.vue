@@ -68,6 +68,12 @@
           <template v-else-if="column.dataIndex === 'type'">
             <a-tag :color="typeColor(record.type)">{{ trlang[record.type] || record.type }}</a-tag>
           </template>
+          <template v-else-if="column.dataIndex === 'member'">
+            <div>
+              <div>{{ record.member_nickname || '-' }}</div>
+              <a-typography-text type="secondary" style="font-size:12px">{{ record.member }}</a-typography-text>
+            </div>
+          </template>
         </template>
       </a-table>
     </a-card>
@@ -104,34 +110,34 @@ const summaryData = ref({
 const summaryCards = computed(() => [
   {
     key: "total_transactions",
-    title: trlang.value.total_transactions ?? "Total Transactions",
+    title: trlang.value.total_transactions,
     value: summaryData.value.total_transactions,
   },
   {
     key: "total_earned",
-    title: trlang.value.total_points_earned ?? "Total Earned",
+    title: trlang.value.total_points_earned,
     value: formatPoints(summaryData.value.total_points_earned),
   },
   {
     key: "total_spent",
-    title: trlang.value.total_points_spent ?? "Total Spent",
+    title: trlang.value.total_points_spent,
     value: formatPoints(summaryData.value.total_points_spent),
   },
   {
     key: "net_points",
-    title: trlang.value.net_points ?? "Net Points",
+    title: trlang.value.net_points,
     value: formatPoints(summaryData.value.net_points),
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.transaction_id ?? "Transaction ID", dataIndex: "id", key: "id", width: 160 },
-  { title: trlang.value.member ?? "Member", dataIndex: "member", key: "member", width: 160 },
-  { title: trlang.value.transaction_type ?? "Type", dataIndex: "type", key: "type", width: 140 },
-  { title: trlang.value.points ?? "Points", dataIndex: "points", key: "points", width: 160 },
-  { title: trlang.value.balance_after ?? "Balance After", dataIndex: "balance_after", key: "balance_after", width: 160 },
-  { title: trlang.value.description ?? "Description", dataIndex: "description", key: "description" },
-  { title: trlang.value.processed_at ?? "Processed At", dataIndex: "processed_at", key: "processed_at", width: 200 },
+  { title: trlang.value.transaction_id, dataIndex: "id", key: "id", width: 160 },
+  { title: trlang.value.member, dataIndex: "member", key: "member", width: 220 },
+  { title: trlang.value.transaction_type, dataIndex: "type", key: "type", width: 140 },
+  { title: trlang.value.points, dataIndex: "points", key: "points", width: 160 },
+  { title: trlang.value.balance_after, dataIndex: "balance_after", key: "balance_after", width: 160 },
+  { title: trlang.value.description, dataIndex: "description", key: "description" },
+  { title: trlang.value.processed_at, dataIndex: "processed_at", key: "processed_at", width: 200 },
 ]);
 
 const tableData = ref([]);
@@ -149,8 +155,9 @@ const typeColor = (type) => {
 };
 
 const formatPoints = (value) => {
-  if (!value && value !== 0) return "0 P";
-  return `${value.toLocaleString()} P`;
+  const unit = trlang.value.points_unit;
+  if (!value && value !== 0) return `0 ${unit}`;
+  return `${value.toLocaleString()} ${unit}`;
 };
 
 const buildQuery = () => {
@@ -215,7 +222,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching point usage log:", error);
-    message.error("Failed to fetch point usage log");
+    message.error(trlang.value.failed_to_fetch_point_usage_log);
   } finally {
     loading.value = false;
   }

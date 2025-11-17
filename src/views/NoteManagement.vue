@@ -100,16 +100,16 @@
           name="title"
           :rules="[{ required: true, message: trlang.title_required || 'Title is required' }]"
         >
-          <a-input v-model:value="formData.title" :placeholder="trlang.title_placeholder || 'Enter note title'" />
+          <a-input v-model:value="formData.title" :placeholder="trlang.title_note_placeholder || 'Enter note title'" />
         </a-form-item>
         <a-form-item
           :label="trlang.detail || 'Content'"
           name="content"
-          :rules="[{ required: true, message: trlang.content_required || 'Content is required' }]"
+          :rules="[{ required: true, message: trlang.content_note_required || 'Content is required' }]"
         >
           <a-textarea
             v-model:value="formData.content"
-            :placeholder="trlang.content_placeholder || 'Enter note content'"
+            :placeholder="trlang.content_note_placeholder || 'Enter note content'"
             :rows="6"
           />
         </a-form-item>

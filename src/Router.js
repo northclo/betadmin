@@ -3,8 +3,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routeLink } from "./utils/route-link.js";
 
 const LoginPage = () => import("@/views/LoginPage.vue");
-const ForgotPassword = () => import("@/views/ForgotPassword.vue");
-const ResetPassword = () => import("@/views/ResetPassword.vue");
 const SiteSetting = () => import('@/views/SiteSetting.vue');
 const MemberList = () => import("@/views/MemberList.vue");
 const AdminAccount = () => import('@/views/AdminAccount.vue');
@@ -32,18 +30,6 @@ const routes = [
     path: routeLink.login.link,
     name: routeLink.login.name,
     component: LoginPage,
-    meta: { guestOnly: true },
-  },
-  {
-    path: routeLink.forgot_password.link,
-    name: routeLink.forgot_password.name,
-    component: ForgotPassword,
-    meta: { guestOnly: true },
-  },
-  {
-    path: routeLink.reset_password.link,
-    name: routeLink.reset_password.name,
-    component: ResetPassword,
     meta: { guestOnly: true },
   },
   {

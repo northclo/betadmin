@@ -5,9 +5,9 @@
       <a-col 
         :xs="24" 
         :sm="24" 
-        :md="12" 
-        :lg="12" 
-        :xl="12" 
+        :md="24" 
+        :lg="24" 
+        :xl="24" 
         class="login-form-col flex justify-center items-center"
       >
         <a-card class="login-card w-100">
@@ -20,10 +20,10 @@
             </div>
 
             <div class="login-field">
-              <a-typography-text class="login-label">{{ trlang.email }}</a-typography-text>
+              <a-typography-text class="login-label">{{ trlang.id }}</a-typography-text>
               <a-input 
-                v-model:value="email" 
-                :placeholder="trlang.input_email" 
+                v-model:value="userId" 
+                :placeholder="trlang.input_id" 
                 class="mt-2 login-input" 
                 size="large"
               />
@@ -69,18 +69,11 @@
               </a-typography-text>
             </div>
 
-            <a-row class="w-100 login-options" justify="space-between" align="middle" :gutter="[8, 8]">
-              <a-col :xs="24" :sm="12" :md="12" :lg="12">
-                <a-checkbox v-model:checked="remember" class="remember-checkbox">
-                  {{ trlang.remember_me }}
-                </a-checkbox>
-              </a-col>
-              <a-col :xs="24" :sm="12" :md="12" :lg="12" class="text-end">
-                <router-link to="/auth/forgot-password">
-                  <a-button type="link" class="forgot-password-link">{{ trlang.forgot_password }}</a-button>
-                </router-link>
-              </a-col>
-            </a-row>
+            <div class="w-100 login-options">
+              <a-checkbox v-model:checked="remember" class="remember-checkbox">
+                {{ trlang.remember_me }}
+              </a-checkbox>
+            </div>
 
             <a-button 
               class="w-100 login-button bg-primary text-white" 
@@ -93,17 +86,6 @@
           </a-space>
         </a-card>
       </a-col>
-
-      <!-- Right Image Panel -->
-      <a-col 
-        :xs="0" 
-        :sm="0" 
-        :md="12" 
-        :lg="12" 
-        :xl="12" 
-        class="login-image-col"
-        :style="{ backgroundImage: 'url(/images/auth.png)' }"
-      />
     </a-row>
   </div>
 </template>
@@ -115,7 +97,6 @@ import { useRouter } from 'vue-router';
 import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
-import { checkValidEmail } from '@/helpers/Common.js';
 
 /* Responsive state */
 const windowWidth = ref(window.innerWidth);
@@ -144,7 +125,7 @@ const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
 /* Reactive states */
-const email = ref('');
+const userId = ref('');
 const password = ref('');
 const remember = ref(false);
 const captchaShow = ref(false);
@@ -207,21 +188,21 @@ const initRetryState = () => {
 
 const saveCredentials = () => {
   if (remember.value) {
-    localStorage.setItem('email', email.value);
+    localStorage.setItem('userId', userId.value);
     localStorage.setItem('password', password.value);
   } else {
-    localStorage.removeItem('email');
+    localStorage.removeItem('userId');
     localStorage.removeItem('password');
   }
 };
 
 /* Load saved data on mount */
 onMounted(() => {
-  const savedEmail = localStorage.getItem('email');
+  const savedUserId = localStorage.getItem('userId');
   const savedPassword = localStorage.getItem('password');
 
-  if (savedEmail && savedPassword) {
-    email.value = savedEmail;
+  if (savedUserId && savedPassword) {
+    userId.value = savedUserId;
     password.value = savedPassword;
     remember.value = true;
   }
@@ -242,11 +223,8 @@ onUnmounted(() => {
 const login = async () => {
   if (retry.value) return;
 
-  if (!email.value || !password.value) {
-    return message.error(trlang.value.fill_email_password);
-  }
-  if (!checkValidEmail(email.value)) {
-    return message.error(trlang.value.not_correct_email);
+  if (!userId.value || !password.value) {
+    return message.error(trlang.value.fill_id_password);
   }
   if (captchaShow.value && captchaText.value !== captchaInput.value) {
     handleLoginFailed();
@@ -254,7 +232,7 @@ const login = async () => {
   }
 
   const res = await postData(apiLink.login, {
-    email: email.value.toLowerCase(),
+    id: userId.value,
     password: password.value,
   });
 
@@ -299,6 +277,13 @@ const login = async () => {
   box-shadow: var(--glass-shadow-strong) !important;
   border-radius: 24px !important;
   transition: all 0.3s ease;
+  transform: none !important;
+}
+
+.login-card:hover {
+  transform: none !important;
+  translate: none !important;
+  position: relative !important;
 }
 
 .login-card :deep(.ant-card-body) {
@@ -376,12 +361,6 @@ const login = async () => {
   color: var(--text-secondary-color) !important;
 }
 
-.forgot-password-link {
-  padding: 0;
-  height: auto;
-  font-size: 14px;
-}
-
 .login-button {
   height: 48px;
   border-radius: 8px;
@@ -390,15 +369,6 @@ const login = async () => {
   margin-top: 8px;
 }
 
-/* Image Column */
-.login-image-col {
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  position: relative;
-  transition: opacity 0.3s ease;
-}
 
 /* Responsive Design */
 
@@ -533,10 +503,6 @@ const login = async () => {
     font-size: 13px;
   }
 
-  .forgot-password-link {
-    font-size: 13px;
-  }
-
   .retry-message {
     padding: 10px;
     font-size: 12px;
@@ -627,10 +593,6 @@ const login = async () => {
 
 /* Print Styles */
 @media print {
-  .login-image-col {
-    display: none;
-  }
-
   .login-form-col {
     width: 100%;
   }

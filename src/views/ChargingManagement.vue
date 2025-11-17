@@ -111,8 +111,10 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
+const defaultStartDate = dayjs().subtract(7, "day").format("YYYY-MM-DD");
+const defaultEndDate = dayjs().format("YYYY-MM-DD");
 const filters = ref({
-  range: [dayjs().subtract(7, "day"), dayjs()],
+  range: [defaultStartDate, defaultEndDate],
   status: "all",
 });
 
@@ -142,7 +144,7 @@ const summaryCards = computed(() => [
   {
     key: "average_processing",
     title: trlang.value.average_processing_time,
-    value: summaryData.value.average_processing_time,
+    value: formatMinutesLabel(summaryData.value.average_processing_time),
   },
 ]);
 
@@ -173,14 +175,24 @@ const statusColor = (status) => {
 };
 
 const formatCurrency = (value) => {
-  if (!value && value !== 0) return "$0";
+  const numeric = typeof value === "number" ? value : 0;
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(numeric);
 };
 
+const formatMinutesLabel = (value) => {
+  if (typeof value === "string" && value.endsWith("m")) {
+    const num = value.slice(0, -1);
+    return `${num}${trlang.value.min}`;
+  }
+  if (typeof value === "number") {
+    return `${value}${trlang.value.min}`;
+  }
+  return value;
+};
 const buildQuery = () => {
   const params = new URLSearchParams({
     status: filters.value.status || "all",
@@ -231,6 +243,9 @@ const fetchData = async () => {
         paginationConfig.value.pageSize = payload.pageSize;
       }
     }
+  } catch (error) {
+    console.error("Error fetching charging list:", error);
+    message.error(trlang.value.failed_to_fetch_charging_list);
   } finally {
     loading.value = false;
   }
@@ -288,7 +303,7 @@ const handleFilterChange = () => {
 
 const resetFilters = () => {
   filters.value = {
-    range: [dayjs().subtract(7, "day"), dayjs()],
+    range: [dayjs().subtract(7, "day").format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")],
     status: "all",
   };
   paginationConfig.value.current = 1;
