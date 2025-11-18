@@ -45,17 +45,52 @@
       </a-col>
     </a-row>
 
+    <a-row :gutter="[16, 16]" class="dashboard-charts">
+      <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+        <a-card class="chart-card">
+          <template #title>
+            <span class="chart-title">
+              <span class="chart-icon">←</span>
+              {{ trlang.this_month_loggedin_users }}
+            </span>
+          </template>
+          <div v-if="chartLoading" class="chart-loading">
+            <a-spin size="large" />
+          </div>
+          <div v-else class="chart-container" ref="loggedInChartRef" />
+        </a-card>
+      </a-col>
+      <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+        <a-card class="chart-card">
+          <template #title>
+            <span class="chart-title">
+              <span class="chart-icon">←</span>
+              {{ trlang.this_month_charge_exchange }}
+            </span>
+          </template>
+          <div v-if="chartLoading" class="chart-loading">
+            <a-spin size="large" />
+          </div>
+          <div v-else class="chart-container" ref="chargeExchangeChartRef" />
+        </a-card>
+      </a-col>
+    </a-row>
+
   </a-layout>
 </template>
 
 <script setup>
 defineOptions({ name: "AdminDashboardView" });
-import { ref, computed, inject, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick, watchEffect } from "vue";
+import * as echarts from "echarts";
+import { getData } from "@/helpers/Axios.js";
+import { apiLink } from "@/utils/api-link.js";
 
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(true);
+const chartLoading = ref(true);
 const windowWidth = ref(window.innerWidth);
 const summary = ref({
   totalMembers: 0,
@@ -64,6 +99,11 @@ const summary = ref({
   newPartners: 0,
 });
 const pendingTasks = ref([]);
+
+const loggedInChartRef = ref(null);
+const chargeExchangeChartRef = ref(null);
+let loggedInChart = null;
+let chargeExchangeChart = null;
 
 const titleLevel = computed(() => {
   if (windowWidth.value <= 480) return 4;
@@ -78,30 +118,281 @@ const updateWindowWidth = () => {
   }
   resizeTimer = setTimeout(() => {
     windowWidth.value = window.innerWidth;
+    if (loggedInChart) loggedInChart.resize();
+    if (chargeExchangeChart) chargeExchangeChart.resize();
   }, 150);
 };
 
-const simulateFetch = () => {
-  summary.value = {
-    totalMembers: 2840,
-    activeMembers: 912,
-    totalPartners: 128,
-    newPartners: 12,
-  };
+const fetchDashboardSummary = async () => {
+  try {
+    const result = await getData(apiLink.get_dashboard_summary);
+    if (result.status && result.data) {
+      summary.value = {
+        totalMembers: result.data.totalMembers || 0,
+        activeMembers: result.data.activeMembers || 0,
+        totalPartners: result.data.totalPartners || 0,
+        newPartners: result.data.newPartners || 0,
+      };
 
-  pendingTasks.value = [
-    { label: trlang.value.pending_approvals, value: 8 },
-    { label: trlang.value.pending_charges, value: 5 },
-    { label: trlang.value.support_tickets, value: 3 },
-  ];
-
-  loading.value = false;
+      pendingTasks.value = [
+        { label: trlang.value.pending_approvals, value: result.data.pendingApprovals || 0 },
+        { label: trlang.value.pending_charges, value: result.data.pendingCharges || 0 },
+        { label: trlang.value.support_tickets, value: result.data.supportTickets || 0 },
+      ];
+    }
+  } catch (error) {
+    console.error("Error fetching dashboard summary:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
-onMounted(() => {
+const fetchLoggedInUsersData = async () => {
+  try {
+    const result = await getData(apiLink.get_monthly_loggedin_users);
+    if (result.status && result.data) {
+      await nextTick();
+      if (loggedInChartRef.value) {
+        initLoggedInChart(result.data);
+      } else {
+        console.error("Logged in chart ref not available");
+      }
+    } else {
+      console.error("Failed to fetch logged in users data:", result);
+    }
+  } catch (error) {
+    console.error("Error fetching logged in users data:", error);
+  }
+};
+
+const fetchChargeExchangeData = async () => {
+  try {
+    const result = await getData(apiLink.get_monthly_charge_exchange);
+    if (result.status && result.data) {
+      await nextTick();
+      if (chargeExchangeChartRef.value) {
+        initChargeExchangeChart(result.data);
+      } else {
+        console.error("Charge exchange chart ref not available");
+      }
+    } else {
+      console.error("Failed to fetch charge exchange data:", result);
+    }
+  } catch (error) {
+    console.error("Error fetching charge exchange data:", error);
+  }
+};
+
+const initLoggedInChart = (data) => {
+  if (!loggedInChartRef.value) return;
+  
+  if (loggedInChart) {
+    loggedInChart.dispose();
+  }
+  
+  loggedInChart = echarts.init(loggedInChartRef.value);
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    legend: {
+      data: [trlang.value.all_loggedin, trlang.value.partner_loggedin],
+      bottom: 0
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: data.days,
+      axisLabel: {
+        interval: 0,
+        rotate: 0
+      }
+    },
+    yAxis: {
+      type: 'value',
+      name: trlang.value.loggedin_number,
+      minInterval: 1
+    },
+    series: [
+      {
+        name: trlang.value.all_loggedin,
+        type: 'bar',
+        data: data.allLoggedIn,
+        itemStyle: {
+          color: '#5B9BD5'
+        }
+      },
+      {
+        name: trlang.value.partner_loggedin,
+        type: 'bar',
+        data: data.partnerLoggedIn,
+        itemStyle: {
+          color: '#9B59B6'
+        }
+      }
+    ]
+  };
+  
+  loggedInChart.setOption(option);
+};
+
+const initChargeExchangeChart = (data) => {
+  if (!chargeExchangeChartRef.value) {
+    console.error("Chart ref not available");
+    return;
+  }
+  
+  if (!data || !data.days || !Array.isArray(data.days)) {
+    console.error("Invalid chart data:", data);
+    return;
+  }
+  
+  if (chargeExchangeChart) {
+    chargeExchangeChart.dispose();
+  }
+  
+  chargeExchangeChart = echarts.init(chargeExchangeChartRef.value);
+  
+  const formatValue = (value) => {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'k';
+    }
+    return value;
+  };
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: function(params) {
+        let result = params[0].name + '<br/>';
+        params.forEach(param => {
+          result += param.marker + param.seriesName + ': ' + param.value.toLocaleString() + '<br/>';
+        });
+        return result;
+      }
+    },
+    legend: {
+      data: [trlang.value.charge, trlang.value.withdrawal, trlang.value.charge_minus_withdraw],
+      bottom: 0,
+      itemGap: 20
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: data.days || [],
+      axisLabel: {
+        interval: 0,
+        rotate: 0
+      }
+    },
+    yAxis: {
+      type: 'value',
+      name: trlang.value.charge_withdraw,
+      axisLabel: {
+        formatter: function(value) {
+          return formatValue(value);
+        }
+      }
+    },
+    series: [
+      {
+        name: trlang.value.charge,
+        type: 'bar',
+        data: data.charge || [],
+        itemStyle: {
+          color: '#3498DB'
+        }
+      },
+      {
+        name: trlang.value.withdrawal,
+        type: 'bar',
+        data: data.withdraw || [],
+        itemStyle: {
+          color: '#E67E22'
+        }
+      },
+      {
+        name: trlang.value.charge_minus_withdraw,
+        type: 'bar',
+        data: data.chargeMinusWithdraw || [],
+        itemStyle: {
+          color: '#27AE60'
+        }
+      }
+    ]
+  };
+  
+  chargeExchangeChart.setOption(option);
+  
+  setTimeout(() => {
+    if (chargeExchangeChart) {
+      chargeExchangeChart.resize();
+    }
+  }, 100);
+};
+
+const waitForRefs = () => {
+  return new Promise((resolve) => {
+    if (loggedInChartRef.value && chargeExchangeChartRef.value) {
+      resolve(true);
+      return;
+    }
+    
+    const stopWatcher = watchEffect(() => {
+      if (loggedInChartRef.value && chargeExchangeChartRef.value) {
+        stopWatcher();
+        resolve(true);
+      }
+    });
+  });
+};
+
+onMounted(async () => {
   updateWindowWidth();
   window.addEventListener("resize", updateWindowWidth);
-  simulateFetch();
+  
+  await fetchDashboardSummary();
+  
+  chartLoading.value = false;
+  
+  await nextTick();
+  
+  const refsReady = await waitForRefs();
+  
+  if (!refsReady) {
+    console.error("Chart refs not available");
+    return;
+  }
+  
+  try {
+    await Promise.all([
+      fetchLoggedInUsersData(),
+      fetchChargeExchangeData()
+    ]);
+  } catch (error) {
+    console.error("Error fetching chart data:", error);
+  }
 });
 
 onBeforeUnmount(() => {
@@ -109,6 +400,12 @@ onBeforeUnmount(() => {
     clearTimeout(resizeTimer);
   }
   window.removeEventListener("resize", updateWindowWidth);
+  if (loggedInChart) {
+    loggedInChart.dispose();
+  }
+  if (chargeExchangeChart) {
+    chargeExchangeChart.dispose();
+  }
 });
 </script>
 
@@ -478,6 +775,66 @@ onBeforeUnmount(() => {
 
   .metric-value {
     font-size: 20px;
+  }
+}
+
+/* Chart Styles */
+.dashboard-charts {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.chart-card {
+  min-height: 400px;
+  height: 100%;
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.chart-icon {
+  color: #999;
+  font-size: 14px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 350px;
+  min-height: 350px;
+}
+
+.chart-loading {
+  width: 100%;
+  height: 350px;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 300px;
+    min-height: 300px;
+  }
+  
+  .chart-card {
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 576px) {
+  .chart-container {
+    height: 250px;
+    min-height: 250px;
+  }
+  
+  .chart-card {
+    min-height: 300px;
   }
 }
 

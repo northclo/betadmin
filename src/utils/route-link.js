@@ -7,14 +7,6 @@ export const routeLink = {
     name: "LoginPage",
     link: "/auth/login",
   },
-  forgot_password: {
-    name: "ForgotPasswordPage",
-    link: "/auth/forgot-password",
-  },
-  reset_password: {
-    name: "ResetPasswordPage",
-    link: "/auth/reset-password",
-  },
   site_setting: {
     name: "SiteSettingPage",
     link: '/basic/setting'

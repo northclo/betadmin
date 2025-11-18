@@ -42,6 +42,12 @@ export const currentLoginUserColumn = [
         align: 'center',
     },
     {
+        title: "Mobile",
+        dataIndex: "mobile",
+        key: "mobile",
+        align: 'center',
+    },
+    {
         title: "Money(Point)",
         dataIndex: "money_point",
         key: "money_point",

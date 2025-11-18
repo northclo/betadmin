@@ -125,21 +125,17 @@ defineOptions({ name: routeLink.game_management.name });
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-// Filters
 const searchField = ref('total_no');
 const search = ref('');
 const gameProcess = ref('');
 const searchFieldOptions = ref([]);
 const gameProcessOptions = ref([]);
 
-// Table Data
 const dataSource = ref([]);
 const loading = ref(false);
 
-// Pagination
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
-// Status Legend
 const statusLegend = computed(() => [
   {
     key: 'R',
@@ -202,7 +198,6 @@ const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => 
   title: trlang.value[col.titleKey] || col.titleKey
 })));
 
-// Init Options
 const initOptions = () => {
   gameProcessOptions.value = [
     { value: '', label: `:: ${trlang.value.all_process} ::` },
@@ -218,20 +213,18 @@ const initOptions = () => {
   ];
 };
 
-// Fetch Data
 const fetchData = async () => {
+  const searchValue = search.value?.toString().trim() ?? '';
+  if (searchValue && Number.isNaN(Number(searchValue))) {
+    message.error(trlang.value.invalid_data);
+    return;
+  }
+  
   loading.value = true;
   try {
-    const searchValue = search.value?.toString().trim() ?? '';
-    if (searchValue && Number.isNaN(Number(searchValue))) {
-      message.error(trlang.value.invalid_data);
-      loading.value = false;
-      return;
-    }
     const page = paginationConfig.value.current;
     const pageSize = paginationConfig.value.pageSize;
     
-    // Build query parameters
     const params = new URLSearchParams();
     if (gameProcess.value) params.append('status', gameProcess.value);
     if (searchValue) {
@@ -253,19 +246,23 @@ const fetchData = async () => {
       } else {
         dataSource.value = res.data || [];
       }
+    } else {
+      dataSource.value = [];
+      setTotal(0);
+      if (res.message) {
+        message.error(res.message);
+      }
     }
   } finally {
     loading.value = false;
   }
 };
 
-// Watch pagination
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
   fetchData
 );
 
-// Format Remained Time
 const loadRemainedTime = (time) => {
   if (time < 0) return '';
   const parts = [];

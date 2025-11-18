@@ -6,7 +6,7 @@
       </a-typography-text>
     </a-layout>
     <a-layout class="px-2">
-      <ParnterChart :data-source="dataSource" :loading="loading" />
+      <PartnerChart :data-source="dataSource" :loading="loading" />
 
       <a-layout class="p-5 bg-white mt-5">
         <a-layout class="bg-white pt-5 pb-5 flex flex-row justify-between items-center">
@@ -50,11 +50,12 @@
 <script setup>
 import { ref, inject, computed, onMounted } from 'vue';
 import { SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import { partnerManagementColumns } from '@/utils/table-column/partner-management';
 import { getData } from '@/helpers/Axios.js';
 import { apiLink } from '@/utils/api-link';
 
-import ParnterChart from '@/components/partner/PartnerChart.vue';
+import PartnerChart from '@/components/partner/PartnerChart.vue';
 import PartnerTable from '@/components/partner/PartnerTable.vue';
 import RegisterUserModal from '@/components/partner/RegisterUserModal.vue';
 import RegisterPartnerModal from '@/components/partner/RegisterPartnerModal.vue';
@@ -103,6 +104,10 @@ const fetchData = async () => {
           ]
           : partners.data;
     }
+  } catch (error) {
+    console.error('Error fetching partner data:', error);
+    message.error(trlang.value.error_loading_data);
+    dataSource.value = [];
   } finally {
     loading.value = false;
   }

@@ -14,13 +14,13 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 border p-2 flex-wrap">
-        <a-select v-model:value="partner" class="input-lg">
+        <a-select v-model:value="partner" class="input-lg" allow-clear :placeholder="trlang.select_partner">
           <a-select-option
             v-for="item in partnerOptions"
-            :key="item.key"
-            :value="item.amount"
+            :key="item.id"
+            :value="item.id"
           >
-            {{ item.amount }}
+            {{ item.nickname || item.id }} ({{ item.id }})
           </a-select-option>
         </a-select>
       </a-layout-content>
@@ -210,11 +210,11 @@
 </template>
 
 <script setup>
-import { computed, defineProps, inject, ref } from "vue";
+import { computed, defineProps, inject, ref, onMounted, watch } from "vue";
 import { getCountryCallingCode, getCountries } from "libphonenumber-js";
 import { testEnglishNumberWithoutSpecialCharacter } from "@/helpers/Common.js";
 import { message } from "ant-design-vue";
-import { postData } from "@/helpers/Axios.js";
+import { postData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
 
 /* Translations */
@@ -269,6 +269,77 @@ const testNickname = () => {
     message.error(trlang.value.invalid_nickname);
   }
 };
+
+const flattenPartners = (partner) => {
+  const partners = [];
+  if (partner && partner.id) {
+    partners.push({
+      id: partner.id,
+      nickname: partner.nickname || partner.id,
+    });
+    if (partner.subs && Array.isArray(partner.subs)) {
+      partner.subs.forEach(sub => {
+        partners.push(...flattenPartners(sub));
+      });
+    }
+  }
+  return partners;
+};
+
+const fetchPartnerList = async () => {
+  try {
+    const res = await getData(apiLink.get_game_partner);
+    if (res.data && Array.isArray(res.data)) {
+      if (res.data.length > 0 && res.data[0].id) {
+        partnerOptions.value = res.data.map(p => ({
+          id: p.id,
+          nickname: p.nickname || p.id,
+        }));
+      } else {
+        const allPartners = [];
+        res.data.forEach(partner => {
+          allPartners.push(...flattenPartners(partner));
+        });
+        partnerOptions.value = allPartners;
+      }
+    } else if (res.data && res.data.id) {
+      partnerOptions.value = flattenPartners(res.data);
+    } else {
+      partnerOptions.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching partner list:", error);
+    partnerOptions.value = [];
+  }
+};
+
+watch(() => props.open, (newVal) => {
+  if (newVal) {
+    fetchPartnerList();
+    partner.value = "";
+    userName.value = "";
+    checked.value = false;
+    startTime.value = null;
+    endTime.value = null;
+    password.value = "";
+    verifyPassword.value = "";
+    nickname.value = "";
+    phoneNumber1.value = "";
+    phoneNumber2.value = "";
+    bankName.value = "";
+    bankNumber.value = "";
+    bankOwner.value = "";
+    withdrawalPassword.value = "";
+    memo.value = "";
+    simpleBetRate.value = null;
+    combinedBetRate.value = null;
+    matchNumberBetRate.value = null;
+  }
+});
+
+onMounted(() => {
+  fetchPartnerList();
+});
 
 const register = async () => {
   if (!testEnglishNumberWithoutSpecialCharacter(4, 12, userName.value)) {

@@ -364,15 +364,12 @@ const handleSave = async () => {
   try {
     await formRef.value.validate();
     
-    // Validate dates
     const hasStartDate = formData.value.start_date !== null && formData.value.start_date !== undefined;
     const hasEndDate = formData.value.end_date !== null && formData.value.end_date !== undefined;
     
-    if (!editingRecord.value) {
-      if ((hasStartDate && !hasEndDate) || (!hasStartDate && hasEndDate)) {
-        message.error(trlang.value.both_start_and_end_date_required);
-        return;
-      }
+    if ((hasStartDate && !hasEndDate) || (!hasStartDate && hasEndDate)) {
+      message.error(trlang.value.both_start_and_end_date_required);
+      return;
     }
     
     if (hasStartDate && hasEndDate) {

@@ -119,8 +119,8 @@ const handleNewSupportMessage = (data) => {
 
   const translations = state.translations || {};
   notification.open({
-    message: translations.new_support_message || "New Support Message",
-    description: `${translations.user || "User"}: ${data.user_nickname || "Unknown"} - ${data.title || ""}`,
+    message: translations.new_support_message || "",
+    description: `${translations.user || ""}: ${data.user_nickname || translations.unknown || ""} - ${data.title || ""}`,
     duration: 5,
     placement: "topRight",
     onClick: () => {

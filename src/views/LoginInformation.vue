@@ -32,7 +32,7 @@
       />
       <a-input
         v-model:value="search"
-        placeholder="Search..."
+        :placeholder="trlang.search_placeholder"
         class="input-lg"
         @press-enter="handleFilterChange"
       >
@@ -92,9 +92,18 @@
 
           <template v-if="column.key === 'ip_address'">
             <a-typography-text>{{ record.ip_address }}</a-typography-text>
-            <a-button class="bg-gray text-white ms-2" @click="changeBlockIp(record.ip_address, record.block_ip)">
-              {{ record.block_ip ? trlang.ip_allow : trlang.ip_blocking }}
-            </a-button>
+            <a-typography-text
+              v-if="record.block_ip"
+              class="ms-2"
+              :style="{
+                color: '#2563eb !important',
+                background: '#e0f2ff !important',
+                padding: '2px 8px',
+                borderRadius: '4px'
+              }"
+            >
+              {{ trlang.block_ip }}
+            </a-typography-text>
           </template>
 
           <template v-if="column.key === 'mobile'">
@@ -109,8 +118,8 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
-import { loginInformationColumn } from '@/utils/table-column/login-information';
-import { getData, putData } from '@/helpers/Axios';
+import { loginInformationColumn as baseLoginInformationColumn } from '@/utils/table-column/login-information';
+import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -133,16 +142,33 @@ const loading = ref(false);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
+const loginInformationColumn = computed(() => {
+  const titleMap = {
+    "No": trlang.value.no_column,
+    "id": trlang.value.id,
+    "distributor": trlang.value.distributor_label,
+    "IP": trlang.value.ip,
+    "location": trlang.value.location,
+    "organ": trlang.value.organ,
+    "mobile": trlang.value.mobile,
+    "login_time": trlang.value.login_time,
+  };
+  return baseLoginInformationColumn.map(col => ({
+    ...col,
+    title: titleMap[col.title] || col.title
+  }));
+});
+
 const initOptions = () => {
   searchField.value = '';
   searchFieldOptions.value = [
-    { value: '', label: '--Search term--' },
-    { value: 'user_nickname', label: 'User nickname' },
-    { value: 'user_id', label: 'User ID' },
-    { value: 'distributor', label: 'Distributor' },
-    { value: 'ip_address', label: 'IP' },
-    { value: 'location', label: 'Location' },
-    { value: 'organ', label: 'Organ' },
+    { value: '', label: trlang.value.search_term },
+    { value: 'user_nickname', label: trlang.value.user_nickname_label },
+    { value: 'user_id', label: trlang.value.user_id_label },
+    { value: 'distributor', label: trlang.value.distributor_label },
+    { value: 'ip_address', label: trlang.value.ip },
+    { value: 'location', label: trlang.value.location },
+    { value: 'organ', label: trlang.value.organ },
   ];
 };
 
@@ -176,18 +202,22 @@ const fetchData = async () => {
       if (payload.pageSize) {
         paginationConfig.value.pageSize = payload.pageSize;
       }
+    } else {
+      dataSource.value = [];
+      setTotal(0);
     }
+  } catch (error) {
+    console.error('Error fetching login information:', error);
+    dataSource.value = [];
+    setTotal(0);
   } finally {
     loading.value = false;
   }
 };
 
 const handleFilterChange = () => {
-  const isFirstPage = paginationConfig.value.current === 1;
   paginationConfig.value.current = 1;
-  if (isFirstPage) {
-    fetchData();
-  }
+  fetchData();
 };
 
 watch(
@@ -197,16 +227,6 @@ watch(
   }
 );
 
-const changeBlockIp = async (ip, block) => {
-  const result = await putData(apiLink.block_ip, {
-    ip: ip,
-    block: block,
-  });
-
-  if (result.status) {
-    fetchData();
-  }
-};
 
 onMounted(() => {
   initOptions();

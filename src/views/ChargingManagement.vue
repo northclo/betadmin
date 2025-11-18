@@ -149,12 +149,10 @@ const summaryCards = computed(() => [
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.request_id, dataIndex: "id", key: "id", width: 140 },
   { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
   { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
   { title: trlang.value.submitted_at, dataIndex: "submitted_at", key: "submitted_at", width: 200 },
-  { title: trlang.value.processed_by, dataIndex: "processed_by", key: "processed_by", width: 160 },
   { title: trlang.value.action, dataIndex: "action", key: "action", width: 150 },
 ]);
 

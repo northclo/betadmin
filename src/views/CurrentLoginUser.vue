@@ -33,7 +33,7 @@
         />
         <a-input
           v-model:value="search"
-          placeholder="Search..."
+          :placeholder="trlang.search_placeholder"
           class="input-lg"
           @press-enter="handleFilterChange"
         >
@@ -123,18 +123,18 @@
             <a-typography-text>{{
               record.last_login_history?.ip_address
             }}</a-typography-text>
-            <a-button
-              v-if="record.last_login_history?.ip_address"
-              class="bg-gray text-white ms-2"
-              @click="
-                changeBlockIp(
-                  record.last_login_history?.ip_address,
-                  !record.blockedIp
-                )
-              "
+            <a-typography-text
+              v-if="record.blockedIp"
+              class="ms-2"
+              :style="{
+                color: '#2563eb !important',
+                background: '#e0f2ff !important',
+                padding: '2px 8px',
+                borderRadius: '4px'
+              }"
             >
-              {{ record.blockedIp ? trlang.allow_ip : trlang.block_ip }}
-            </a-button>
+              {{ trlang.block_ip }}
+            </a-typography-text>
           </template>
 
           <template v-if="column.key === 'location'">
@@ -219,8 +219,8 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined, LogoutOutlined } from '@ant-design/icons-vue';
-import { currentLoginUserColumn } from '@/utils/table-column/current-login-user.js';
-import { getData, postData, putData } from '@/helpers/Axios';
+import { currentLoginUserColumn as baseCurrentLoginUserColumn } from '@/utils/table-column/current-login-user.js';
+import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -245,29 +245,53 @@ const loading = ref(false);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
+const currentLoginUserColumn = computed(() => {
+  const titleMap = {
+    "No": trlang.value.no_column,
+    "Disconnect": trlang.value.disconnect,
+    "ID(Nickname)": trlang.value.id_nickname,
+    "Partner": trlang.value.partner_column,
+    "IP": trlang.value.ip,
+    "Location": trlang.value.location,
+    "Device": trlang.value.device,
+    "Mobile": trlang.value.mobile,
+    "Money(Point)": trlang.value.money_point,
+    "Import Money": trlang.value.import_money,
+    "Exchange Money": trlang.value.exchange_money,
+    "User's Import": trlang.value.user_import,
+    "Final Import Date": trlang.value.final_import_date,
+    "Connect Date": trlang.value.connect_date,
+    "Created Date": trlang.value.created_date,
+  };
+  return baseCurrentLoginUserColumn.map(col => ({
+    ...col,
+    title: titleMap[col.title] || col.title
+  }));
+});
+
 const rowKey = (record) => record.key || record.user_id;
 
 const initOptions = () => {
   searchField.value = '';
   searchFieldOptions.value = [
-    { value: '', label: '--Search term--' },
-    { value: 'user_nickname', label: 'User nickname' },
-    { value: 'user_id', label: 'User ID' },
-    { value: 'partner', label: 'Partner' },
-    { value: 'ip_address', label: 'IP' },
-    { value: 'location', label: 'Location' },
-    { value: 'organ', label: 'Organ' },
+    { value: '', label: trlang.value.search_term },
+    { value: 'user_nickname', label: trlang.value.user_nickname_label },
+    { value: 'user_id', label: trlang.value.user_id_label },
+    { value: 'partner', label: trlang.value.partner },
+    { value: 'ip_address', label: trlang.value.ip },
+    { value: 'location', label: trlang.value.location },
+    { value: 'organ', label: trlang.value.organ },
   ];
 
   userStatus.value = '';
   userStatusOptions.value = [
-    { value: '', label: 'All users' },
-    { value: 'wait', label: 'Wait' },
-    { value: 'normal', label: 'Normal' },
-    { value: 'stop', label: 'Stop' },
-    { value: 'cancel', label: 'Cancel' },
-    { value: 'danger', label: 'Danger' },
-    { value: 'tester', label: 'Tester' },
+    { value: '', label: trlang.value.all_users_label },
+    { value: 'wait', label: trlang.value.wait },
+    { value: 'normal', label: trlang.value.normal },
+    { value: 'stop', label: trlang.value.stop },
+    { value: 'cancel', label: trlang.value.cancel },
+    { value: 'danger', label: trlang.value.danger },
+    { value: 'tester', label: trlang.value.tester },
   ];
 };
 
@@ -302,18 +326,22 @@ const fetchData = async () => {
       if (payload.pageSize) {
         paginationConfig.value.pageSize = payload.pageSize;
       }
+    } else {
+      dataSource.value = [];
+      setTotal(0);
     }
+  } catch (error) {
+    console.error('Error fetching current login users:', error);
+    dataSource.value = [];
+    setTotal(0);
   } finally {
     loading.value = false;
   }
 };
 
 const handleFilterChange = () => {
-  const isFirstPage = paginationConfig.value.current === 1;
   paginationConfig.value.current = 1;
-  if (isFirstPage) {
-    fetchData();
-  }
+  fetchData();
 };
 
 watch(
@@ -323,24 +351,18 @@ watch(
   }
 );
 
-const changeBlockIp = async (ip, block) => {
-  const result = await putData(apiLink.block_ip, {
-    ip,
-    block,
-  });
-
-  if (result.status) {
-    fetchData();
-  }
-};
 
 const logoutUser = async (user_nickname) => {
-  const result = await postData(apiLink.logout_user, {
-    user_nickname,
-  });
+  try {
+    const result = await postData(apiLink.logout_user, {
+      user_nickname,
+    });
 
-  if (result.status) {
-    fetchData();
+    if (result.status) {
+      fetchData();
+    }
+  } catch (error) {
+    console.error('Error logging out user:', error);
   }
 };
 

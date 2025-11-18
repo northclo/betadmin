@@ -63,7 +63,7 @@
                   {{ trlang.start }}
                 </a-typography-text>
                 <a-input v-model:value="exchangeStartTime" style="width: 80px" />
-                <a-typography-text class="flex items-center">~</a-typography-text>
+                <a-typography-text class="flex items-center">{{ trlang.range_separator }}</a-typography-text>
                 <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
@@ -195,7 +195,7 @@ const exchangeCompleteMessage = ref('');
 const getComponentData = () => {
   exchangeMaxOption.value = [1000, 10000, 100000].map((amount, idx) => ({
     key: idx,
-    amount: amount + ' USD',
+    amount: amount,
   }));
 
   exchangeRestrictionOption.value = [
@@ -232,7 +232,7 @@ const loadData = (data) => {
       ? data.exchange_min.toString()
       : '';
   exchangeMax.value = data.exchange_max
-    ? data.exchange_max + ' USD'
+    ? data.exchange_max
     : exchangeMaxOption.value[0]?.amount;
   exchangeTimezone.value = data.exchange_timezone ?? true;
   exchangeStartTime.value = formatTime(data.exchange_start_time);
@@ -331,7 +331,7 @@ const validate = () => {
   }
 
   const maxValue = exchangeMax.value;
-  if (maxValue && typeof maxValue === 'string' && !maxValue.includes('USD')) {
+  if (maxValue && typeof maxValue === 'string') {
     if (!isNumericInput(maxValue)) {
       errors.push(trlang.value.exchange_maximum_must_be_number);
     }

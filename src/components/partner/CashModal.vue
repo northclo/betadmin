@@ -78,8 +78,7 @@ const amountRangeOption = ref(["+", "-"]);
 const amount = ref(null);
 
 const process = async () => {
-  if (!amount.value || isNaN(Number(amount.value))) {
-    amount.value = 0;
+  if (!amount.value || isNaN(Number(amount.value)) || Number(amount.value) === 0) {
     return message.error(trlang.value.input_amount);
   }
 

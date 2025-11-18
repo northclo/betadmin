@@ -32,15 +32,6 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.currency_type">
-              <a-select v-model:value="filters.currency" allow-clear>
-                <a-select-option value="krw">KRW</a-select-option>
-                <a-select-option value="usd">USD</a-select-option>
-                <a-select-option value="jpy">JPY</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
           <a-col :xs="24" :md="8" class="actions">
             <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
               {{ trlang.search }}
@@ -72,26 +63,8 @@
         @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'original_amount'">
-            <span v-if="record.original_amount && record.from_currency">
-              {{ formatCurrency(record.original_amount, record.from_currency) }}
-            </span>
-            <span v-else>-</span>
-          </template>
           <template v-if="column.dataIndex === 'amount'">
-            <span v-if="record.original_amount && record.from_currency && (record.to_currency || record.currency)">
-              {{ formatCurrency(record.original_amount, record.from_currency) }} →
-              {{ formatCurrency(record.amount, record.to_currency || record.currency) }}
-            </span>
-            <span v-else>
-              {{ formatCurrency(record.amount, record.currency) }}
-            </span>
-          </template>
-          <template v-else-if="column.dataIndex === 'exchange_rate'">
-            <span v-if="record.exchange_rate !== null && record.exchange_rate !== undefined">
-              {{ Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(record.exchange_rate) }}
-            </span>
-            <span v-else>-</span>
+            <span>{{ formatAmount(record.amount) }}</span>
           </template>
           <template v-else-if="column.dataIndex === 'status'">
             <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
@@ -139,14 +112,12 @@ const loading = ref(false);
 const filters = ref({
   range: [dayjs().subtract(7, "day"), dayjs()],
   status: "all",
-  currency: null,
 });
 
 const summaryData = ref({
   total_requests: 0,
   pending_requests: 0,
   completed_amount: 0,
-  average_exchange_rate: "",
 });
 
 const summaryCards = computed(() => [
@@ -163,27 +134,15 @@ const summaryCards = computed(() => [
   {
     key: "completed_amount",
     title: trlang.value.completed_amount,
-    value: formatCurrency(summaryData.value.completed_amount),
-  },
-  {
-    key: "average_rate",
-    title: trlang.value.average_exchange_rate,
-    value: summaryData.value.average_exchange_rate,
+    value: formatAmount(summaryData.value.completed_amount),
   },
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.request_id, dataIndex: "id", key: "id", width: 140 },
   { title: trlang.value.member, dataIndex: "member", key: "member", width: 160 },
-  { title: trlang.value.currency_type || trlang.value.currency, dataIndex: "currency", key: "currency", width: 120 },
-  { title: trlang.value.from, dataIndex: "from_currency", key: "from_currency", width: 120 },
-  { title: trlang.value.to || trlang.value.currency, dataIndex: "to_currency", key: "to_currency", width: 120 },
-  { title: trlang.value.exchange_amount || trlang.value.amount, dataIndex: "original_amount", key: "original_amount", width: 180 },
-  { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 200 },
-  { title: trlang.value.average_exchange_rate, dataIndex: "exchange_rate", key: "exchange_rate", width: 140 },
+  { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 180 },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
   { title: trlang.value.submitted_at, dataIndex: "submitted_at", key: "submitted_at", width: 200 },
-  { title: trlang.value.processed_by, dataIndex: "processed_by", key: "processed_by", width: 160 },
   { title: trlang.value.action, dataIndex: "action", key: "action", width: 150 },
 ]);
 
@@ -203,22 +162,11 @@ const statusColor = (status) => {
   }
 };
 
-const formatCurrency = (value, currencyCode) => {
-  if (!value && value !== 0) return "$0";
-  const code = (currencyCode || "USD").toUpperCase();
-  try {
-    return Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: code,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(value);
-  }
+const formatAmount = (value) => {
+  if (!value && value !== 0) return "0";
+  return Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  }).format(value);
 };
 
 const buildQuery = () => {
@@ -235,10 +183,6 @@ const buildQuery = () => {
     if (filters.value.range[1]) {
       params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
     }
-  }
-
-  if (filters.value.currency) {
-    params.append("currency", filters.value.currency);
   }
 
   return params.toString();
@@ -259,9 +203,6 @@ const buildSummaryQuery = () => {
   if (filters.value.status) {
     params.append("status", filters.value.status);
   }
-  if (filters.value.currency) {
-    params.append("currency", filters.value.currency);
-  }
 
   return params.toString();
 };
@@ -281,10 +222,13 @@ const fetchData = async () => {
       if (payload.pageSize) {
         paginationConfig.value.pageSize = payload.pageSize;
       }
+    } else {
+      message.error(res.message || trlang.value.failed_to_fetch_exchange_data);
     }
   } catch (error) {
     console.error("Error fetching exchange data:", error);
-    message.error(trlang.value.failed_to_fetch_exchange_data);
+    const errorMessage = error?.response?.data?.message || error?.message || trlang.value.failed_to_fetch_exchange_data;
+    message.error(errorMessage);
   } finally {
     loading.value = false;
   }
@@ -299,8 +243,9 @@ const fetchSummary = async () => {
         total_requests: 0,
         pending_requests: 0,
         completed_amount: 0,
-        average_exchange_rate: "0 ₩/$",
       };
+    } else {
+      console.error("Error fetching summary:", res.message);
     }
   } catch (error) {
     console.error("Error fetching summary:", error);
@@ -328,14 +273,27 @@ const handleAction = async (record, action) => {
       message.success(res.message || successMessage);
       await fetchData();
       await fetchSummary();
+    } else {
+      message.error(res.message || trlang.value.failed_to_update_exchange_transaction);
     }
   } catch (error) {
     console.error("Error updating exchange transaction:", error);
-    message.error(trlang.value.failed_to_update_exchange_transaction);
+    const errorMessage = error?.response?.data?.message || error?.message || trlang.value.failed_to_update_exchange_transaction;
+    message.error(errorMessage);
   }
 };
 
 const handleFilterChange = () => {
+  if (filters.value.range && filters.value.range.length === 2) {
+    const startDate = dayjs(filters.value.range[0]);
+    const endDate = dayjs(filters.value.range[1]);
+    
+    if (startDate.isAfter(endDate)) {
+      message.error(trlang.value.start_date_must_be_before_end_date);
+      return;
+    }
+  }
+  
   paginationConfig.value.current = 1;
   fetchData();
   fetchSummary();
@@ -345,7 +303,6 @@ const resetFilters = () => {
   filters.value = {
     range: [dayjs().subtract(7, "day"), dayjs()],
     status: "all",
-    currency: null,
   };
   paginationConfig.value.current = 1;
   fetchData();

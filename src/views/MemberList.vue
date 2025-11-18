@@ -114,6 +114,82 @@
       </div>
     </a-layout-header>
 
+    <div class="status-summary-bar flex items-center gap-4 p-4 mb-4 bg-white rounded">
+      <div
+        class="status-item flex items-center gap-2 cursor-pointer"
+        @click="handleStatusClick('')"
+      >
+        <SmileOutlined class="text-gray-500" />
+        <span class="text-sm">
+          {{ trlang.all_users }} :
+          <span class="font-bold text-blue-600">{{ statusCounts.all }}</span>
+          {{ trlang.ppl }}
+        </span>
+      </div>
+      <div
+        class="status-item flex items-center gap-2 cursor-pointer"
+        @click="handleStatusClick('normal')"
+      >
+        <CheckCircleOutlined class="text-green-600" />
+        <span class="text-sm">
+          {{ trlang.normal }} :
+          <span class="font-bold text-green-600">{{ statusCounts.normal }}</span>
+          {{ trlang.ppl }}
+        </span>
+      </div>
+      <div
+        class="status-item flex items-center gap-2 cursor-pointer"
+        @click="handleStatusClick('wait')"
+      >
+        <MinusCircleOutlined class="text-gray-500" />
+        <span class="text-sm">
+          {{ trlang.wait }} :
+          <span class="font-bold text-gray-500">{{ statusCounts.wait }}</span>
+          {{ trlang.ppl }}
+        </span>
+      </div>
+      <div
+        class="status-item flex items-center gap-2 cursor-pointer"
+        @click="handleStatusClick('stop')"
+      >
+        <QuestionCircleOutlined class="text-red-600" />
+        <span class="text-sm">
+          {{ trlang.stop }} :
+          <span class="font-bold text-red-600">{{ statusCounts.stop }}</span>
+          {{ trlang.ppl }}
+        </span>
+      </div>
+      <div
+        class="status-item flex items-center gap-2 cursor-pointer"
+        @click="handleStatusClick('cancel')"
+      >
+        <CloseCircleOutlined class="text-red-600" />
+        <span class="text-sm">
+          {{ trlang.cancel }} :
+          <span class="font-bold text-red-600">{{ statusCounts.cancel }}</span>
+          {{ trlang.ppl }}
+        </span>
+      </div>
+      <div
+        class="status-item flex items-center gap-2 cursor-pointer"
+        @click="handleStatusClick('danger')"
+      >
+        <UserDeleteOutlined class="text-red-600" />
+        <span class="text-sm">
+          {{ trlang.danger }} :
+          <span class="font-bold text-red-600">{{ statusCounts.danger }}</span>
+          {{ trlang.ppl }}
+        </span>
+      </div>
+      <div class="flex-1" />
+      <a-button
+        class="bg-gray-200 text-gray-700 border-none"
+        @click="handleBlockIps"
+      >
+        {{ trlang.block_ips }}
+      </a-button>
+    </div>
+
     <a-layout-content class="table-panel">
       <div class="table-wrapper">
         <a-table
@@ -153,39 +229,36 @@
               <a-typography-text>
                 <span class="font-bold">
                   {{
-                    record.own_partners && record.own_partners.length > 0
-                      ? record.own_partners[0].nickname
-                      : record.partners && record.partners.length > 0
-                      ? record.partners[0].nickname
-                      : record.user_nickname || '-'
+                    record.own_partners?.[0]?.nickname ||
+                    record.partners?.[0]?.nickname ||
+                    record.user_nickname ||
+                    '-'
                   }}
                 </span>
                 ({{
-                  record.own_partners && record.own_partners.length > 0
-                    ? record.own_partners[0].partner_id
-                    : record.partners && record.partners.length > 0
-                    ? record.partners[0].partner_id
-                    : record.user_nickname || '-'
+                  record.own_partners?.[0]?.partner_id ||
+                  record.partners?.[0]?.partner_id ||
+                  record.user_nickname ||
+                  '-'
                 }})
               </a-typography-text>
-              <a-typography-text class="filter-badge px-2 py-1 w-fit">
+              <a-typography-text
+                v-if="record.own_partners?.[0]?.role || record.partners?.[0]?.role"
+                class="filter-badge px-2 py-1 w-fit"
+              >
                 {{
-                  record.own_partners && record.own_partners.length > 0
-                    ? trlang[record.own_partners[0].role] || ''
-                    : record.partners && record.partners.length > 0
-                    ? trlang[record.partners[0].role] || ''
-                    : ''
+                  trlang[record.own_partners?.[0]?.role] ||
+                  trlang[record.partners?.[0]?.role] ||
+                  ''
                 }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'partner'">
             {{
-              record.own_partners && record.own_partners.length > 0
-                ? record.own_partners[0].nickname
-                : record.partners && record.partners.length > 0
-                ? record.partners[0].nickname
-                : '-'
+              record.own_partners?.[0]?.nickname ||
+              record.partners?.[0]?.nickname ||
+              '-'
             }}
           </template>
           <template v-if="column.key === 'status'">
@@ -246,39 +319,35 @@
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_provide_point'">
-            {{ (record.own_money || 0).toLocaleString() }}P
+            {{ (record.point || 0).toLocaleString() }}P
           </template>
           <template v-if="column.key === 'last_import_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
-                {{ record.last_import_time ? record.last_import_time.split('T')[0] : '-' }}
+                {{ formatDate(record.last_import_time).date }}
               </a-typography-text>
               <a-typography-text>
-                {{ record.last_import_time && record.last_import_time.includes('T') ? record.last_import_time.split('T')[1]?.split('.')[0] : '-' }}
+                {{ formatDate(record.last_import_time).time }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'connect_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
-                {{ record.login_history?.createdAt ? record.login_history.createdAt.split('T')[0] : '-' }}
+                {{ formatDate(record.login_history?.createdAt).date }}
               </a-typography-text>
               <a-typography-text>
-                {{
-                  record.login_history?.createdAt && record.login_history.createdAt.includes('T')
-                    ? record.login_history.createdAt.split('T')[1]?.split('.')[0]
-                    : '-'
-                }}
+                {{ formatDate(record.login_history?.createdAt).time }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'created_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
-                {{ record.createdAt ? record.createdAt.split('T')[0] : '-' }}
+                {{ formatDate(record.createdAt).date }}
               </a-typography-text>
               <a-typography-text>
-                {{ record.createdAt && record.createdAt.includes('T') ? record.createdAt.split('T')[1]?.split('.')[0] : '-' }}
+                {{ formatDate(record.createdAt).time }}
               </a-typography-text>
             </div>
           </template>
@@ -287,20 +356,108 @@
       </div>
     </a-layout-content>
   </a-layout>
+
+  <a-modal
+    v-model:open="blockIpModalVisible"
+    :title="trlang.block_ip"
+    :footer="null"
+    width="800px"
+    @cancel="handleCloseBlockIpModal"
+  >
+    <div class="block-ip-modal">
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <RightOutlined class="text-gray-500" />
+          <h3 class="text-lg font-semibold">{{ trlang.register_blocking_ip }}</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <a-typography-text class="min-w-[120px]">{{ trlang.blocking_ip }}</a-typography-text>
+          <a-input
+            v-model:value="newBlockedIp"
+            :placeholder="trlang.enter_ip_address"
+            class="flex-1"
+            @press-enter="handleRegisterIp"
+          />
+          <a-button
+            type="primary"
+            class="bg-gray-200 text-gray-700 border-none"
+            @click="handleRegisterIp"
+          >
+            <template #icon><CheckOutlined /></template>
+            {{ trlang.register }}
+          </a-button>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <RightOutlined class="text-gray-500" />
+          <h3 class="text-lg font-semibold">{{ trlang.blocked_ip_list }}</h3>
+        </div>
+        <a-table
+          :columns="blockedIpColumns"
+          :data-source="blockedIpList"
+          :pagination="{ pageSize: 10 }"
+          :loading="loadingBlockedIps"
+          row-key="id"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'ip'">
+              {{ record.ip_address }}
+            </template>
+            <template v-if="column.key === 'registration_date'">
+              {{ formatRegistrationDate(record.registration_date) }}
+            </template>
+            <template v-if="column.key === 'remove'">
+              <a-button
+                class="bg-gray-200 text-gray-700 border-none"
+                @click="handleRemoveIp(record.id)"
+              >
+                <template #icon><CheckOutlined /></template>
+                {{ trlang.remove }}
+              </a-button>
+            </template>
+          </template>
+        </a-table>
+      </div>
+
+      <div class="flex justify-center mt-6">
+        <a-button
+          class="bg-gray-200 text-gray-700 border-none"
+          @click="handleCloseBlockIpModal"
+        >
+          <template #icon><CloseOutlined /></template>
+          {{ trlang.close }}
+        </a-button>
+      </div>
+    </div>
+  </a-modal>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
-import { SearchOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import {
+  SearchOutlined,
+  LogoutOutlined,
+  SmileOutlined,
+  CheckCircleOutlined,
+  MinusCircleOutlined,
+  QuestionCircleOutlined,
+  CloseCircleOutlined,
+  UserDeleteOutlined,
+  RightOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { memberListColumn } from '@/utils/table-column/member-list.js';
-import { getData } from '@/helpers/Axios';
+import { memberListColumn as baseMemberListColumn } from '@/utils/table-column/member-list.js';
+import { getData, putData, deleteData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
 
 defineOptions({
-  name: routeLink.login_information.name,
+  name: routeLink.member_list.name,
 });
 
 const langState = inject('langState');
@@ -327,8 +484,65 @@ const sortOptions = ref([]);
 const dataSource = ref([]);
 const loading = ref(false);
 const selectedRowKeys = ref([]);
+const statusCounts = ref({
+  all: 0,
+  normal: 0,
+  wait: 0,
+  stop: 0,
+  cancel: 0,
+  danger: 0,
+  tester: 0,
+});
+
+const blockIpModalVisible = ref(false);
+const newBlockedIp = ref('');
+const blockedIpList = ref([]);
+const loadingBlockedIps = ref(false);
+
+const blockedIpColumns = computed(() => [
+  {
+    title: trlang.value.ip,
+    dataIndex: 'ip_address',
+    key: 'ip',
+  },
+  {
+    title: trlang.value.registration_date,
+    dataIndex: 'registration_date',
+    key: 'registration_date',
+  },
+  {
+    title: trlang.value.remove,
+    key: 'remove',
+    align: 'center',
+  },
+]);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+
+const memberListColumn = computed(() => {
+  const titleMap = {
+    "No": trlang.value.no_column,
+    "Login": trlang.value.login_column,
+    "Nickname(Id)": trlang.value.nickname_id,
+    "Partner": trlang.value.partner_column,
+    "Status": trlang.value.status_column,
+    "Owned Money": trlang.value.owned_money,
+    "All Import Money": trlang.value.all_import_money,
+    "All Exchange Money": trlang.value.all_exchange_money,
+    "Partner Earning": trlang.value.partner_earning,
+    "Total Betting Amount": trlang.value.total_betting_amount,
+    "Total Win Number": trlang.value.total_win_number,
+    "Total Earning Money": trlang.value.total_earning_money,
+    "Betting Provide Point": trlang.value.betting_provide_point,
+    "Last Import Date": trlang.value.last_import_date,
+    "Connect Date": trlang.value.connect_date,
+    "Created Date": trlang.value.created_date,
+  };
+  return baseMemberListColumn.map(col => ({
+    ...col,
+    title: titleMap[col.title] || col.title
+  }));
+});
 
 const initOptions = () => {
   duration.value = 'import_exchange_betting';
@@ -395,6 +609,29 @@ const rowSelection = computed(() => ({
 
 const rowKey = (record) => record.user_id;
 
+const formatDate = (dateValue) => {
+  if (!dateValue) return { date: '-', time: '-' };
+  const dateStr = typeof dateValue === 'string' ? dateValue : dateValue.toString();
+  if (!dateStr.includes('T')) return { date: dateStr, time: '-' };
+  const [date, timePart] = dateStr.split('T');
+  const time = timePart ? timePart.split('.')[0] : '-';
+  return { date, time };
+};
+
+const formatRegistrationDate = (dateValue) => {
+  if (!dateValue) return '-';
+  const date = new Date(dateValue);
+  if (isNaN(date.getTime())) return '-';
+  
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${month}/${day} ${hours}:${minutes}:${seconds}`;
+};
+
 const buildQuery = () => {
   const sortValue = sort.value || 'created_date';
   const formattedSort = sortValue.includes(':') ? sortValue : `${sortValue}:desc`;
@@ -435,14 +672,36 @@ const fetchData = async () => {
       if (typeof payload.pageSize === 'number' && payload.pageSize > 0) {
         paginationConfig.value.pageSize = payload.pageSize;
       }
+      if (payload.statusCounts) {
+        statusCounts.value = {
+          all: payload.statusCounts.all || 0,
+          normal: payload.statusCounts.normal || 0,
+          wait: payload.statusCounts.wait || 0,
+          stop: payload.statusCounts.stop || 0,
+          cancel: payload.statusCounts.cancel || 0,
+          danger: payload.statusCounts.danger || 0,
+          tester: payload.statusCounts.tester || 0,
+        };
+      }
     } else {
       dataSource.value = [];
       setTotal(0);
+      statusCounts.value = {
+        all: 0,
+        normal: 0,
+        wait: 0,
+        stop: 0,
+        cancel: 0,
+        danger: 0,
+        tester: 0,
+      };
     }
   } catch (error) {
     console.error('Error fetching member list:', error);
     dataSource.value = [];
     setTotal(0);
+    const errorMessage = error?.response?.data?.message || error?.message || trlang.value.error_loading_data;
+    message.error(errorMessage || trlang.value.error_loading_data);
   } finally {
     loading.value = false;
   }
@@ -493,6 +752,90 @@ watch(
     fetchData();
   }
 );
+
+const handleStatusClick = (status) => {
+  userStatus.value = status;
+  paginationConfig.value.current = 1;
+  fetchData();
+};
+
+const handleBlockIps = async () => {
+  blockIpModalVisible.value = true;
+  await fetchBlockedIps();
+};
+
+const fetchBlockedIps = async () => {
+  loadingBlockedIps.value = true;
+  try {
+    const res = await getData(apiLink.get_blocked_ips);
+    if (res && res.status) {
+      blockedIpList.value = res.data?.list || [];
+    } else {
+      blockedIpList.value = [];
+    }
+  } catch (error) {
+    console.error('Error fetching blocked IPs:', error);
+    blockedIpList.value = [];
+    message.error(trlang.value.error_loading_data);
+  } finally {
+    loadingBlockedIps.value = false;
+  }
+};
+
+const handleRegisterIp = async () => {
+  if (!newBlockedIp.value || !newBlockedIp.value.trim()) {
+    message.warning(trlang.value.enter_ip_address);
+    return;
+  }
+
+  const ipAddress = newBlockedIp.value.trim();
+  
+  const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (!ipRegex.test(ipAddress)) {
+    message.warning(trlang.value.invalid_ip_address);
+    return;
+  }
+
+  try {
+    const res = await putData(apiLink.block_ip, {
+      ip: ipAddress,
+      block: true,
+    });
+
+    if (res && res.status) {
+      message.success(res.message || trlang.value.ip_blocked_successfully);
+      newBlockedIp.value = '';
+      await fetchBlockedIps();
+    } else {
+      message.error(res.message || trlang.value.error_blocking_ip);
+    }
+  } catch (error) {
+    console.error('Error blocking IP:', error);
+    const errorMessage = error?.response?.data?.message || trlang.value.error_blocking_ip;
+    message.error(errorMessage || trlang.value.error_blocking_ip);
+  }
+};
+
+const handleRemoveIp = async (id) => {
+  try {
+    const res = await deleteData(`${apiLink.remove_blocked_ip}/${id}`);
+    if (res && res.status) {
+      message.success(res.message || trlang.value.ip_removed_successfully);
+      await fetchBlockedIps();
+    } else {
+      message.error(res.message || trlang.value.error_removing_ip);
+    }
+  } catch (error) {
+    console.error('Error removing IP:', error);
+    const errorMessage = error?.response?.data?.message || trlang.value.error_removing_ip;
+    message.error(errorMessage || trlang.value.error_removing_ip);
+  }
+};
+
+const handleCloseBlockIpModal = () => {
+  blockIpModalVisible.value = false;
+  newBlockedIp.value = '';
+};
 
 onMounted(() => {
   initOptions();

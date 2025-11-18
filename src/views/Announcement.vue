@@ -12,12 +12,12 @@
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
+          <a-col :xs="24" :md="6">
             <a-form-item :label="trlang.post_range">
               <a-range-picker v-model:value="filters.range" style="width: 100%" />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
+          <a-col :xs="24" :md="6">
             <a-form-item :label="trlang.category">
               <a-select v-model:value="filters.category" allow-clear>
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
@@ -27,7 +27,18 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
+          <a-col :xs="24" :md="6">
+            <a-form-item :label="trlang.status">
+              <a-select v-model:value="filters.status" allow-clear>
+                <a-select-option value="all">{{ trlang.all }}</a-select-option>
+                <a-select-option value="draft">{{ trlang.draft }}</a-select-option>
+                <a-select-option value="published">{{ trlang.published }}</a-select-option>
+                <a-select-option value="archived">{{ trlang.archived }}</a-select-option>
+                <a-select-option value="hidden">{{ trlang.hidden }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="6">
             <a-form-item :label="trlang.keyword_filter">
               <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
             </a-form-item>
@@ -75,7 +86,6 @@
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
             <a-space>
-              <a-button type="link" @click="handleView(record)">{{ trlang.view }}</a-button>
               <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
               <a-popconfirm
                 :title="trlang.confirm_delete"
@@ -139,45 +149,7 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item :label="trlang.image">
-          <a-input v-model:value="formData.image" :placeholder="trlang.image_url_placeholder" />
-        </a-form-item>
       </a-form>
-    </a-modal>
-
-    <a-modal
-      v-model:open="viewModalVisible"
-      :title="viewingRecord?.title"
-      :footer="null"
-      :width="800"
-    >
-      <div v-if="viewingRecord">
-        <a-descriptions :column="2" bordered>
-          <a-descriptions-item :label="trlang.category">
-            <a-tag :color="categoryColor(viewingRecord.category)">
-              {{ trlang[viewingRecord.category] || viewingRecord.category }}
-            </a-tag>
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.status">
-            <a-tag :color="statusColor(viewingRecord.status)">
-              {{ trlang[viewingRecord.status] || viewingRecord.status }}
-            </a-tag>
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.author">
-            {{ viewingRecord.author }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.published_at">
-            {{ viewingRecord.published_at ? formatDate(viewingRecord.published_at) : '-' }}
-          </a-descriptions-item>
-        </a-descriptions>
-        <div style="margin-top: 24px;">
-          <a-typography-title :level="5">{{ trlang.description }}</a-typography-title>
-          <a-typography-paragraph>{{ viewingRecord.description }}</a-typography-paragraph>
-        </div>
-        <div v-if="viewingRecord.image" style="margin-top: 24px;">
-          <img :src="viewingRecord.image" :alt="trlang.announcement_image_alt" style="max-width: 100%; height: auto;" />
-        </div>
-      </div>
     </a-modal>
   </a-layout>
 </template>
@@ -198,14 +170,13 @@ const trlang = computed(() => langState?.translations || {});
 const loading = ref(false);
 const saving = ref(false);
 const modalVisible = ref(false);
-const viewModalVisible = ref(false);
 const editingRecord = ref(null);
-const viewingRecord = ref(null);
 const formRef = ref(null);
 
 const filters = ref({
   range: [dayjs().subtract(30, "day"), dayjs()],
   category: "all",
+  status: "all",
   keyword: "",
 });
 
@@ -214,11 +185,9 @@ const formData = ref({
   description: "",
   category: "system_notice",
   status: "draft",
-  image: "",
 });
 
 const columns = computed(() => [
-  { title: trlang.value.post_id, dataIndex: "id", key: "id", width: 120, ellipsis: true },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.category, dataIndex: "category", key: "category", width: 140 },
   { title: trlang.value.author, dataIndex: "author", key: "author", width: 160 },
@@ -273,6 +242,10 @@ const buildQuery = () => {
     params.append("category", filters.value.category);
   }
 
+  if (filters.value.status && filters.value.status !== "all") {
+    params.append("status", filters.value.status);
+  }
+
   if (filters.value.keyword && filters.value.keyword.trim()) {
     params.append("keyword", filters.value.keyword.trim());
   }
@@ -322,6 +295,7 @@ const resetFilters = () => {
   filters.value = {
     range: [dayjs().subtract(30, "day"), dayjs()],
     category: "all",
+    status: "all",
     keyword: "",
   };
   paginationConfig.value.current = 1;
@@ -335,7 +309,6 @@ const handleCreate = () => {
     description: "",
     category: "system_notice",
     status: "draft",
-    image: "",
   };
   modalVisible.value = true;
 };
@@ -347,14 +320,8 @@ const handleEdit = (record) => {
     description: record.description || "",
     category: record.category || "system_notice",
     status: record.status || "draft",
-    image: record.image || "",
   };
   modalVisible.value = true;
-};
-
-const handleView = (record) => {
-  viewingRecord.value = record;
-  viewModalVisible.value = true;
 };
 
 const handleSave = async () => {
@@ -367,7 +334,6 @@ const handleSave = async () => {
       description: formData.value.description.trim(),
       category: formData.value.category,
       status: formData.value.status,
-      image: formData.value.image.trim() || null,
     };
 
     let res;
@@ -383,10 +349,6 @@ const handleSave = async () => {
       fetchData();
     }
   } catch (error) {
-    if (error.errorFields) {
-      // Form validation error
-      return;
-    }
     console.error("Error saving announcement:", error);
     message.error(trlang.value.failed_to_save_announcement);
   } finally {
@@ -402,7 +364,6 @@ const handleCancel = () => {
     description: "",
     category: "system_notice",
     status: "draft",
-    image: "",
   };
 };
 

@@ -953,7 +953,7 @@
 .prefix-badge-start {
   background-color: #d9d8a6;
   box-shadow: #575621 0 -12px 6px inset;
-  color: var(--text-primary-color) !important;
+  color: var(--white-color) !important;
 }
 
 .prefix-badge-end {
@@ -965,13 +965,13 @@
 .prefix-badge-finish {
   background-color: #b8a7a7;
   box-shadow: #452a2a 0 -12px 6px inset;
-  color: var(--text-primary-color) !important;
+  color: var(--white-color) !important;
 }
 
 .prefix-badge-cancel {
   background-color: #a8aeb6;
   box-shadow: #3e454f 0 -12px 6px inset;
-  color: var(--text-primary-color) !important;
+  color: var(--white-color) !important;
 }
 
 .prefix-badge-inactive {

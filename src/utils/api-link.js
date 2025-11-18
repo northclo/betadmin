@@ -14,6 +14,8 @@ export const apiLink = {
   cash_increase: "admin/partner/cash-increase",
   get_login_information: "admin/member/login",
   block_ip: 'admin/member/block-ip',
+  get_blocked_ips: 'admin/member/block-ip',
+  remove_blocked_ip: 'admin/member/block-ip',
   get_game_management: "admin/game",
   get_current_loggedin_user: "admin/member/current-login",
   logout_user: 'admin/member/logout',
@@ -53,4 +55,8 @@ export const apiLink = {
   create_notice_message: "admin/notice",
   update_notice_message: "admin/notice",
   delete_notice_message: "admin/notice",
+  get_dashboard_summary: "admin/dashboard/summary",
+  get_monthly_loggedin_users: "admin/dashboard/loggedin-users",
+  get_monthly_charge_exchange: "admin/dashboard/charge-exchange",
+  get_sidebar_summary: "admin/dashboard/sidebar-summary",
 };

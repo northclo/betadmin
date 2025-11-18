@@ -51,7 +51,6 @@ const copywriter = ref('');
 const topNotifyMessage = ref('');
 const depositAccount = ref('');
 
-// Initialize state from dataSource
 const loadData = (data) => {
   siteName.value = data.site_name || '';
   titleBar.value = data.title_bar || '';
@@ -89,7 +88,6 @@ const fields = computed(() => [
   },
 ]);
 
-// Expose state to parent
 defineExpose({
   getState: () => ({
     siteName: siteName.value,

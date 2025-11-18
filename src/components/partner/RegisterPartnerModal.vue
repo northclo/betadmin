@@ -49,27 +49,24 @@ const register = async () => {
   try {
     loading.value = true;
 
-    // Collect data from all child components
     const memberInfo = memberInfoRef.value?.getState?.() || {};
     const currencyRolling = currencyRollingRef.value?.getState?.() || {};
     const rateSetting = rateSettingRef.value?.getState?.() || {};
     const permissionSetting = permissionSettingRef.value?.getState?.() || {};
     const gameSetting = gameSettingRef.value?.getState?.() || {};
 
-    // Validate required fields
     if (!memberInfo.partnerId || !memberInfo.partnerId.trim()) {
-      return message.error(trlang.value.please_input_partner_id || "Please input partner ID");
+      return message.error(trlang.value.please_input_partner_id);
     }
 
     if (!memberInfo.nickname || !memberInfo.nickname.trim()) {
-      return message.error(trlang.value.please_input_nickname || "Please input nickname");
+      return message.error(trlang.value.please_input_nickname);
     }
 
     if (!memberInfo.password || !memberInfo.password.trim()) {
-      return message.error(trlang.value.please_input_password || "Please input password");
+      return message.error(trlang.value.please_input_password);
     }
 
-    // Prepare payload
     const payload = {
       partnerId: memberInfo.partnerId,
       nickname: memberInfo.nickname,
@@ -87,21 +84,20 @@ const register = async () => {
       gameSetting: gameSetting,
     };
 
-    // Call API
     const result = await postData(apiLink.register_partner, payload);
 
     if (result.status) {
-      message.success(trlang.value.registered_successful || "Partner registered successfully");
+      message.success(trlang.value.registered_successful);
       emit('update:open', false);
       if (props.fetchData) {
         props.fetchData();
       }
     } else {
-      message.error(result.message || trlang.value.registration_failed || "Registration failed");
+      message.error(result.message || trlang.value.registration_failed);
     }
   } catch (error) {
     console.error("Error registering partner:", error);
-    message.error(error.message || trlang.value.registration_failed || "Registration failed");
+    message.error(error.message || trlang.value.registration_failed);
   } finally {
     loading.value = false;
   }

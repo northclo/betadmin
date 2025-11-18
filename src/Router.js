@@ -53,27 +53,32 @@ const routes = [
   {
     path: routeLink.game_setting.link,
     name: routeLink.game_setting.name,
-    component: GameSetting
+    component: GameSetting,
+    meta: { requiresAuth: true },
   },
   {
     path: routeLink.game_partner.link,
     name: routeLink.game_partner.name,
-    component: GamePartner
+    component: GamePartner,
+    meta: { requiresAuth: true },
   },
   {
     path: routeLink.login_information.link,
     name: routeLink.login_information.name,
-    component: LoginInformation
+    component: LoginInformation,
+    meta: { requiresAuth: true },
   },
   {
     path: routeLink.game_management.link,
     name: routeLink.game_management.name,
-    component: GameManagement
+    component: GameManagement,
+    meta: { requiresAuth: true },
   },
   {
     path: routeLink.current_login_user.link,
     name: routeLink.current_login_user.name,
-    component: CurrentLoginUserPage
+    component: CurrentLoginUserPage,
+    meta: { requiresAuth: true },
   },
   {
     path: routeLink.admin_menu.link,

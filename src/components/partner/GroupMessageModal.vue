@@ -101,20 +101,20 @@ const expireOptions = ref([]);
 
 const initOption = () => {
   expireOptions.value = [
-    { value: '0 day', label: '::No period set::' },
-    { value: '1 day', label: '1 day' },
-    { value: '3 days', label: '3 days' },
-    { value: '1 week', label: 'a week' },
-    { value: 'moon', label: 'full moon' },
-    { value: '1 month', label: 'month' },
-    { value: '1 hour', label: '1 hour' },
-    { value: '3 hours', label: '3 hours' },
-    { value: '6 hours', label: '6 hours' },
-    { value: '12 hours', label: '12 hours' },
-    { value: '30 minutes', label: '30 minutes' },
-    { value: '5 minutes', label: '5 minutes' },
+    { value: '0 day', label: trlang.value.no_period_set },
+    { value: '1 day', label: trlang.value.one_day },
+    { value: '3 days', label: trlang.value.three_days },
+    { value: '1 week', label: trlang.value.a_week },
+    { value: 'moon', label: trlang.value.full_moon },
+    { value: '1 month', label: trlang.value.one_month },
+    { value: '1 hour', label: trlang.value.one_hour },
+    { value: '3 hours', label: trlang.value.three_hours },
+    { value: '6 hours', label: trlang.value.six_hours },
+    { value: '12 hours', label: trlang.value.twelve_hours },
+    { value: '30 minutes', label: trlang.value.thirty_minutes },
+    { value: '5 minutes', label: trlang.value.five_minutes },
   ];
-  expire.value = '::No period set::';
+  expire.value = trlang.value.no_period_set;
 };
 
 onMounted(() => {
@@ -128,7 +128,7 @@ const sendNote = async () => {
 
   const result = await postData(apiLink.send_partner_message, {
     title: title.value,
-    content: message.value,
+    content: noteMessage.value,
     expire: expire.value,
     type: 'groupMessage',
     partnerId: props.dataSource.id,

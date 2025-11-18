@@ -13,21 +13,12 @@
         <a-typography-text class="bg-gray text-white p-2 px-5">{{
           trlang.duration
         }}</a-typography-text>
-        <a-date-picker
-          v-model:value="startDate"
+        <a-range-picker
+          v-model:value="dateRange"
           class="input-lg"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
-          :placeholder="trlang.start_date"
-          @change="handleFilterChange"
-        />
-        <a-typography-text>~</a-typography-text>
-        <a-date-picker
-          v-model:value="endDate"
-          class="input-lg"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          :placeholder="trlang.end_date"
+          style="width: 100%"
           @change="handleFilterChange"
         />
       </div>
@@ -173,9 +164,10 @@
           </template>
           <template v-if="column.key === 'odd_even'">
             <div class="flex justify-center items-center">
-              <a-tag :color="record.game_odd ? 'blue' : 'purple'">
+              <a-tag v-if="record.game_odd !== null && record.game_odd !== undefined" :color="record.game_odd ? 'blue' : 'purple'">
                 {{ record.game_odd ? trlang.odd : trlang.even }}
               </a-tag>
+              <span v-else>-</span>
             </div>
           </template>
           <template v-if="column.key === 'user'">
@@ -184,7 +176,7 @@
                 {{ record.user_nickname || '-' }}
               </a-typography-text>
               <a-typography-text class="text-light-gray">
-                {{ record.user_email || record.user_name || record.user_id }}
+                {{ record.user_email || record.user_name || record.user_id || '-' }}
               </a-typography-text>
             </div>
           </template>
@@ -216,7 +208,7 @@
             {{ record.betting_rate ? record.betting_rate.toLocaleString() : '-' }}
           </template>
           <template v-if="column.key === 'earning_amount'">
-            <a-typography-text :class="record.earning_amount > 0 ? 'text-red' : ''">
+            <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
               {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}USD
             </a-typography-text>
           </template>
@@ -247,6 +239,8 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { bettingListColumn as baseBettingListColumn } from '@/utils/table-column/betting-list.js';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -260,9 +254,7 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-// Filters
-const startDate = ref('');
-const endDate = ref('');
+const dateRange = ref(null);
 const userStatus = ref('');
 const userStatusOptions = ref([]);
 const partner = ref('');
@@ -358,8 +350,6 @@ const rowKey = (record) => record.betting_id || record._id;
 
 const buildQuery = () => {
   const params = new URLSearchParams({
-    startDate: startDate.value || '',
-    endDate: endDate.value || '',
     userStatus: userStatus.value || '',
     partner: partner.value || '',
     includeSub: includeSub.value ? 'true' : 'false',
@@ -372,6 +362,15 @@ const buildQuery = () => {
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
+
+  if (dateRange.value && dateRange.value.length === 2) {
+    if (dateRange.value[0]) {
+      params.append("startDate", dayjs(dateRange.value[0]).format("YYYY-MM-DD"));
+    }
+    if (dateRange.value[1]) {
+      params.append("endDate", dayjs(dateRange.value[1]).format("YYYY-MM-DD"));
+    }
+  }
 
   return params.toString();
 };
@@ -394,23 +393,37 @@ const fetchData = async () => {
         paginationConfig.value.pageSize = payload.pageSize;
       }
     }
+  } catch (error) {
+    console.error("Error fetching betting list:", error);
+    message.error(trlang.value.failed_to_fetch_betting_list);
   } finally {
     loading.value = false;
   }
 };
 
-const handleFilterChange = () => {
-  const isFirstPage = paginationConfig.value.current === 1;
-  paginationConfig.value.current = 1;
-  if (isFirstPage) {
-    fetchData();
+const validateDateRange = () => {
+  if (dateRange.value && dateRange.value.length === 2) {
+    const start = dayjs(dateRange.value[0]);
+    const end = dayjs(dateRange.value[1]);
+    if (start.isAfter(end)) {
+      message.warning(trlang.value.end_date_must_be_after_start_date);
+      return false;
+    }
   }
+  return true;
+};
+
+const handleFilterChange = () => {
+  if (!validateDateRange()) {
+    return;
+  }
+  paginationConfig.value.current = 1;
+  fetchData();
 };
 
 const refreshPage = () => {
   initOptions();
-  startDate.value = '';
-  endDate.value = '';
+  dateRange.value = null;
   userStatus.value = '';
   partner.value = '';
   includeSub.value = false;
@@ -418,7 +431,6 @@ const refreshPage = () => {
   bettingType.value = '';
   win.value = '';
   search.value = '';
-  loading.value = false;
   paginationConfig.value.current = 1;
   fetchData();
 };

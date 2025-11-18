@@ -24,9 +24,6 @@ const props = defineProps({
 
 let graph = null;
 
-/**
- * ChartNode: Custom node rendering with level of detail
- */
 class ChartNode extends Rect {
   get data() {
     return this.context.model.getElementDataById(this.id).data;
@@ -76,9 +73,6 @@ class ChartNode extends Rect {
   }
 }
 
-/**
- * Create or update graph
- */
 function createGraph() {
   if (!props.dataSource || props.dataSource.length === 0) return;
 
@@ -151,9 +145,6 @@ function createGraph() {
   }
 }
 
-/**
- * Watch loading state
- */
 watch(
   () => props.loading,
   async (newVal) => {
@@ -168,9 +159,6 @@ watch(
   { immediate: true }
 );
 
-/**
- * Cleanup on unmount
- */
 onBeforeUnmount(() => {
   if (graph) {
     graph.destroy();

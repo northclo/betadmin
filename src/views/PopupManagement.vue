@@ -70,15 +70,8 @@
           <template v-else-if="column.dataIndex === 'end_date'">
             {{ record.end_date ? formatDate(record.end_date) : '-' }}
           </template>
-          <template v-else-if="column.dataIndex === 'position'">
-            <a-tag>{{ record.position || trlang.center }}</a-tag>
-          </template>
-          <template v-else-if="column.dataIndex === 'size'">
-            <a-tag>{{ record.size || trlang.medium }}</a-tag>
-          </template>
           <template v-else-if="column.dataIndex === 'actions'">
             <a-space>
-              <a-button type="link" @click="handleView(record)">{{ trlang.view }}</a-button>
               <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
               <a-popconfirm
                 :title="trlang.confirm_delete_popup"
@@ -158,76 +151,12 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item :label="trlang.position">
-              <a-select v-model:value="formData.position">
-                <a-select-option value="top">{{ trlang.top }}</a-select-option>
-                <a-select-option value="center">{{ trlang.center }}</a-select-option>
-                <a-select-option value="bottom">{{ trlang.bottom }}</a-select-option>
-                <a-select-option value="fullscreen">{{ trlang.fullscreen }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="trlang.size">
-              <a-select v-model:value="formData.size">
-                <a-select-option value="small">{{ trlang.small }}</a-select-option>
-                <a-select-option value="medium">{{ trlang.medium }}</a-select-option>
-                <a-select-option value="large">{{ trlang.large }}</a-select-option>
-                <a-select-option value="fullscreen">{{ trlang.fullscreen }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
         <a-form-item>
           <a-checkbox v-model:checked="formData.is_closable">
             {{ trlang.is_closable }}
           </a-checkbox>
         </a-form-item>
       </a-form>
-    </a-modal>
-
-    <a-modal
-      v-model:open="viewModalVisible"
-      :title="viewingRecord?.title"
-      :footer="null"
-      :width="800"
-    >
-      <div v-if="viewingRecord">
-        <a-descriptions :column="2" bordered>
-          <a-descriptions-item :label="trlang.status">
-            <a-tag :color="statusColor(viewingRecord.status)">
-              {{ viewingRecord.status === 'active' ? trlang.active : trlang.inactive }}
-            </a-tag>
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.display_order">
-            {{ viewingRecord.display_order || 0 }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.position">
-            {{ viewingRecord.position || trlang.center }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.size">
-            {{ viewingRecord.size || trlang.medium }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.start_date">
-            {{ viewingRecord.start_date ? formatDate(viewingRecord.start_date) : '-' }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.end_date">
-            {{ viewingRecord.end_date ? formatDate(viewingRecord.end_date) : '-' }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.author">
-            {{ viewingRecord.author || trlang.unknown }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="trlang.closable">
-            {{ viewingRecord.is_closable ? trlang.yes : trlang.no }}
-          </a-descriptions-item>
-        </a-descriptions>
-        <div style="margin-top: 24px;">
-          <a-typography-title :level="5">{{ trlang.content }}</a-typography-title>
-          <a-typography-paragraph>{{ viewingRecord.content }}</a-typography-paragraph>
-        </div>
-      </div>
     </a-modal>
   </a-layout>
 </template>
@@ -248,9 +177,7 @@ const trlang = computed(() => langState?.translations || {});
 const loading = ref(false);
 const saving = ref(false);
 const modalVisible = ref(false);
-const viewModalVisible = ref(false);
 const editingRecord = ref(null);
-const viewingRecord = ref(null);
 const formRef = ref(null);
 
 const filters = ref({
@@ -266,19 +193,14 @@ const formData = ref({
   start_date: null,
   end_date: null,
   display_order: 0,
-  position: "center",
-  size: "medium",
   is_closable: true,
 });
 
 const columns = computed(() => [
-  { title: trlang.value.id, dataIndex: "id", key: "id", width: 120, ellipsis: true },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 100 },
   { title: trlang.value.start_date, dataIndex: "start_date", key: "start_date", width: 180 },
   { title: trlang.value.end_date, dataIndex: "end_date", key: "end_date", width: 180 },
-  { title: trlang.value.position, dataIndex: "position", key: "position", width: 100 },
-  { title: trlang.value.size, dataIndex: "size", key: "size", width: 100 },
   { title: trlang.value.order, dataIndex: "display_order", key: "display_order", width: 80 },
   { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
 ]);
@@ -335,7 +257,7 @@ const fetchData = async () => {
 
     if (res.status) {
       const payload = res.data || {};
-      tableData.value = payload.list || payload.items || [];
+      tableData.value = payload.list || [];
       setTotal(payload.total || 0);
       if (payload.page) {
         paginationConfig.value.current = payload.page;
@@ -376,8 +298,6 @@ const handleCreate = () => {
     start_date: null,
     end_date: null,
     display_order: 0,
-    position: "center",
-    size: "medium",
     is_closable: true,
   };
   modalVisible.value = true;
@@ -392,31 +312,9 @@ const handleEdit = (record) => {
     start_date: record.start_date ? dayjs(record.start_date) : null,
     end_date: record.end_date ? dayjs(record.end_date) : null,
     display_order: record.display_order || 0,
-    position: record.position || "center",
-    size: record.size || "medium",
     is_closable: record.is_closable !== undefined ? record.is_closable : true,
   };
   modalVisible.value = true;
-};
-
-const handleView = async (record) => {
-  try {
-    loading.value = true;
-    const res = await getData(`${apiLink.get_popup}/${record.id}`);
-    if (res.status) {
-      viewingRecord.value = res.data;
-      viewModalVisible.value = true;
-    } else {
-      message.error(res.message || trlang.value.failed_to_fetch_popup_details);
-    }
-  } catch (error) {
-    console.error("Error fetching popup:", error);
-    message.error(trlang.value.failed_to_fetch_popup_details);
-    viewingRecord.value = record;
-    viewModalVisible.value = true;
-  } finally {
-    loading.value = false;
-  }
 };
 
 const handleSave = async () => {
@@ -437,8 +335,6 @@ const handleSave = async () => {
       content: formData.value.content.trim(),
       status: formData.value.status,
       display_order: formData.value.display_order || 0,
-      position: formData.value.position,
-      size: formData.value.size,
       is_closable: formData.value.is_closable,
     };
 
@@ -489,8 +385,6 @@ const handleCancel = () => {
     start_date: null,
     end_date: null,
     display_order: 0,
-    position: "center",
-    size: "medium",
     is_closable: true,
   };
 };

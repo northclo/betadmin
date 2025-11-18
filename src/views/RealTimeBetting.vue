@@ -189,7 +189,7 @@
 import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { bettingListColumn } from '@/utils/table-column/betting-list.js';
+import { bettingListColumn as baseBettingListColumn } from '@/utils/table-column/betting-list.js';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
@@ -213,16 +213,23 @@ const search = ref('');
 const searchField = ref('');
 const searchFieldOptions = ref([]);
 
-// Auto-refresh
 const autoRefresh = ref(true);
 const refreshCountdown = ref(10);
+const REFRESH_INTERVAL = 10;
 let refreshInterval = null;
 let countdownInterval = null;
+let fetchDataTimeout = null;
 
 const dataSource = ref([]);
 const loading = ref(false);
+const isFetching = ref(false);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(20);
+
+const bettingListColumn = computed(() => baseBettingListColumn.map(col => ({
+  ...col,
+  title: trlang.value[col.titleKey] || col.titleKey
+})));
 
 const initOptions = () => {
   partnerOptions.value = [
@@ -252,6 +259,7 @@ const initOptions = () => {
   searchFieldOptions.value = [
     { value: 'user_id', label: trlang.value.id },
     { value: 'user_nickname', label: trlang.value.nickname },
+    { value: 'game_id', label: trlang.value.game_id },
     { value: 'total_no', label: trlang.value.total_round_id },
     { value: 'today_no', label: trlang.value.day_round_id },
     { value: 'betting_type', label: trlang.value.betting_type },
@@ -262,7 +270,6 @@ const rowKey = (record) => record.betting_id || record._id;
 
 const buildQuery = () => {
   const params = new URLSearchParams({
-    // Always filter for progress status (real-time/ongoing bets)
     bettingStatus: 'progress',
     partner: partner.value || '',
     includeSub: includeSub.value ? 'true' : 'false',
@@ -277,8 +284,16 @@ const buildQuery = () => {
   return params.toString();
 };
 
-const fetchData = async () => {
-  loading.value = true;
+const fetchData = async (silent = false) => {
+  if (isFetching.value) {
+    return;
+  }
+
+  isFetching.value = true;
+  if (!silent) {
+    loading.value = true;
+  }
+
   try {
     const res = await getData(
       `${apiLink.get_betting_list}?${buildQuery()}`
@@ -295,61 +310,72 @@ const fetchData = async () => {
         paginationConfig.value.pageSize = payload.pageSize;
       }
     } else {
-      message.error(res.message || trlang.value.failed_to_fetch_betting_list);
+      if (!silent) {
+        message.error(res.message || trlang.value.failed_to_fetch_betting_list);
+      }
     }
   } catch (error) {
     console.error('Error fetching betting list:', error);
-    message.error(trlang.value.failed_to_fetch_betting_list);
+    if (!silent) {
+      message.error(trlang.value.failed_to_fetch_betting_list);
+    }
     dataSource.value = [];
     setTotal(0);
   } finally {
     loading.value = false;
+    isFetching.value = false;
   }
 };
 
 const handleFilterChange = () => {
-  const isFirstPage = paginationConfig.value.current === 1;
-  paginationConfig.value.current = 1;
-  if (isFirstPage) {
-    fetchData();
+  if (fetchDataTimeout) {
+    clearTimeout(fetchDataTimeout);
   }
+
+  paginationConfig.value.current = 1;
+
+  fetchDataTimeout = setTimeout(() => {
+    fetchData();
+  }, 300);
 };
 
 const refreshPage = () => {
+  if (fetchDataTimeout) {
+    clearTimeout(fetchDataTimeout);
+  }
+
   initOptions();
   partner.value = '';
   includeSub.value = false;
   bettingType.value = '';
   search.value = '';
-  loading.value = false;
   paginationConfig.value.current = 1;
   fetchData();
 };
 
-// Auto-refresh functionality
 const startAutoRefresh = () => {
   if (refreshInterval) {
     clearInterval(refreshInterval);
+    refreshInterval = null;
   }
   if (countdownInterval) {
     clearInterval(countdownInterval);
+    countdownInterval = null;
   }
 
   if (autoRefresh.value) {
-    refreshCountdown.value = 10;
+    refreshCountdown.value = REFRESH_INTERVAL;
     
     countdownInterval = setInterval(() => {
       if (refreshCountdown.value > 0) {
         refreshCountdown.value--;
-      } else {
-        refreshCountdown.value = 10;
       }
     }, 1000);
 
     refreshInterval = setInterval(() => {
-      refreshCountdown.value = 10;
-      fetchData();
-    }, 10000);
+      refreshCountdown.value = REFRESH_INTERVAL;
+      fetchData(true);
+    }, REFRESH_INTERVAL * 1000);
   }
 };
 
@@ -362,26 +388,46 @@ const stopAutoRefresh = () => {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
+  refreshCountdown.value = REFRESH_INTERVAL;
 };
 
-// WebSocket listeners for real-time updates
 const setupSocketListeners = () => {
-  socket.on('start_game', () => {
-    if (autoRefresh.value) {
-      // Refresh when a new game starts
-      fetchData();
+  if (!socket.connected) {
+    console.warn('Socket not connected, attempting to connect...');
+    socket.connect();
+  }
+
+  socket.on('connect', () => {
+    console.log('Socket connected for real-time betting');
+  });
+
+  socket.on('disconnect', () => {
+    console.warn('Socket disconnected for real-time betting');
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error);
+  });
+
+  socket.on('start_game', (data) => {
+    console.log('Game started:', data);
+    if (autoRefresh.value && !isFetching.value) {
+      fetchData(true);
     }
   });
 
-  socket.on('end_game', () => {
-    if (autoRefresh.value) {
-      // Refresh when a game ends
-      fetchData();
+  socket.on('end_game', (data) => {
+    console.log('Game ended:', data);
+    if (autoRefresh.value && !isFetching.value) {
+      fetchData(true);
     }
   });
 };
 
 const removeSocketListeners = () => {
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('connect_error');
   socket.off('start_game');
   socket.off('end_game');
 };
@@ -414,6 +460,11 @@ onMounted(() => {
 onUnmounted(() => {
   stopAutoRefresh();
   removeSocketListeners();
+  
+  if (fetchDataTimeout) {
+    clearTimeout(fetchDataTimeout);
+    fetchDataTimeout = null;
+  }
 });
 </script>
 

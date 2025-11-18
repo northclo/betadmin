@@ -70,7 +70,7 @@
           <a-typography-text class="text-dark-brown text-end">
             {{ record.money }}{{ record.betMoneyUnit }}
           </a-typography-text>
-          <a-typography-text>{{ record.point }}P</a-typography-text>
+          <a-typography-text>{{ record.point }}{{ trlang.points_unit }}</a-typography-text>
         </a-layout>
       </template>
       <template v-if="column.key === 'benefit'">
@@ -103,7 +103,7 @@
           <a-typography-text class="text-dark-brown text-end">
             {{ record.holdingMoney }}{{ record.betMoneyUnit }}
           </a-typography-text>
-          <a-typography-text>{{ record.holdingPoint }}P</a-typography-text>
+          <a-typography-text>{{ record.holdingPoint }}{{ trlang.points_unit }}</a-typography-text>
         </a-layout>
       </template>
       <template v-if="column.key === 'function'">
@@ -152,11 +152,8 @@
 import { computed, defineProps, inject } from 'vue';
 import { CheckCircleOutlined, UserAddOutlined } from '@ant-design/icons-vue';
 
-/* Translations */
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
-
-// defineEmits('openCashModal')
 
 defineProps({
   columns: Array,

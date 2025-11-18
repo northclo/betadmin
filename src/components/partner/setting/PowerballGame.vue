@@ -97,7 +97,7 @@
             class="text-end input-sm" 
             :disabled="loading"
           />
-          <a-typography-text>%</a-typography-text>
+          <a-typography-text>{{ trlang.mult }}</a-typography-text>
         </a-space>
         <a-space class="flex-1 justify-center border p-2">
           <a-input 
@@ -108,7 +108,7 @@
             class="text-end input-sm" 
             :disabled="loading"
           />
-          <a-typography-text>%</a-typography-text>
+          <a-typography-text>{{ trlang.mult }}</a-typography-text>
         </a-space>
       </a-layout-content>
     </a-layout>
@@ -133,7 +133,6 @@ const options = ref([]);
 const loading = ref(false);
 const saving = ref(false);
 
-// Field mapping structure to replace hardcoded array indices
 const optionFieldMapping = computed(() => [
   { field: 'odd', labelKey: 'odd' },
   { field: 'even', labelKey: 'even' },
@@ -148,7 +147,6 @@ const optionFieldMapping = computed(() => [
   { field: 'match_number3', labelKey: 'match_number', suffixKey: 'match_number_1_6' },
 ]);
 
-// Helper to safely cast to number
 const toNumber = (val) => {
   if (val === null || val === undefined || val === '') {
     return 0;
@@ -240,7 +238,8 @@ const saveData = async () => {
     }
 
     if (!activate.value && !inactiveMessage.value.trim()) {
-      message.warning(trlang.value.inactive_message_required);
+      message.error(trlang.value.inactive_message_required);
+      return;
     }
 
     saving.value = true;

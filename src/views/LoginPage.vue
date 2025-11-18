@@ -39,6 +39,7 @@
             </div>
 
             <div v-if="captchaShow" class="login-field">
+              <!-- eslint-disable-next-line vue/no-v-html -->
               <div v-html="captcha" @click="loadCaptcha" class="captcha-container mb-2" />
               <a-input
                 v-model:value="captchaInput"
@@ -107,7 +108,6 @@ const titleLevel = computed(() => {
 
 let resizeTimer = null;
 const updateWindowWidth = () => {
-  // Throttle resize events for better performance
   if (resizeTimer) {
     clearTimeout(resizeTimer);
   }
@@ -116,14 +116,10 @@ const updateWindowWidth = () => {
   }, 150);
 };
 
-/* Router */
 const router = useRouter();
-
-/* Inject translations */
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-/* Reactive states */
 const userId = ref('');
 const password = ref('');
 const remember = ref(false);

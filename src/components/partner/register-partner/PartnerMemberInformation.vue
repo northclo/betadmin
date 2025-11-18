@@ -202,7 +202,7 @@ const bankOption = ref([]);
 const initOptions = () => {
   bankOption.value = [1000, 10000, 100000].map((amt, idx) => ({
     key: idx,
-    amount: amt + " USD",
+    amount: `${amt} ${trlang.value.usd_currency}`,
   }));
 };
 
@@ -210,9 +210,9 @@ const testPartnerId = () => {
   const result = testStartEnglish(3, 10, partnerId.value);
 
   if (result) {
-    message.success("correct");
+    message.success(trlang.value.correct);
   } else {
-    message.error("Invalid data");
+    message.error(trlang.value.invalid_data);
   }
 };
 
@@ -220,9 +220,9 @@ const testNickname = () => {
   const result = testEnglishNumberDashUnderscore(3, 10, nickname.value);
 
   if (result) {
-    message.success("correct");
+    message.success(trlang.value.correct);
   } else {
-    message.error("Invalid data");
+    message.error(trlang.value.invalid_data);
   }
 };
 

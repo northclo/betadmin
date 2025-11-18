@@ -240,7 +240,7 @@ const getBettingCount = (record, bettingType) => {
 
 const initOptions = () => {
   gameProcessOptions.value = [
-    { value: '', label: `:: ${trlang.value.all_process} ::` },
+    { value: '', label: `${trlang.value.all_process_separator}${trlang.value.all_process}${trlang.value.all_process_separator}` },
     { value: 'register', label: trlang.value.register_game },
     { value: 'under', label: trlang.value.under_betting },
     { value: 'end', label: trlang.value.end_betting },

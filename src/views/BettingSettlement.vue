@@ -213,7 +213,7 @@ const fetchData = async (page = pagination.value.current) => {
 
     if (!result.status) {
       message.error(
-        result.message || trlang.value.failed_to_load_settlement || "Failed to load settlement data"
+        result.message || trlang.value.failed_to_load_settlement
       );
       summary.value = {
         totalBetAmount: 0,

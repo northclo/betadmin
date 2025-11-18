@@ -129,7 +129,6 @@ const summaryCards = computed(() => [
 ]);
 
 const columns = computed(() => [
-  { title: trlang.value.transaction_id, dataIndex: "transaction_id", key: "transaction_id", width: 160 },
   { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
   { title: trlang.value.transaction_type, dataIndex: "type", key: "type", width: 140 },
   { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },

@@ -348,11 +348,11 @@ const fetchData = async () => {
   dividendTypeOptions.value = [
     {
       value: "A",
-      label: "A",
+      label: trlang.value.option_a,
     },
     {
       value: "B",
-      label: "B",
+      label: trlang.value.option_b,
     },
   ];
 };
@@ -362,15 +362,15 @@ onMounted(() => {
 });
 
 const findPartnerById = (node) => {
-  if (node.partner_id === activeSetting.value) return node; // Check current object
-  if (!node.subs) return null; // No children
+  if (node.partner_id === activeSetting.value) return node;
+  if (!node.subs) return null;
 
   for (const sub of node.subs) {
-    const found = findPartnerById(sub); // Recursive search
+    const found = findPartnerById(sub);
     if (found) return found;
   }
 
-  return null; // Not found
+  return null;
 };
 
 const changeActivePartner = () => {
@@ -398,7 +398,6 @@ const changeActivePartner = () => {
   allRoundsBetMax.value = partner.all_rounds_bet_max;
 };
 
-/* Expose state for parent access */
 defineExpose({
   getState: () => ({
     activeSetting: activeSetting.value,

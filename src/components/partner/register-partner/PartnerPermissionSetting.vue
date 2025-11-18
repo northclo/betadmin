@@ -11,9 +11,9 @@
         }}</a-typography-text>
       </a-layout-sider>
       <a-layout-content class="border p-2 flex items-center gap-2">
-        <a-switch v-model:checked="parnterPageAccess" class="w-fit" />
+        <a-switch v-model:checked="partnerPageAccess" class="w-fit" />
         <a-typography-text class="flex items-center">
-          {{ parnterPageAccess ? trlang.possible : trlang.no_possible }}
+          {{ partnerPageAccess ? trlang.possible : trlang.no_possible }}
         </a-typography-text>
       </a-layout-content>
     </a-layout>
@@ -79,21 +79,18 @@
 <script setup>
 import { ref, computed, inject, defineExpose } from "vue";
 
-/* Inject language translations */
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
-/* Reactive toggle state */
-const parnterPageAccess = ref(false);
+const partnerPageAccess = ref(false);
 const subPartnerCreate = ref(false);
 const memberCreate = ref(false);
 const partnerSettlement = ref(false);
 const moneyChange = ref(false);
 
-/* Expose state for parent access */
 defineExpose({
   getState: () => ({
-    parnterPageAccess: parnterPageAccess.value,
+    parnterPageAccess: partnerPageAccess.value,
     subPartnerCreate: subPartnerCreate.value,
     memberCreate: memberCreate.value,
     partnerSettlement: partnerSettlement.value,
