@@ -1,23 +1,23 @@
 <template>
   <a-layout>
-    <a-layout class="">
-      <a-typography-text class="text-dark-gray fs-1">
+    <a-layout>
+      <a-typography-title :level="3">
         {{ trlang.partner_management }}
-      </a-typography-text>
+      </a-typography-title>
     </a-layout>
     <a-layout class="px-2">
       <PartnerChart :data-source="dataSource" :loading="loading" />
 
       <a-layout class="p-5 bg-white mt-5">
-        <a-layout class="bg-white pt-5 pb-5 flex flex-row justify-between items-center">
+        <a-layout class="pt-5 pb-5 flex flex-row justify-between items-center">
           <a-layout-content class="flex items-center gap-2">
             <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
-            <a-input v-model:value="search" class="input-lg">
+            <a-input v-model:value="search" class="input-lg search-input w-fit">
               <template #prefix>
                 <SearchOutlined />
               </template>
             </a-input>
-            <a-button class="bg-gray text-white ms-2" @click="fetchData">
+            <a-button class="bg-gray text-white ms-2" @click="fetchData" :loading="searchLoading">
               {{ trlang.search }}
             </a-button>
             <a-typography-text class="ms-5 me-2">
@@ -26,7 +26,11 @@
             <a-checkbox v-model:checked="expand" @change="fetchData" />
           </a-layout-content>
           <a-layout-content class="flex justify-end">
-            <a-button class="bg-gray text-white" @click="openRegisterPartner = true">
+            <a-button 
+              v-if="canCreateSubPartner" 
+              class="bg-gray text-white" 
+              @click="openRegisterPartner = true"
+            >
               <CheckCircleOutlined />{{ trlang.add_a_branch_office }}
             </a-button>
           </a-layout-content>
@@ -35,12 +39,14 @@
         <PartnerTable :columns="columns" :data-source="dataSource" :loading="loading" :fetch-data="fetchData"
           @open-register-user="openRegisterUser = true" @open-cash-modal="openCashModal"
           @open-notice-modal="openNoticeModal" @open-group-message-modal="openGroupMessageModal"
-          @open-remove-modal="openRemoveModal" />
+          @open-remove-modal="openRemoveModal" @open-setting-modal="openSettingModal"
+          @open-add-sub-modal="openAddSubModal" @open-member-setting-modal="openMemberSettingModal" />
       </a-layout>
       <RegisterUserModal v-model:open="openRegisterUser" :data-source="selectedRecord" :fetch-data="fetchData" />
       <RegisterPartnerModal v-model:open="openRegisterPartner" :data-source="selectedRecord" :fetch-data="fetchData" />
+      <PartnerSettingModal v-model:open="openSetting" :data-source="selectedRecord" :fetch-data="fetchData" />
+      <MemberSettingModal v-model:open="openMemberSetting" :data-source="selectedRecord" :fetch-data="fetchData" />
       <CashModal v-model:open="openCash" :data-source="selectedRecord" :fetch-data="fetchData" />
-      <!-- <SendNoticeModal v-model:open="openNotice" :data-source="selectedRecord" /> -->
       <GroupMessageModal v-model:open="openGroupMessage" :data-source="selectedRecord" />
       <RemovePartnerModal v-model:open="openRemove" :data-source="selectedRecord" :fetch-data="fetchData" />
     </a-layout>
@@ -48,19 +54,23 @@
 </template>
 
 <script setup>
-import { ref, inject, computed, onMounted } from 'vue';
+import { ref, inject, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { partnerManagementColumns } from '@/utils/table-column/partner-management';
 import { getData } from '@/helpers/Axios.js';
 import { apiLink } from '@/utils/api-link';
+import { routeLink } from '@/utils/route-link';
+import { usePermissions } from '@/composables/usePermissions';
 
 import PartnerChart from '@/components/partner/PartnerChart.vue';
 import PartnerTable from '@/components/partner/PartnerTable.vue';
 import RegisterUserModal from '@/components/partner/RegisterUserModal.vue';
 import RegisterPartnerModal from '@/components/partner/RegisterPartnerModal.vue';
+import PartnerSettingModal from '@/components/partner/PartnerSettingModal.vue';
+import MemberSettingModal from '@/components/partner/MemberSettingModal.vue';
 import CashModal from '@/components/partner/CashModal.vue';
-// import SendNoticeModal from '@/components/partner/SendNoticeModal.vue';
 import GroupMessageModal from '@/components/partner/GroupMessageModal.vue';
 import RemovePartnerModal from '@/components/partner/RemovePartnerModal.vue';
 
@@ -68,9 +78,9 @@ import RemovePartnerModal from '@/components/partner/RemovePartnerModal.vue';
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-/* Router */
+const router = useRouter();
+const { canCreateSubPartner, canAccessPartner } = usePermissions();
 
-/* Reactive states */
 const expand = ref(true);
 const search = ref('');
 const columns = ref([]);
@@ -78,16 +88,24 @@ const dataSource = ref([]);
 const loading = ref(true);
 const openRegisterUser = ref(false);
 const openRegisterPartner = ref(false);
+const openSetting = ref(false);
+const openMemberSetting = ref(false);
 const openCash = ref(false);
 const openNotice = ref(false);
 const openGroupMessage = ref(false);
 const openRemove = ref(false);
 const selectedRecord = ref(null);
+const searchLoading = ref(false);
 
-/* Fetch columns and table data */
 const fetchData = async () => {
+  if (!canAccessPartner.value) {
+    message.error(trlang.value.permission_denied);
+    router.push(routeLink.dashboard.link);
+    return;
+  }
   try {
     loading.value = true;
+    searchLoading.value = true;
     columns.value = partnerManagementColumns(trlang);
     const partners = await getData(
       apiLink.game_partner + '?search=' + search.value
@@ -110,6 +128,7 @@ const fetchData = async () => {
     dataSource.value = [];
   } finally {
     loading.value = false;
+    searchLoading.value = false;
   }
 };
 
@@ -133,6 +152,34 @@ const openRemoveModal = (record) => {
   openRemove.value = true;
 };
 
+const openSettingModal = (record) => {
+  selectedRecord.value = record;
+  openSetting.value = true;
+};
+
+const openAddSubModal = (record) => {
+  selectedRecord.value = record;
+  openRegisterPartner.value = true;
+};
+
+const openMemberSettingModal = (record) => {
+  selectedRecord.value = record;
+  openMemberSetting.value = true;
+};
+
+watch(() => openRegisterPartner.value, (newValue) => {
+  if (!newValue) {
+    selectedRecord.value = null;
+  }
+});
+
 /* Load data on mount */
-onMounted(() => fetchData());
+onMounted(() => {
+  if (!canAccessPartner.value) {
+    message.error(trlang.value.permission_denied);
+    router.push(routeLink.dashboard.link);
+    return;
+  }
+  fetchData();
+});
 </script>

@@ -1,24 +1,29 @@
 <template>
-  <a-layout class="popup-view">
-    <header class="popup-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.popup_management }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.popup_management_description }}
       </a-typography-text>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.post_range">
-              <a-range-picker v-model:value="filters.range" style="width: 100%" />
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.post_range">
+              <a-range-picker 
+                v-model:value="filters.range" 
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.status">
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.status">
               <a-select v-model:value="filters.status" allow-clear>
                 <a-select-option value="">{{ trlang.all }}</a-select-option>
                 <a-select-option value="active">{{ trlang.active }}</a-select-option>
@@ -26,30 +31,28 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.keyword_filter">
-              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword_filter">
+              <a-input class="search-input" v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
+          </a-col>
         </a-row>
-        <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
-            {{ trlang.search }}
-          </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
-        </div>
       </a-form>
     </a-card>
 
-    <a-card class="table-card">
-      <template #title>
-        <div class="table-title">
-          <span>{{ trlang.popup_list }}</span>
-          <a-button type="primary" class="bg-main text-white" @click="handleCreate">
-            {{ trlang.create_popup }}
-          </a-button>
-        </div>
-      </template>
+    <div class="flex items-center justify-between mb-4">
+      <span class="fs-4 font-semibold">{{ trlang.popup_list }}</span>
+      <a-button type="primary" class="bg-main text-white" @click="handleCreate">
+        {{ trlang.create_popup }}
+      </a-button>
+    </div>
+    <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
@@ -58,8 +61,11 @@
         row-key="id"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'status'">
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+          </template>
+          <template v-else-if="column.dataIndex === 'status'">
             <a-tag :color="statusColor(record.status)">
               {{ record.status === 'active' ? trlang.active : trlang.inactive }}
             </a-tag>
@@ -77,13 +83,13 @@
                 :title="trlang.confirm_delete_popup"
                 @confirm="handleDelete(record.id)"
               >
-                <a-button type="link" danger>{{ trlang.delete }}</a-button>
+                <a-button type="link" danger :loading="deleting">{{ trlang.delete }}</a-button>
               </a-popconfirm>
             </a-space>
           </template>
         </template>
       </a-table>
-    </a-card>
+    </a-layout-content>
 
     <a-modal
       v-model:open="modalVisible"
@@ -175,7 +181,9 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
+const searchLoading = ref(false);
 const saving = ref(false);
+const deleting = ref(false);
 const modalVisible = ref(false);
 const editingRecord = ref(null);
 const formRef = ref(null);
@@ -197,6 +205,7 @@ const formData = ref({
 });
 
 const columns = computed(() => [
+  { title: trlang.value.no_column, key: "no", width: 80 },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 100 },
   { title: trlang.value.start_date, dataIndex: "start_date", key: "start_date", width: 180 },
@@ -274,9 +283,14 @@ const fetchData = async () => {
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
+  searchLoading.value = true;
   paginationConfig.value.current = 1;
-  fetchData();
+  try {
+    await fetchData();
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
 const resetFilters = () => {
@@ -390,6 +404,7 @@ const handleCancel = () => {
 };
 
 const handleDelete = async (popupId) => {
+  deleting.value = true;
   try {
     const res = await deleteData(`${apiLink.delete_popup}/${popupId}`);
     if (res.status) {
@@ -399,6 +414,8 @@ const handleDelete = async (popupId) => {
   } catch (error) {
     console.error("Error deleting popup:", error);
     message.error(trlang.value.failed_to_delete_popup);
+  } finally {
+    deleting.value = false;
   }
 };
 
@@ -407,37 +424,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.popup-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.popup-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-
-.table-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-</style>
 

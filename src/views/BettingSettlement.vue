@@ -1,27 +1,27 @@
 <template>
-  <a-layout class="settlement-view">
-    <header class="settlement-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.betting_settlement_profit }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.betting_settlement_description }}
       </a-typography-text>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.settlement_range">
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.settlement_range">
               <a-range-picker
                 v-model:value="filters.range"
                 style="width: 100%"
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.partner_filter">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.partner_filter">
               <a-select v-model:value="filters.partner">
                 <a-select-option value="all">
                   {{ trlang.all }}
@@ -32,8 +32,8 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8" class="actions">
-            <a-button type="primary" class="bg-main text-white" @click="fetchData">
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="loading" @click="fetchData">
               {{ trlang.search }}
             </a-button>
             <a-button @click="resetFilters">
@@ -48,29 +48,27 @@
       <a-col :xs="24" :md="12" :lg="6" v-for="card in summaryCards" :key="card.key">
         <a-card class="summary-card">
           <template #title>{{ card.title }}</template>
-          <a-typography-title :level="2" class="summary-value">
+          <a-typography-title :level="2" class="mb-0">
             {{ card.value }}
           </a-typography-title>
         </a-card>
       </a-col>
     </a-row>
 
-    <a-card class="table-card">
-      <a-table
-        :columns="columns"
-        :data-source="tableData"
-        :loading="loading"
-        :pagination="pagination"
-        :row-key="record => record.id"
-        @change="handleTableChange"
-      >
-        <template #bodyCell="{ column, text }">
-          <template v-if="column.dataIndex === 'bet_amount' || column.dataIndex === 'payout' || column.dataIndex === 'profit'">
-            {{ formatCurrency(text) }}
-          </template>
+    <a-table
+      :columns="columns"
+      :data-source="tableData"
+      :loading="loading"
+      :pagination="pagination"
+      :row-key="record => record.id"
+      @change="handleTableChange"
+    >
+      <template #bodyCell="{ column, text }">
+        <template v-if="column.dataIndex === 'bet_amount' || column.dataIndex === 'payout' || column.dataIndex === 'profit'">
+          {{ formatCurrency(text) }}
         </template>
-      </a-table>
-    </a-card>
+      </template>
+    </a-table>
   </a-layout>
 </template>
 
@@ -145,6 +143,7 @@ const summaryCards = computed(() => [
 ]);
 
 const columns = computed(() => [
+  { title: trlang.value.no_column, dataIndex: "no", key: "no", width: 80, align: "center" },
   { title: trlang.value.round_no, dataIndex: "round", key: "round", width: 140 },
   { title: trlang.value.partner_filter, dataIndex: "partner", key: "partner", width: 180 },
   { title: trlang.value.bet_amount, dataIndex: "bet_amount", key: "bet_amount", width: 160 },
@@ -245,9 +244,12 @@ const fetchData = async (page = pagination.value.current) => {
     pagination.value.total = settlementData.total || 0;
 
     tableData.value = items.map((item, index) => {
+      const rowNumber = (pagination.value.current - 1) * pagination.value.pageSize + index + 1;
+      
       if (!item || typeof item !== "object") {
         return {
           id: `settlement-${index}`,
+          no: rowNumber,
           round: "-",
           partner: "-",
           bet_amount: 0,
@@ -275,6 +277,7 @@ const fetchData = async (page = pagination.value.current) => {
 
       return {
         id: rowKeyParts || `settlement-${index}`,
+        no: rowNumber,
         round: formatRoundLabel(item),
         partner: item.partnerName || item.partnerCode || "-",
         bet_amount: Number.isFinite(item.betAmount) ? Number(item.betAmount) : 0,
@@ -330,43 +333,4 @@ onMounted(() => {
   fetchData();
 });
 </script>
-
-<style scoped>
-.settlement-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.settlement-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.summary-card {
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.summary-value {
-  margin-bottom: 0;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-</style>
 

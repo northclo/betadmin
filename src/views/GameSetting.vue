@@ -1,17 +1,22 @@
 <template>
-  <a-layout class="bg-white flex flex-row justify-between items-center px-5">
-    <a-typography-text class="text-dark-gray fs-1">
+  <a-layout class="flex flex-row justify-between items-center mb-4">
+    <a-typography-title :level="3">
       {{ trlang.game_settings }}
-    </a-typography-text>
-    <a-button class="bg-main text-white flex justify-center items-center" @click="handleSave">
+    </a-typography-title>
+    <a-button 
+      class="text-white flex justify-center items-center" 
+      @click="handleSave"
+      :loading="saving"
+      :disabled="loading"
+    >
       <SaveOutlined />
       {{ trlang.save }}
     </a-button>
   </a-layout>
 
-  <a-layout class="p-2">
-    <PowerballGame ref="powerballRef" />
-  </a-layout>
+  <a-spin :spinning="loading">
+    <PowerballGame ref="powerballRef" @update:loading="loading = $event" @update:saving="saving = $event" />
+  </a-spin>
 </template>
 
 <script>
@@ -28,6 +33,8 @@ export default {
     const trlang = computed(() => langState.translations);
 
     const powerballRef = ref(null);
+    const loading = ref(false);
+    const saving = ref(false);
 
     const handleSave = () => {
       if (powerballRef.value && typeof powerballRef.value.saveData === 'function') {
@@ -35,7 +42,7 @@ export default {
       }
     };
 
-    return { trlang, handleSave, powerballRef };
+    return { trlang, handleSave, powerballRef, loading, saving };
   },
 };
 </script>

@@ -25,9 +25,7 @@
           @toggle-sidebar="showSidebar = true"
         />
         <a-layout-content class="w-100 min-w-100 max-w-fit p-5 content-wrapper">
-          <div class="page-shell">
-            <router-view />
-          </div>
+          <router-view />
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -37,13 +35,17 @@
 <script setup>
 import { reactive, provide, onMounted, computed, ref, onBeforeUnmount, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 import { notification } from "ant-design-vue";
 import LeftLayout from "./components/LeftLayout.vue";
 import HeaderMenu from "./components/HeaderMenu.vue";
 import { socket } from "@/plugins/socket.js";
+import { getData } from "@/helpers/Axios";
+import { apiLink } from "@/utils/api-link";
 
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
 const routerReady = ref(false);
 const isAuthPage = computed(() => route.path.startsWith("/auth"));
 
@@ -129,10 +131,30 @@ const handleNewSupportMessage = (data) => {
   });
 };
 
+const loadPermissions = async () => {
+  const token = localStorage.getItem("token");
+  if (token && !isAuthPage.value) {
+    try {
+      const res = await getData(apiLink.admin_account);
+      if (res.status && res.data) {
+        if (res.data.permissions) {
+          store.commit("setPermissions", res.data.permissions);
+        }
+        if (res.data.role) {
+          store.commit("setPartnerRole", res.data.role);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading permissions:", error);
+    }
+  }
+};
+
 onMounted(() => {
   loadLanguage(state.currentLang);
   updateViewport();
   window.addEventListener("resize", updateViewport);
+  loadPermissions();
 
   if (!isAuthPage.value) {
     socket.on("new_support_message", handleNewSupportMessage);

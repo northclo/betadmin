@@ -1,5 +1,5 @@
 <template>
-  <a-collapse-panel key="3" class="bg-white">
+  <a-collapse-panel key="3">
     <template #header>
       <a-typography-text class="text-dark-gray font-bold leading-0 fs-4">
         {{ trlang.set_site_text }}
@@ -7,13 +7,13 @@
     </template>
 
     <div v-for="field in fields" :key="field.key">
-      <a-layout class="bg-white">
+      <a-layout>
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">{{
             field.label
           }}</a-typography-text>
         </a-layout-sider>
-        <a-layout-content class="border p-2">
+        <a-layout-content class="p-2">
           <component
             :is="field.isTextarea ? 'a-textarea' : 'a-input'"
             v-model:value="field.model.value"

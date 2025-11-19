@@ -6,36 +6,37 @@
     :cancel-text="trlang.cancel"
     @ok="sendNote"
     @cancel="$emit('update:open', false)"
+    :confirm-loading="loading"
   >
-    <a-layout class="bg-white mt-5">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout class="mt-5">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white">{{
           trlang.title
         }}</a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-input v-model:value="title" />
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white">{{
           trlang.author
         }}</a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-typography-text>{{ trlang.administrator }}</a-typography-text>
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white">{{
           trlang.recipient
         }}</a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex items-center gap-2">
+      <a-layout-content class="p-2 flex items-center gap-2">
         <a-typography-text> {{ trlang.distributor_id }}: </a-typography-text>
         <a-typography-text> {{ dataSource.id }}: </a-typography-text>
         <a-typography-text class="text-dark-brown">
@@ -44,24 +45,24 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white">{{
           trlang.detail
         }}</a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-textarea :rows="5" v-model:value="noteMessage" allow-clear />
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white">
           {{ trlang.expiration_period }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex flex-column">
+      <a-layout-content class="p-2 flex flex-column">
         <a-select
           ref="select"
           v-model:value="expire"
@@ -79,7 +80,7 @@
 </template>
 
 <script setup>
-import { computed, defineProps, inject, onMounted, ref } from 'vue';
+import { computed, defineProps, inject, onMounted, ref, watch } from 'vue';
 import { postData } from '@/helpers/Axios.js';
 import { apiLink } from '@/utils/api-link';
 import { message } from 'ant-design-vue';
@@ -98,10 +99,11 @@ const title = ref('');
 const noteMessage = ref('');
 const expire = ref('');
 const expireOptions = ref([]);
+const loading = ref(false);
 
 const initOption = () => {
   expireOptions.value = [
-    { value: '0 day', label: trlang.value.no_period_set },
+    { value: '0', label: trlang.value.no_period_set },
     { value: '1 day', label: trlang.value.one_day },
     { value: '3 days', label: trlang.value.three_days },
     { value: '1 week', label: trlang.value.a_week },
@@ -114,11 +116,23 @@ const initOption = () => {
     { value: '30 minutes', label: trlang.value.thirty_minutes },
     { value: '5 minutes', label: trlang.value.five_minutes },
   ];
-  expire.value = trlang.value.no_period_set;
+  expire.value = '0';
+};
+
+const resetForm = () => {
+  title.value = '';
+  noteMessage.value = '';
+  expire.value = '0';
 };
 
 onMounted(() => {
   initOption();
+});
+
+watch(() => props.open, (newValue) => {
+  if (newValue) {
+    resetForm();
+  }
 });
 
 const sendNote = async () => {
@@ -126,17 +140,28 @@ const sendNote = async () => {
   if (!noteMessage.value)
     return message.error(trlang.value.please_input_message);
 
-  const result = await postData(apiLink.send_partner_message, {
-    title: title.value,
-    content: noteMessage.value,
-    expire: expire.value,
-    type: 'groupMessage',
-    partnerId: props.dataSource.id,
-  });
+  try {
+    loading.value = true;
+    const result = await postData(apiLink.send_partner_message, {
+      id: props.dataSource.id,
+      title: title.value,
+      content: noteMessage.value,
+      expire: expire.value,
+      type: 'groupMessage',
+    });
 
-  if (result.status) {
-    message.success(trlang.value.sent_successful);
-    emit('update:open', false);
+    if (result.status) {
+      message.success(trlang.value.sent_successful);
+      resetForm();
+      emit('update:open', false);
+    } else {
+      message.error(result.message || trlang.value.operation_failed);
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    loading.value = false;
   }
 };
 </script>

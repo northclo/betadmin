@@ -1,67 +1,75 @@
 <template>
-  <a-layout class="bg-white px-5">
-    <a-typography-text class="text-dark-gray fs-1">
-      {{ trlang.current_loggedin_users }}
-    </a-typography-text>
-  </a-layout>
+  <a-layout>
+    <div class="mb-4">
+      <a-typography-title :level="3">
+        {{ trlang.current_loggedin_users }}
+      </a-typography-title>
+    </div>
 
-  <a-layout class="p-2 flex flex-column gap-2">
-    <a-layout-header class="bg-white flex justify-between shadow px-5">
-      <a-layout class="bg-white flex flex-row items-center gap-2">
-        <a-typography-text>{{ trlang.start_date }}</a-typography-text>
-        <a-date-picker
-          v-model:value="startDate"
-          class="input-lg"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          @change="handleFilterChange"
-        />
-        <a-typography-text>~</a-typography-text>
-        <a-typography-text>{{ trlang.end_date }}</a-typography-text>
-        <a-date-picker
-          v-model:value="endDate"
-          class="input-lg"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          @change="handleFilterChange"
-        />
-        <a-select
-          v-model:value="searchField"
-          :options="searchFieldOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-        <a-input
-          v-model:value="search"
-          :placeholder="trlang.search_placeholder"
-          class="input-lg"
-          @press-enter="handleFilterChange"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-        <a-button type="primary" @click="handleFilterChange">{{
-          trlang.search
-        }}</a-button>
-      </a-layout>
-      <a-layout class="bg-white flex flex-row items-center justify-end gap-2">
-        <a-typography-text>{{ trlang.user_status }}</a-typography-text>
-        <a-select
-          v-model:value="userStatus"
-          :options="userStatusOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-      </a-layout>
-    </a-layout-header>
+    <a-card class="filters-card">
+      <a-form :model="filters" layout="vertical" @submit.prevent>
+        <a-row :gutter="[16, 16]">
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.date_range">
+              <a-range-picker
+                v-model:value="filters.range"
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select
+                v-model:value="filters.searchField"
+                :options="searchFieldOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-input
+                v-model:value="filters.search"
+                :placeholder="trlang.search_placeholder"
+                class="input-lg search-input"
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.user_status">
+              <a-select
+                v-model:value="filters.userStatus"
+                :options="userStatusOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="7" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="loading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
 
-    <a-layout-content class="bg-white p-2 shadow">
+    <a-layout-content>
       <a-table
         :columns="currentLoginUserColumn"
         :data-source="dataSource"
         :row-key="rowKey"
         class="w-100"
+        :loading="loading"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
         @change="handleTableChange"
@@ -77,7 +85,11 @@
           </template>
 
           <template v-if="column.key === 'disconnect'">
+            <a-spin v-if="logoutLoading[record.user_nickname]">
+              <LogoutOutlined class="cursor-pointer" />
+            </a-spin>
             <LogoutOutlined
+              v-else
               class="cursor-pointer"
               @click="logoutUser(record.user_nickname)"
             />
@@ -93,11 +105,7 @@
               </div>
               <a-typography-text class="bg-gray text-white px-2 w-fit radius-2">
                 {{
-                  trlang[
-                    record.own_partner
-                      ? record.own_partner.role
-                      : record.partner?.role
-                  ]
+                  trlang[record.partner?.role] || ''
                 }}
               </a-typography-text>
             </div>
@@ -106,15 +114,13 @@
           <template v-if="column.key === 'partner'">
             <a-typography-text
               :class="
-                record.own_partner || record.partner
+                record.partner
                   ? 'bg-yellow border radius-2 px-2'
                   : ''
               "
             >
               {{
-                record.own_partner
-                  ? record.own_partner.nickname
-                  : record.partner?.nickname
+                record.partner?.nickname || '-'
               }}
             </a-typography-text>
           </template>
@@ -148,24 +154,24 @@
           <template v-if="column.key === 'money_point'">
             <div class="flex flex-column">
               <a-typography-text class="text-red"
-                >{{ record.own_money.toLocaleString() }}USD</a-typography-text
+                >{{ record.own_money.toLocaleString() }}{{ trlang.usd_currency }}</a-typography-text
               >
               <a-typography-text
-                >{{ record.point.toLocaleString() }}P</a-typography-text
+                >{{ record.point.toLocaleString() }}{{ trlang.points_unit }}</a-typography-text
               >
             </div>
           </template>
 
           <template v-if="column.key === 'import_money'">
-            {{ record.total_import_amount || 0 }}USD
+            {{ record.total_import_amount || 0 }}{{ trlang.usd_currency }}
           </template>
 
           <template v-if="column.key === 'exchange_money'">
-            {{ record.total_exchange_amount || 0 }}USD
+            {{ record.total_exchange_amount || 0 }}{{ trlang.usd_currency }}
           </template>
 
           <template v-if="column.key === 'user_import'">
-            {{ record.user_import_amount || 0 }}USD
+            {{ record.user_import_amount || 0 }}{{ trlang.usd_currency }}
           </template>
 
           <template v-if="column.key === 'final_import_date'">
@@ -219,6 +225,7 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import dayjs from 'dayjs';
 import { currentLoginUserColumn as baseCurrentLoginUserColumn } from '@/utils/table-column/current-login-user.js';
 import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -232,16 +239,19 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-const startDate = ref('');
-const endDate = ref('');
-const searchField = ref('');
-const search = ref('');
+const filters = ref({
+  range: null,
+  searchField: '',
+  search: '',
+  userStatus: '',
+});
+
 const searchFieldOptions = ref([]);
-const userStatus = ref('');
 const userStatusOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
+const logoutLoading = ref({});
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
@@ -272,7 +282,7 @@ const currentLoginUserColumn = computed(() => {
 const rowKey = (record) => record.key || record.user_id;
 
 const initOptions = () => {
-  searchField.value = '';
+  filters.value.searchField = '';
   searchFieldOptions.value = [
     { value: '', label: trlang.value.search_term },
     { value: 'user_nickname', label: trlang.value.user_nickname_label },
@@ -283,7 +293,7 @@ const initOptions = () => {
     { value: 'organ', label: trlang.value.organ },
   ];
 
-  userStatus.value = '';
+  filters.value.userStatus = '';
   userStatusOptions.value = [
     { value: '', label: trlang.value.all_users_label },
     { value: 'wait', label: trlang.value.wait },
@@ -297,14 +307,25 @@ const initOptions = () => {
 
 const buildQuery = () => {
   const params = new URLSearchParams({
-    startDate: startDate.value || '',
-    endDate: endDate.value || '',
-    searchField: searchField.value || '',
-    search: search.value || '',
-    userStatus: userStatus.value || '',
+    searchField: filters.value.searchField || '',
+    search: filters.value.search || '',
+    userStatus: filters.value.userStatus || '',
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
+
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
+    }
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
+    }
+  }
 
   return params.toString();
 };
@@ -344,6 +365,17 @@ const handleFilterChange = () => {
   fetchData();
 };
 
+const resetFilters = () => {
+  filters.value = {
+    range: null,
+    searchField: '',
+    search: '',
+    userStatus: '',
+  };
+  paginationConfig.value.current = 1;
+  fetchData();
+};
+
 watch(
   () => [paginationConfig.value.current, paginationConfig.value.pageSize],
   () => {
@@ -353,6 +385,7 @@ watch(
 
 
 const logoutUser = async (user_nickname) => {
+  logoutLoading.value[user_nickname] = true;
   try {
     const result = await postData(apiLink.logout_user, {
       user_nickname,
@@ -363,6 +396,8 @@ const logoutUser = async (user_nickname) => {
     }
   } catch (error) {
     console.error('Error logging out user:', error);
+  } finally {
+    logoutLoading.value[user_nickname] = false;
   }
 };
 

@@ -1,18 +1,18 @@
 <template>
-  <a-collapse-panel key="1" class="bg-white">
+  <a-collapse-panel key="1">
     <template #header>
-      <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
+      <a-typography-text class="font-bold fs-4 leading-0">
         {{ trlang.site_activation_setting }}
       </a-typography-text>
     </template>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.site_activation }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex gap-2 items-center">
+      <a-layout-content class="p-2 flex gap-2 items-center">
         <a-switch v-model:checked="siteActivation" class="w-fit" />
         <a-typography-text>
           {{ siteActivation ? trlang.active : trlang.deactive }}
@@ -20,13 +20,13 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.how_to_display_when_site_is_disabled }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex gap-2 items-center flex-wrap">
+      <a-layout-content class="p-2 flex gap-2 items-center flex-wrap">
         <a-button
           v-for="item in disableStyleOptions"
           :key="item.key"
@@ -38,13 +38,13 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.notification_message_when_site_is_deactivated }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-textarea v-model:value="deactiveMessage" :rows="4" allow-clear />
       </a-layout-content>
     </a-layout>

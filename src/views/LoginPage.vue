@@ -94,6 +94,7 @@
 import { ref, inject, onMounted, onUnmounted, computed } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
@@ -117,6 +118,7 @@ const updateWindowWidth = () => {
 };
 
 const router = useRouter();
+const store = useStore();
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
@@ -233,6 +235,15 @@ const login = async () => {
 
   if (res.status) {
     localStorage.setItem('token', res.data.token);
+    
+    if (res.data.permissions) {
+      store.commit('setPermissions', res.data.permissions);
+    }
+    
+    if (res.data.role) {
+      store.commit('setPartnerRole', res.data.role);
+    }
+    
     saveCredentials();
     localStorage.removeItem('login_failed');
     router.push(routeLink.dashboard.link);
@@ -325,7 +336,6 @@ const login = async () => {
 .login-input :deep(.ant-input),
 .login-input :deep(.ant-input-password) {
   border-radius: 8px;
-  height: 44px;
 }
 
 .captcha-container {

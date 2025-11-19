@@ -1,23 +1,23 @@
 <template>
-  <a-collapse-panel class="bg-white">
+  <a-collapse-panel>
     <template #header>
       <a-typography-text class="font-bold fs-4 leading-0">
         {{ trlang.charge_setting }}
       </a-typography-text>
     </template>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.recharge_amount }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="flex gap-2 border p-2 flex-wrap">
-        <p class="flex items-center text-helper">
+      <a-layout-content class="flex items-center gap-2 p-2 flex-wrap">
+        <p class="flex items-center text-helper mb-0">
           {{ trlang.minimum }}
         </p>
         <a-input v-model:value="chargeMin" type="number" :min="0" style="width: 80px" />
-        <p class="flex items-center text-helper">
+        <p class="flex items-center text-helper mb-0">
           {{ trlang.from }}
         </p>
         <a-typography-text class="flex items-center">
@@ -38,23 +38,23 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.charging_time_zone }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex flex-column items-start gap-2">
+      <a-layout-content class="p-2 flex flex-column items-start gap-2">
         <a-layout class="w-100">
           <a-layout class="w-100">
-            <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+            <a-layout-sider class="border text-center p-2 setting-sider">
               <a-switch v-model:checked="chargeTimezone" class="w-fit me-2" />
               <a-typography-text class="flex item-center text-white" style="width: 45px">
                 {{ chargeTimezone ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 bg-white">
-              <a-layout class="bg-white flex flex-row gap-2 flex-wrap">
+            <a-layout-content class="p-2">
+              <a-layout class="flex flex-row gap-2 flex-wrap">
                 <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
@@ -72,12 +72,12 @@
             </a-layout-content>
           </a-layout>
           <a-layout class="w-100">
-            <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+            <a-layout-sider class="border text-center p-2 setting-sider">
               <a-typography-text class="text-white">
                 {{ trlang.impossible_time_zone_display_text }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 flex gap-2 bg-white">
+            <a-layout-content class="p-2 flex gap-2">
               <a-textarea
                 :rows="4"
                 v-model:value="chargeImpossibleTimezoneMessage"
@@ -89,13 +89,13 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.notification_message_when_charging_is_complete }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-textarea :rows="4" v-model:value="chargeCompleteMessage" allow-clear />
       </a-layout-content>
     </a-layout>
@@ -116,7 +116,7 @@ const trlang = computed(() => langState?.translations || {});
 const chargeMin = ref('');
 const chargeMax = ref('');
 const chargeMaxOption = ref([]);
-const chargeTimezone = ref(true);
+const chargeTimezone = ref(false);
 const chargeImpossibleTimezoneMessage = ref('');
 const chargeStartTime = ref('');
 const chargeEndTime = ref('');
@@ -145,7 +145,7 @@ const loadData = (data) => {
   chargeMax.value = data.charge_max
     ? `${data.charge_max} ${trlang.value.usd_currency}`
     : chargeMaxOption.value[0]?.amount ?? '';
-  chargeTimezone.value = data.charge_timezone ?? true;
+  chargeTimezone.value = data.charge_timezone !== undefined ? Boolean(data.charge_timezone) : false;
   chargeStartTime.value = formatTime(data.charge_start_time);
   chargeEndTime.value = formatTime(data.charge_end_time);
   chargeImpossibleTimezoneMessage.value =

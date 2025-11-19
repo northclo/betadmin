@@ -1,6 +1,6 @@
 import axios from "axios";
 import { message } from "ant-design-vue";
-// import httpStatusCodes from 'http-status-codes'
+import httpStatusCodes from 'http-status-codes';
 import router from '@/Router'
 import { config } from "@/config/index.js";
 import { routeLink } from '@/utils/route-link.js';
@@ -10,15 +10,20 @@ const clearAuthData = () => {
   localStorage.removeItem('user');
   localStorage.removeItem('currency');
   localStorage.removeItem('pass');
+  localStorage.removeItem('permissions');
+  localStorage.removeItem('partnerRole');
+  
+  try {
+    const store = require('../store').default;
+    if (store && store.commit) {
+      store.commit('clearPermissions');
+      store.commit('clearPartnerRole');
+    }
+  } catch (e) {
+    console.error('Error clearing auth data:', e);
+  }
 };
 
-/**
- * @summary
- * This feature checks response of axios is success.
- * If result is success, return response data from backend and if result is failed, return error message.
- *
- * @param {function} fn
- */
 const handleError =
   (fn) =>
     async (...params) => {
@@ -27,20 +32,21 @@ const handleError =
       } catch (error) {
         if (error.response) {
           // in the case of unautherized user
-          // if (error.response.status == httpStatusCodes.UNAUTHORIZED) {
-          //   clearAuthData();
-          //   router.push(routeLink.login.link)
-          // }
-          clearAuthData();
-          router.push(routeLink.login.link);
-          message.error(`${error.response.data.message}`);
+          if (error.response.status == httpStatusCodes.UNAUTHORIZED) {
+            clearAuthData();
+            router.push(routeLink.login.link);
+            message.error(`${error.response.data.message}`);
+          }
+          // clearAuthData();
+          // router.push(routeLink.login.link);
+          // message.error(`${error.response.data.message}`);
           return {
             status: false,
           };
         } else {
-          clearAuthData();
-          router.push(routeLink.login.link);
-          message.error("No response from server. Please check your network.");
+          // clearAuthData();
+          // router.push(routeLink.login.link);
+          // message.error(enLang.no_response_from_server);
           return {
             status: false,
           };

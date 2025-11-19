@@ -1,8 +1,8 @@
 <template>
   <a-layout class="bg-white px-5">
-    <a-typography-text class="text-dark-gray fs-1">
+    <a-typography-title :level="3">
       {{ trlang.game_management }}
-    </a-typography-text>
+    </a-typography-title>
   </a-layout>
 
   <a-layout class="p-2 flex flex-column gap-2">

@@ -1,21 +1,26 @@
 <template>
-  <a-layout class="service-center-view">
-    <header class="service-center-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.custom_service_center }}
       </a-typography-title>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
           <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.date_range">
-              <a-range-picker v-model:value="filters.range" style="width: 100%" />
+            <a-form-item class="mb-0" :label="trlang.date_range">
+              <a-range-picker 
+                v-model:value="filters.range" 
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.status">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.status">
               <a-select v-model:value="filters.status" allow-clear style="width: 100%">
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
                 <a-select-option value="pending">{{ trlang.pending }}</a-select-option>
@@ -24,45 +29,47 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.search_key_word">
-              <a-input-group compact>
-                <a-select v-model:value="filters.searchType" style="width: 40%">
-                  <a-select-option value="user_nickname">{{ trlang.nickname }}</a-select-option>
-                  <a-select-option value="user_id">{{ trlang.id }}</a-select-option>
-                  <a-select-option value="title">{{ trlang.title }}</a-select-option>
-                  <a-select-option value="content">{{ trlang.content }}</a-select-option>
-                </a-select>
-                <a-input v-model:value="filters.keyword" style="width: 60%" :placeholder="trlang.search_placeholder" />
-              </a-input-group>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword_filter">
+              <a-select v-model:value="filters.searchType">
+                <a-select-option value="user_nickname">{{ trlang.nickname }}</a-select-option>
+                <a-select-option value="user_id">{{ trlang.id }}</a-select-option>
+                <a-select-option value="title">{{ trlang.title }}</a-select-option>
+                <a-select-option value="content">{{ trlang.content }}</a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword_filter">
+              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
         </a-row>
-        <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
-            {{ trlang.search }}
-          </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
-        </div>
       </a-form>
     </a-card>
 
-    <a-card class="table-card">
-      <template #title>
-        <div class="table-title">
-          <span>{{ trlang.customer_center }}</span>
-        </div>
-      </template>
-      <template #extra>
-        <a-button 
-          danger 
-          :disabled="selectedRowKeys.length === 0"
-          @click="handleBulkDelete"
-        >
-          <template #icon><CloseOutlined /></template>
-          {{ trlang.delete_selected_items }}
-        </a-button>
-      </template>
+    <div class="flex items-center justify-between mb-4">
+      <span class="fs-4 font-semibold">{{ trlang.customer_center }}</span>
+      <a-button 
+        danger 
+        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
+        :loading="bulkDeleteLoading"
+        @click="handleBulkDelete"
+      >
+        <template #icon><CloseOutlined /></template>
+        {{ trlang.delete_selected_items }}
+      </a-button>
+    </div>
+
+    <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
@@ -97,7 +104,7 @@
             <a-tag v-if="record.parentPartnerName" color="gold">
               {{ record.parentPartnerName }}
             </a-tag>
-            <span v-else>-</span>
+            <span v-else>{{ trlang.no_data }}</span>
           </template>
           <template v-else-if="column.dataIndex === 'firstMessageDate'">
             {{ formatDate(record.firstMessageDate) }}
@@ -106,7 +113,7 @@
             {{ formatDate(record.messageSendDate) }}
           </template>
           <template v-else-if="column.dataIndex === 'ipAddress'">
-            {{ record.ipAddress || "-" }}
+            {{ record.ipAddress || trlang.no_data }}
           </template>
           <template v-else-if="column.dataIndex === 'answerDate'">
             {{ formatDate(record.answerDate) }}
@@ -116,7 +123,7 @@
           </template>
         </template>
       </a-table>
-    </a-card>
+    </a-layout-content>
 
     <a-modal
       v-model:open="viewModalVisible"
@@ -148,18 +155,37 @@
           </a-form-item>
         </a-form>
         <div class="modal-actions">
-          <a-button type="primary" class="bg-main text-white" @click="handleResolve">
+          <a-button 
+            type="primary" 
+            class="bg-main text-white" 
+            :loading="resolveLoading"
+            :disabled="rejectLoading || deleteLoading"
+            @click="handleResolve"
+          >
             <template #icon><CheckOutlined /></template>
             {{ trlang.resolve }}
           </a-button>
-          <a-button type="default" @click="handleReject">
+          <a-button 
+            type="default" 
+            :loading="rejectLoading"
+            :disabled="resolveLoading || deleteLoading"
+            @click="handleReject"
+          >
             <template #icon><CloseOutlined /></template>
             {{ trlang.reject }}
           </a-button>
-          <a-button @click="handleBack">
+          <a-button 
+            :disabled="resolveLoading || rejectLoading || deleteLoading"
+            @click="handleBack"
+          >
             {{ trlang.back }}
           </a-button>
-          <a-button danger @click="handleDelete(viewingRecord.id)">
+          <a-button 
+            danger 
+            :loading="deleteLoading"
+            :disabled="resolveLoading || rejectLoading"
+            @click="handleDelete(viewingRecord.id)"
+          >
             <template #icon><DeleteOutlined /></template>
             {{ trlang.delete }}
           </a-button>
@@ -184,6 +210,11 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
+const searchLoading = ref(false);
+const resolveLoading = ref(false);
+const rejectLoading = ref(false);
+const deleteLoading = ref(false);
+const bulkDeleteLoading = ref(false);
 const viewModalVisible = ref(false);
 const viewingRecord = ref(null);
 const selectedRowKeys = ref([]);
@@ -214,7 +245,7 @@ const tableData = ref([]);
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const formatDate = (dateString) => {
-  if (!dateString) return "-";
+  if (!dateString) return trlang.value.no_data;
   return dayjs(dateString).format("YYYY-MM-DD HH:mm");
 };
 
@@ -224,12 +255,16 @@ const buildQuery = () => {
     limit: paginationConfig.value.pageSize.toString(),
   });
 
-  if (filters.value.range && filters.value.range.length === 2) {
-    if (filters.value.range[0]) {
-      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
     }
-    if (filters.value.range[1]) {
-      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
     }
   }
 
@@ -272,9 +307,14 @@ const fetchData = async () => {
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
   paginationConfig.value.current = 1;
-  fetchData();
+  searchLoading.value = true;
+  try {
+    await fetchData();
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
 const resetFilters = () => {
@@ -314,7 +354,7 @@ const handleResolve = async () => {
     return;
   }
 
-  loading.value = true;
+  resolveLoading.value = true;
   try {
     const updateRes = await putData(
       `${apiLink.update_support_ticket}/${viewingRecord.value.id}`,
@@ -329,7 +369,7 @@ const handleResolve = async () => {
       viewModalVisible.value = false;
       viewingRecord.value = null;
       answerForm.value.answer = "";
-      fetchData();
+      await fetchData();
     } else {
       message.error(updateRes.message || trlang.value.failed_to_update_ticket_status);
     }
@@ -337,14 +377,14 @@ const handleResolve = async () => {
     console.error("Error resolving ticket:", error);
     message.error(trlang.value.failed_to_resolve_ticket);
   } finally {
-    loading.value = false;
+    resolveLoading.value = false;
   }
 };
 
 const handleReject = async () => {
   if (!viewingRecord.value) return;
 
-  loading.value = true;
+  rejectLoading.value = true;
   try {
     const updateRes = await putData(
       `${apiLink.update_support_ticket}/${viewingRecord.value.id}`,
@@ -356,7 +396,7 @@ const handleReject = async () => {
       viewModalVisible.value = false;
       viewingRecord.value = null;
       answerForm.value.answer = "";
-      fetchData();
+      await fetchData();
     } else {
       message.error(updateRes.message || trlang.value.failed_to_reject_ticket);
     }
@@ -364,7 +404,7 @@ const handleReject = async () => {
     console.error("Error rejecting ticket:", error);
     message.error(trlang.value.failed_to_reject_ticket);
   } finally {
-    loading.value = false;
+    rejectLoading.value = false;
   }
 };
 
@@ -377,7 +417,7 @@ const handleBack = () => {
 const handleDelete = async (ticketId) => {
   if (!ticketId) return;
   
-  loading.value = true;
+  deleteLoading.value = true;
   try {
     const res = await deleteData(`${apiLink.delete_support_ticket}/${ticketId}`);
     if (res.status) {
@@ -385,7 +425,7 @@ const handleDelete = async (ticketId) => {
       viewModalVisible.value = false;
       viewingRecord.value = null;
       answerForm.value.answer = "";
-      fetchData();
+      await fetchData();
     } else {
       message.error(res.message || trlang.value.failed_to_delete_ticket);
     }
@@ -393,7 +433,7 @@ const handleDelete = async (ticketId) => {
     console.error("Error deleting ticket:", error);
     message.error(trlang.value.failed_to_delete_ticket);
   } finally {
-    loading.value = false;
+    deleteLoading.value = false;
   }
 };
 
@@ -403,7 +443,7 @@ const handleBulkDelete = async () => {
     return;
   }
 
-  loading.value = true;
+  bulkDeleteLoading.value = true;
   try {
     const res = await postData(`${apiLink.bulk_delete_support}`, {
       ids: selectedRowKeys.value,
@@ -412,7 +452,7 @@ const handleBulkDelete = async () => {
     if (res.status) {
       message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
       selectedRowKeys.value = [];
-      fetchData();
+      await fetchData();
     } else {
       message.error(res.message || trlang.value.failed_to_delete_selected_items);
     }
@@ -420,7 +460,7 @@ const handleBulkDelete = async () => {
     console.error("Error bulk deleting tickets:", error);
     message.error(trlang.value.failed_to_delete_selected_items);
   } finally {
-    loading.value = false;
+    bulkDeleteLoading.value = false;
   }
 };
 
@@ -430,38 +470,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.service-center-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.service-center-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-
-.table-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .ticket-details {
   max-height: 70vh;
   overflow-y: auto;

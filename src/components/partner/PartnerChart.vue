@@ -137,7 +137,7 @@ function createGraph() {
       },
       layout: { type: "dagre" },
       autoFit: "view",
-      behaviors: ["level-of-detail", "zoom-canvas", "drag-canvas"],
+      behaviors: [],
     });
     graph.render();
   } else {

@@ -1,6 +1,6 @@
 <template>
-  <a-layout class="bg-white p-2">
-    <a-typography-text class="text-dark-gray font-bold p-2 fs-4 mb-2 border-bottom">
+  <a-layout>
+    <a-typography-text class="text-dark-gray font-bold fs-4 mb-4">
       <RightCircleFilled />
       {{ trlang.change_administrator_password }}
     </a-typography-text>
@@ -11,34 +11,34 @@
     </p>
 
     <a-layout class="bg-none">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.administrator_id }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-input v-model:value="adminId" disabled />
       </a-layout-content>
     </a-layout>
 
     <a-layout class="bg-none">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.administrator_password }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-input-password v-model:value="password" />
       </a-layout-content>
     </a-layout>
 
     <a-layout class="bg-none">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.confirm_administrator_password }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-input-password v-model:value="confirmPassword" />
       </a-layout-content>
     </a-layout>

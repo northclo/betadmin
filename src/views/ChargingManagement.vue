@@ -1,19 +1,19 @@
 <template>
-  <a-layout class="charge-view">
-    <header class="charge-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.charging_management }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.charging_management_description }}
       </a-typography-text>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.request_range">
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.request_range">
               <a-range-picker 
                 v-model:value="filters.range" 
                 style="width: 100%"
@@ -22,8 +22,8 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.request_status">
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.request_status">
               <a-select v-model:value="filters.status" allow-clear>
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
                 <a-select-option value="pending">{{ trlang.pending }}</a-select-option>
@@ -32,8 +32,8 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8" class="actions">
-            <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
               {{ trlang.search }}
             </a-button>
             <a-button @click="resetFilters">
@@ -46,16 +46,16 @@
 
     <a-row :gutter="[16, 16]">
       <a-col :xs="24" :md="12" :lg="6" v-for="card in summaryCards" :key="card.key">
-        <a-card class="summary-card">
+        <a-card class="summary-card" :loading="summaryLoading">
           <template #title>{{ card.title }}</template>
-          <a-typography-title :level="2" class="summary-value">
+          <a-typography-title :level="2" class="mb-0">
             {{ card.value }}
           </a-typography-title>
         </a-card>
       </a-col>
     </a-row>
 
-    <a-card class="table-card">
+    <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
@@ -64,19 +64,24 @@
         row-key="id"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'amount'">
-            {{ formatCurrency(record.amount) }}
-          </template>
-          <template v-else-if="column.dataIndex === 'status'">
-            <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
-          </template>
-          <template v-else-if="column.dataIndex === 'action'">
+      <template #bodyCell="{ column, record, index }">
+        <template v-if="column.key === 'no'">
+          {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+        </template>
+        <template v-else-if="column.dataIndex === 'amount'">
+          {{ formatCurrency(record.amount) }}
+        </template>
+        <template v-else-if="column.dataIndex === 'status'">
+          <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
+        </template>
+        <template v-else-if="column.dataIndex === 'action'">
             <a-space>
               <a-button 
                 v-if="record.status === 'pending'"
                 type="primary" 
                 size="small"
+                :loading="actionLoading[record._id || record.id] === 'approve'"
+                :disabled="actionLoading[record._id || record.id] !== undefined"
                 @click="handleAction(record, 'approve')"
               >
                 {{ trlang.approve }}
@@ -85,6 +90,8 @@
                 v-if="record.status === 'pending'"
                 danger 
                 size="small"
+                :loading="actionLoading[record._id || record.id] === 'reject'"
+                :disabled="actionLoading[record._id || record.id] !== undefined"
                 @click="handleAction(record, 'reject')"
               >
                 {{ trlang.reject }}
@@ -93,7 +100,7 @@
           </template>
         </template>
       </a-table>
-    </a-card>
+    </a-layout-content>
   </a-layout>
 </template>
 
@@ -111,10 +118,11 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
-const defaultStartDate = dayjs().subtract(7, "day").format("YYYY-MM-DD");
-const defaultEndDate = dayjs().format("YYYY-MM-DD");
+const summaryLoading = ref(false);
+const searchLoading = ref(false);
+const actionLoading = ref({});
 const filters = ref({
-  range: [defaultStartDate, defaultEndDate],
+  range: null,
   status: "all",
 });
 
@@ -149,6 +157,7 @@ const summaryCards = computed(() => [
 ]);
 
 const columns = computed(() => [
+  { title: trlang.value.no_column, key: "no", width: 80 },
   { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
   { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
@@ -198,12 +207,16 @@ const buildQuery = () => {
     pageSize: paginationConfig.value.pageSize.toString(),
   });
 
-  if (filters.value.range && filters.value.range.length === 2) {
-    if (filters.value.range[0]) {
-      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
     }
-    if (filters.value.range[1]) {
-      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
     }
   }
 
@@ -213,12 +226,16 @@ const buildQuery = () => {
 const buildSummaryQuery = () => {
   const params = new URLSearchParams();
 
-  if (filters.value.range && filters.value.range.length === 2) {
-    if (filters.value.range[0]) {
-      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
     }
-    if (filters.value.range[1]) {
-      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
     }
   }
 
@@ -250,6 +267,7 @@ const fetchData = async () => {
 };
 
 const fetchSummary = async () => {
+  summaryLoading.value = true;
   try {
     const res = await getData(`${apiLink.get_charging_summary}?${buildSummaryQuery()}`);
 
@@ -264,18 +282,23 @@ const fetchSummary = async () => {
   } catch (error) {
     console.error("Error fetching summary:", error);
     message.error(trlang.value.failed_to_fetch_summary_data);
+  } finally {
+    summaryLoading.value = false;
   }
 };
 
 const handleAction = async (record, action) => {
+  const recordId = record._id || record.id;
+  const transactionId = record._id || record.id?.replace("REQ-", "");
+
+  if (!transactionId) {
+    message.error(trlang.value.transaction_id_not_found);
+    return;
+  }
+
+  actionLoading.value[recordId] = action;
+
   try {
-    const transactionId = record._id || record.id?.replace("REQ-", "");
-
-    if (!transactionId) {
-      message.error(trlang.value.transaction_id_not_found);
-      return;
-    }
-
     const res = await postData(apiLink.update_charging_status, {
       transactionId,
       action,
@@ -286,22 +309,30 @@ const handleAction = async (record, action) => {
       message.success(successMessage);
       await fetchData();
       await fetchSummary();
+    } else {
+      message.error(res.message || trlang.value.failed_to_update_transaction);
     }
   } catch (error) {
     console.error("Error updating transaction:", error);
     message.error(trlang.value.failed_to_update_transaction);
+  } finally {
+    delete actionLoading.value[recordId];
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
+  searchLoading.value = true;
   paginationConfig.value.current = 1;
-  fetchData();
-  fetchSummary();
+  try {
+    await Promise.all([fetchData(), fetchSummary()]);
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
 const resetFilters = () => {
   filters.value = {
-    range: [dayjs().subtract(7, "day").format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")],
+    range: null,
     status: "all",
   };
   paginationConfig.value.current = 1;
@@ -321,43 +352,4 @@ onMounted(() => {
   fetchSummary();
 });
 </script>
-
-<style scoped>
-.charge-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.charge-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.summary-card {
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.summary-value {
-  margin-bottom: 0;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-</style>
 

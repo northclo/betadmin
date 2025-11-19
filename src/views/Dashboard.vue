@@ -1,15 +1,15 @@
 <template>
   <a-layout class="dashboard-view">
-    <section class="dashboard-header">
+    <div>
       <a-typography-title :level="3">
         {{ trlang.main_page }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.dashboard_welcome }}
       </a-typography-text>
-    </section>
+    </div>
 
-    <a-row :gutter="[16, 16]" class="dashboard-grid">
+    <a-row :gutter="[16, 16]">
       <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
         <a-card :loading="loading" class="metric-card">
           <template #title>{{ trlang.total_members }}</template>
@@ -418,29 +418,6 @@ onBeforeUnmount(() => {
   transition: gap 0.3s ease;
 }
 
-.dashboard-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: gap 0.3s ease;
-}
-
-.dashboard-header :deep(.ant-typography-title) {
-  margin-bottom: 0 !important;
-  font-weight: 700;
-  transition: font-size 0.3s ease;
-}
-
-.dashboard-header :deep(.ant-typography-text) {
-  font-size: 14px;
-  transition: font-size 0.3s ease;
-}
-
-.dashboard-grid {
-  margin: 0;
-  width: 100%;
-}
-
 .metric-card {
   min-height: 180px;
   height: 100%;
@@ -519,10 +496,6 @@ onBeforeUnmount(() => {
     gap: 32px;
   }
 
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 28px;
-  }
-
   .metric-card {
     min-height: 200px;
   }
@@ -538,10 +511,6 @@ onBeforeUnmount(() => {
     gap: 28px;
   }
 
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 26px;
-  }
-
   .metric-card {
     min-height: 190px;
   }
@@ -555,18 +524,6 @@ onBeforeUnmount(() => {
 @media (min-width: 768px) and (max-width: 991px) {
   .dashboard-view {
     gap: 24px;
-  }
-
-  .dashboard-header {
-    gap: 6px;
-  }
-
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 24px;
-  }
-
-  .dashboard-header :deep(.ant-typography-text) {
-    font-size: 13px;
   }
 
   .metric-card {
@@ -609,18 +566,6 @@ onBeforeUnmount(() => {
     gap: 20px;
   }
 
-  .dashboard-header {
-    gap: 6px;
-  }
-
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 22px;
-  }
-
-  .dashboard-header :deep(.ant-typography-text) {
-    font-size: 13px;
-  }
-
   .metric-card {
     min-height: 160px;
   }
@@ -659,18 +604,6 @@ onBeforeUnmount(() => {
 @media (max-width: 575px) {
   .dashboard-view {
     gap: 16px;
-  }
-
-  .dashboard-header {
-    gap: 4px;
-  }
-
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 20px;
-  }
-
-  .dashboard-header :deep(.ant-typography-text) {
-    font-size: 12px;
   }
 
   .metric-card {
@@ -722,14 +655,6 @@ onBeforeUnmount(() => {
     gap: 14px;
   }
 
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 18px;
-  }
-
-  .dashboard-header :deep(.ant-typography-text) {
-    font-size: 11px;
-  }
-
   .metric-card {
     min-height: 140px;
   }
@@ -761,10 +686,6 @@ onBeforeUnmount(() => {
 
 /* Very Small Screens (up to 320px) */
 @media (max-width: 320px) {
-  .dashboard-header :deep(.ant-typography-title) {
-    font-size: 16px;
-  }
-
   .metric-card {
     min-height: 130px;
   }
@@ -846,18 +767,6 @@ onBeforeUnmount(() => {
 
   .dashboard-view {
     gap: 16px;
-  }
-}
-
-/* Accessibility - Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .dashboard-view,
-  .dashboard-header,
-  .metric-card,
-  .metric-value,
-  .pending-list,
-  .pending-item {
-    transition: none;
   }
 }
 </style>

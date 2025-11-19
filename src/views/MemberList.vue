@@ -1,120 +1,97 @@
 <template>
-  <a-layout class="panel-heading">
-    <a-typography-text class="panel-heading__title">
-      {{ trlang.member_list }}
-    </a-typography-text>
-  </a-layout>
+  <a-layout>
+    <div class="mb-4">
+      <a-typography-title :level="3">
+        {{ trlang.member_list }}
+      </a-typography-title>
+    </div>
+    <a-card class="filters-card">
+      <a-form :model="filters" layout="vertical" @submit.prevent>
+        <a-row :gutter="[16, 16]">
+          <a-col :xs="24" :md="5">
+            <a-form-item class="mb-0" :label="trlang.duration">
+              <a-select
+                v-model:value="duration"
+                :options="durationOptions"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.date_range">
+              <a-range-picker
+                v-model:value="filters.range"
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.user_status">
+              <a-select
+                v-model:value="userStatus"
+                :options="userStatusOptions"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.partner">
+              <a-select
+                v-model:value="partner"
+                :options="partnerOptions"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select
+                v-model:value="searchField"
+                :options="searchFieldOptions"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.search_placeholder">
+              <a-input
+                v-model:value="search"
+                class="search-input"
+                :placeholder="trlang.search_placeholder"
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.sort">
+              <a-select
+                v-model:value="sort"
+                :options="sortOptions"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-form-item class="mb-0">
+              <a-space>
+                <a-button type="primary" class="bg-main text-white" :loading="loadingSearch" @click="handleFilterChange">
+                  {{ trlang.search }}
+                </a-button>
+                <a-button @click="resetFilters">
+                  {{ trlang.reset }}
+                </a-button>
+              </a-space>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
 
-  <a-layout class="panel-body">
-    <a-layout-header
-      class="panel-toolbar flex items-center flex-wrap gap-5"
-    >
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="filter-label p-2 px-5">{{
-          trlang.duration
-        }}</a-typography-text>
-        <a-select
-          v-model:value="duration"
-          :options="durationOptions"
-          class="input-lg filter-select"
-          @change="handleFilterChange"
-        />
-        <a-typography-text class="date-label">{{ trlang.start_date }}</a-typography-text>
-        <a-date-picker
-          v-model:value="startDate"
-          class="input-lg filter-date-picker"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          @change="handleFilterChange"
-        />
-        <a-typography-text class="date-separator">~</a-typography-text>
-        <a-typography-text class="date-label">{{ trlang.end_date }}</a-typography-text>
-        <a-date-picker
-          v-model:value="endDate"
-          class="input-lg filter-date-picker"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="filter-label p-2 px-5">{{
-          trlang.user_status
-        }}</a-typography-text>
-        <a-select
-          v-model:value="userStatus"
-          :options="userStatusOptions"
-          class="input-md filter-select"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="filter-label p-2 px-5">{{
-          trlang.partner
-        }}</a-typography-text>
-        <a-select
-          v-model:value="partner"
-          :options="partnerOptions"
-          class="input-lg filter-select"
-          @change="handleFilterChange"
-        />
-        <a-typography-text>{{ trlang.include_sub }}</a-typography-text>
-        <a-checkbox v-model:checked="includeSub" @change="handleFilterChange" />
-      </div>
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="filter-label p-2 px-5">{{
-          trlang.keyword
-        }}</a-typography-text>
-        <a-select
-          v-model:value="searchField"
-          :options="searchFieldOptions"
-          class="input-lg filter-select"
-          @change="handleFilterChange"
-        />
-        <a-input
-          v-model:value="search"
-          :placeholder="trlang.search_placeholder"
-          class="input-lg filter-input"
-          @press-enter="handleFilterChange"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-        <a-button type="primary" @click="handleFilterChange">
-          {{ trlang.search }}
-        </a-button>
-      </div>
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="">
-          {{ trlang.current_loggedin_users }}
-        </a-typography-text>
-        <a-checkbox
-          v-model:checked="currentLoggedinUser"
-          @change="handleFilterChange"
-        />
-      </div>
-      <a-button @click="refreshPage" class="filter-button">{{ trlang.refresh_page }}</a-button>
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="">
-          {{ trlang.consider_users }}
-        </a-typography-text>
-        <a-checkbox v-model:checked="considerUser" @change="handleFilterChange" />
-      </div>
-      <div class="flex items-center gap-2 filter-group">
-        <a-typography-text class="filter-label p-2 px-5">
-          {{ trlang.sort }}
-        </a-typography-text>
-        <a-select
-          v-model:value="sort"
-          :options="sortOptions"
-          class="input-lg filter-select"
-          @change="handleFilterChange"
-        />
-      </div>
-    </a-layout-header>
-
-    <div class="status-summary-bar flex items-center gap-4 p-4 mb-4 bg-white rounded">
+    <div class="status-summary-bar flex items-center gap-4 mb-4">
       <div
         class="status-item flex items-center gap-2 cursor-pointer"
         @click="handleStatusClick('')"
@@ -190,18 +167,18 @@
       </a-button>
     </div>
 
-    <a-layout-content class="table-panel">
-      <div class="table-wrapper">
-        <a-table
-          :columns="memberListColumn"
-          :data-source="dataSource"
-          :row-key="rowKey"
-          class="w-100 table-transparent"
-          :scroll="dataSource.length ? { x: 'max-content' } : undefined"
-          :pagination="paginationConfig"
-          @change="handleTableChange"
-          :row-selection="rowSelection"
-        >
+    <div class="table-wrapper">
+      <a-table
+        :columns="memberListColumn"
+        :data-source="dataSource"
+        :row-key="rowKey"
+        class="w-100 table-transparent"
+        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
+        :pagination="paginationConfig"
+        @change="handleTableChange"
+        :row-selection="rowSelection"
+        :loading="loading"
+      >
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -229,34 +206,29 @@
               <a-typography-text>
                 <span class="font-bold">
                   {{
-                    record.own_partners?.[0]?.nickname ||
                     record.partners?.[0]?.nickname ||
                     record.user_nickname ||
                     '-'
                   }}
                 </span>
                 ({{
-                  record.own_partners?.[0]?.partner_id ||
                   record.partners?.[0]?.partner_id ||
                   record.user_nickname ||
                   '-'
                 }})
               </a-typography-text>
               <a-typography-text
-                v-if="record.own_partners?.[0]?.role || record.partners?.[0]?.role"
+                v-if="record.partners?.[0]?.role"
                 class="filter-badge px-2 py-1 w-fit"
               >
                 {{
-                  trlang[record.own_partners?.[0]?.role] ||
-                  trlang[record.partners?.[0]?.role] ||
-                  ''
+                  trlang[record.partners?.[0]?.role] || ''
                 }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'partner'">
             {{
-              record.own_partners?.[0]?.nickname ||
               record.partners?.[0]?.nickname ||
               '-'
             }}
@@ -267,10 +239,10 @@
           <template v-if="column.key === 'owned_money'">
             <div class="flex flex-column">
               <a-typography-text class="text-red">
-                {{ (record.own_money || 0).toLocaleString() }}USD
+                {{ (record.own_money || 0).toLocaleString() }}{{ trlang.usd_currency }}
               </a-typography-text>
               <a-typography-text>
-                {{ (record.point || 0).toLocaleString() }}P
+                {{ (record.point || 0).toLocaleString() }}{{ trlang.points_unit }}
               </a-typography-text>
             </div>
           </template>
@@ -279,21 +251,21 @@
               record.totalImportAmount
                 ? record.totalImportAmount.toLocaleString()
                 : 0
-            }}USD
+            }}{{ trlang.usd_currency }}
           </template>
           <template v-if="column.key === 'all_exchange_money'">
             {{
               record.totalExchangeAmount
                 ? record.totalExchangeAmount.toLocaleString()
                 : 0
-            }}USD
+            }}{{ trlang.usd_currency }}
           </template>
           <template v-if="column.key === 'partner_earning'">
             {{
               record.totalPartnerEarning
                 ? record.totalPartnerEarning.toLocaleString()
                 : 0
-            }}USD
+            }}{{ trlang.usd_currency }}
           </template>
           <template v-if="column.key === 'total_betting_amount'">
             <a-typography-text class="text-main">
@@ -301,7 +273,7 @@
                 record.totalBettingAmount
                   ? record.totalBettingAmount.toLocaleString()
                   : 0
-              }}USD
+              }}{{ trlang.usd_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'total_win_number'">
@@ -315,11 +287,11 @@
                 record.totalEarningAmount
                   ? record.totalEarningAmount.toLocaleString()
                   : 0
-              }}USD
+              }}{{ trlang.usd_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_provide_point'">
-            {{ (record.point || 0).toLocaleString() }}P
+            {{ (record.point || 0).toLocaleString() }}{{ trlang.points_unit }}
           </template>
           <template v-if="column.key === 'last_import_date'">
             <div class="flex flex-column justify-center items-center">
@@ -353,8 +325,7 @@
           </template>
         </template>
       </a-table>
-      </div>
-    </a-layout-content>
+    </div>
   </a-layout>
 
   <a-modal
@@ -364,13 +335,13 @@
     width="800px"
     @cancel="handleCloseBlockIpModal"
   >
-    <div class="block-ip-modal">
+    <div>
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-4">
           <RightOutlined class="text-gray-500" />
-          <h3 class="text-lg font-semibold">{{ trlang.register_blocking_ip }}</h3>
+          <p class="text-lg font-semibold">{{ trlang.register_blocking_ip }}</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mb-4">
           <a-typography-text class="min-w-[120px]">{{ trlang.blocking_ip }}</a-typography-text>
           <a-input
             v-model:value="newBlockedIp"
@@ -382,6 +353,7 @@
             type="primary"
             class="bg-gray-200 text-gray-700 border-none"
             @click="handleRegisterIp"
+            :loading="loadingRegisterIp"
           >
             <template #icon><CheckOutlined /></template>
             {{ trlang.register }}
@@ -392,7 +364,7 @@
       <div>
         <div class="flex items-center gap-2 mb-4">
           <RightOutlined class="text-gray-500" />
-          <h3 class="text-lg font-semibold">{{ trlang.blocked_ip_list }}</h3>
+          <p class="text-lg font-semibold">{{ trlang.blocked_ip_list }}</p>
         </div>
         <a-table
           :columns="blockedIpColumns"
@@ -412,6 +384,7 @@
               <a-button
                 class="bg-gray-200 text-gray-700 border-none"
                 @click="handleRemoveIp(record.id)"
+                :loading="loadingRemoveIp[record.id]"
               >
                 <template #icon><CheckOutlined /></template>
                 {{ trlang.remove }}
@@ -421,7 +394,7 @@
         </a-table>
       </div>
 
-      <div class="flex justify-center mt-6">
+      <div class="flex justify-center mt-4">
         <a-button
           class="bg-gray-200 text-gray-700 border-none"
           @click="handleCloseBlockIpModal"
@@ -450,6 +423,7 @@ import {
   CloseOutlined,
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { memberListColumn as baseMemberListColumn } from '@/utils/table-column/member-list.js';
 import { getData, putData, deleteData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -463,21 +437,19 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-// Filters
+const filters = ref({
+  range: null,
+});
+
 const duration = ref('');
 const durationOptions = ref([]);
-const startDate = ref('');
-const endDate = ref('');
 const userStatus = ref('');
 const userStatusOptions = ref([]);
 const partner = ref('');
 const partnerOptions = ref([]);
-const includeSub = ref(false);
 const search = ref('');
 const searchField = ref('');
 const searchFieldOptions = ref([]);
-const currentLoggedinUser = ref(false);
-const considerUser = ref(false);
 const sort = ref('');
 const sortOptions = ref([]);
 
@@ -498,6 +470,9 @@ const blockIpModalVisible = ref(false);
 const newBlockedIp = ref('');
 const blockedIpList = ref([]);
 const loadingBlockedIps = ref(false);
+const loadingSearch = ref(false);
+const loadingRegisterIp = ref(false);
+const loadingRemoveIp = ref({});
 
 const blockedIpColumns = computed(() => [
   {
@@ -638,19 +613,27 @@ const buildQuery = () => {
   
   const params = new URLSearchParams({
     duration: duration.value || '',
-    startDate: startDate.value || '',
-    endDate: endDate.value || '',
     userStatus: userStatus.value || '',
     partner: partner.value || '',
-    includeSub: includeSub.value ? 'true' : 'false',
     searchField: searchField.value || '',
     search: search.value || '',
-    currentLoggedinUser: currentLoggedinUser.value ? 'true' : 'false',
-    considerUser: considerUser.value ? 'true' : 'false',
     sort: formattedSort,
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
+
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
+    }
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
+    }
+  }
 
   return params.toString();
 };
@@ -708,40 +691,42 @@ const fetchData = async () => {
 };
 
 const validateDateRange = () => {
-  if (startDate.value && endDate.value) {
-    const start = new Date(startDate.value);
-    const end = new Date(endDate.value);
-    if (start > end) {
-      message.warning(trlang.value.end_date_must_be_after_start_date);
-      return false;
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start && end) {
+      const startDate = dayjs.isDayjs(start) ? start : dayjs(start);
+      const endDate = dayjs.isDayjs(end) ? end : dayjs(end);
+      if (startDate.isAfter(endDate)) {
+        message.warning(trlang.value.end_date_must_be_after_start_date);
+        return false;
+      }
     }
   }
   return true;
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
   if (!validateDateRange()) {
     return;
   }
-  const isFirstPage = paginationConfig.value.current === 1;
+  loadingSearch.value = true;
   paginationConfig.value.current = 1;
-  if (isFirstPage) {
-    fetchData();
+  try {
+    await fetchData();
+  } finally {
+    loadingSearch.value = false;
   }
 };
 
-const refreshPage = () => {
-  initOptions();
-  startDate.value = '';
-  endDate.value = '';
+const resetFilters = () => {
+  duration.value = 'import_exchange_betting';
+  filters.value.range = null;
   userStatus.value = '';
   partner.value = '';
-  includeSub.value = false;
   search.value = '';
-  currentLoggedinUser.value = false;
-  considerUser.value = false;
-  loading.value = false;
-  selectedRowKeys.value = [];
+  searchField.value = 'user_id';
+  sort.value = 'created_date';
   paginationConfig.value.current = 1;
   fetchData();
 };
@@ -796,6 +781,7 @@ const handleRegisterIp = async () => {
     return;
   }
 
+  loadingRegisterIp.value = true;
   try {
     const res = await putData(apiLink.block_ip, {
       ip: ipAddress,
@@ -813,10 +799,13 @@ const handleRegisterIp = async () => {
     console.error('Error blocking IP:', error);
     const errorMessage = error?.response?.data?.message || trlang.value.error_blocking_ip;
     message.error(errorMessage || trlang.value.error_blocking_ip);
+  } finally {
+    loadingRegisterIp.value = false;
   }
 };
 
 const handleRemoveIp = async (id) => {
+  loadingRemoveIp.value[id] = true;
   try {
     const res = await deleteData(`${apiLink.remove_blocked_ip}/${id}`);
     if (res && res.status) {
@@ -829,6 +818,8 @@ const handleRemoveIp = async (id) => {
     console.error('Error removing IP:', error);
     const errorMessage = error?.response?.data?.message || trlang.value.error_removing_ip;
     message.error(errorMessage || trlang.value.error_removing_ip);
+  } finally {
+    loadingRemoveIp.value[id] = false;
   }
 };
 

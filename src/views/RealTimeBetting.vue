@@ -1,92 +1,80 @@
 <template>
-  <a-layout class="panel-heading">
-    <a-typography-text class="panel-heading__title">
-      {{ trlang.real_time_betting }}
-    </a-typography-text>
-    <a-typography-text class="panel-heading__subtitle">
-      {{ trlang.real_time_betting_description }}
-    </a-typography-text>
-  </a-layout>
+  <a-layout>
+    <div class="mb-4">
+      <a-typography-title :level="3">
+        {{ trlang.real_time_betting }}
+      </a-typography-title>
+      <a-typography-text type="secondary">
+        {{ trlang.real_time_betting_description }}
+      </a-typography-text>
+    </div>
 
-  <a-layout class="panel-body">
-    <a-layout-header
-      class="panel-toolbar flex items-center flex-wrap gap-5"
-    >
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.partner
-        }}</a-typography-text>
-        <a-select
-          v-model:value="partner"
-          :options="partnerOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-        <a-typography-text>{{ trlang.include_sub }}</a-typography-text>
-        <a-checkbox v-model:checked="includeSub" @change="handleFilterChange" />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.betting_type
-        }}</a-typography-text>
-        <a-select
-          v-model:value="bettingType"
-          :options="bettingTypeOptions"
-          class="input-md"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.keyword
-        }}</a-typography-text>
-        <a-select
-          v-model:value="searchField"
-          :options="searchFieldOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-        <a-input
-          v-model:value="search"
-          :placeholder="trlang.search_placeholder"
-          class="input-lg"
-          @press-enter="handleFilterChange"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-        <a-button type="primary" @click="handleFilterChange">
-          {{ trlang.search }}
-        </a-button>
-      </div>
-      <div class="flex items-center gap-2">
-        <a-switch
-          v-model:checked="autoRefresh"
-          :checked-children="trlang.auto_refresh"
-          :un-checked-children="trlang.auto_refresh"
-        />
-        <a-typography-text v-if="autoRefresh">
-          {{ trlang.refreshing_in }} {{ refreshCountdown }}s
-        </a-typography-text>
-      </div>
-      <a-button @click="refreshPage">{{ trlang.refresh_page }}</a-button>
-    </a-layout-header>
+    <a-card class="filters-card">
+      <a-form :model="filters" layout="vertical" @submit.prevent>
+        <a-row :gutter="[16, 16]">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.partner">
+              <a-select
+                v-model:value="filters.partner"
+                :options="partnerOptions"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.betting_type">
+              <a-select
+                v-model:value="filters.bettingType"
+                :options="bettingTypeOptions"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select
+                v-model:value="filters.searchField"
+                :options="searchFieldOptions"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-input
+                v-model:value="filters.search"
+                class="search-input"
+                :placeholder="trlang.search_placeholder"
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
 
-    <a-layout-content class="table-panel">
+    <a-layout-content>
       <a-table
         :columns="bettingListColumn"
         :data-source="dataSource"
+        :loading="loading"
         :row-key="rowKey"
         class="w-100 table-transparent"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
         @change="handleTableChange"
       >
-        <template #emptyText>
-          <a-spin v-if="loading" />
-          <span v-else>{{ trlang.no_data }}</span>
-        </template>
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
@@ -133,10 +121,10 @@
           <template v-if="column.key === 'partner'">
             <div class="flex flex-column">
               <a-typography-text>
-                {{ record.own_partner_nickname || record.partner_nickname || '-' }}
+                {{ record.partner_nickname || '-' }}
               </a-typography-text>
-              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2" v-if="record.own_partner_role || record.partner_role">
-                {{ trlang[record.own_partner_role || record.partner_role] || '' }}
+              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2" v-if="record.partner_role">
+                {{ trlang[record.partner_role] || '' }}
               </a-typography-text>
             </div>
           </template>
@@ -148,7 +136,7 @@
           </template>
           <template v-if="column.key === 'bet_amount'">
             <a-typography-text class="text-main">
-              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}USD
+              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}{{ trlang.usd_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_rate'">
@@ -156,7 +144,7 @@
           </template>
           <template v-if="column.key === 'earning_amount'">
             <a-typography-text :class="record.earning_amount > 0 ? 'text-red' : ''">
-              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}USD
+              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}{{ trlang.usd_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'win'">
@@ -203,25 +191,22 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-// Filters - Only show progress status bets
-const partner = ref('');
+const filters = ref({
+  partner: '',
+  bettingType: '',
+  search: '',
+  searchField: 'user_id',
+});
+
 const partnerOptions = ref([]);
-const includeSub = ref(false);
-const bettingType = ref('');
 const bettingTypeOptions = ref([]);
-const search = ref('');
-const searchField = ref('');
 const searchFieldOptions = ref([]);
 
-const autoRefresh = ref(true);
-const refreshCountdown = ref(10);
-const REFRESH_INTERVAL = 10;
-let refreshInterval = null;
-let countdownInterval = null;
 let fetchDataTimeout = null;
 
 const dataSource = ref([]);
 const loading = ref(false);
+const searchLoading = ref(false);
 const isFetching = ref(false);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(20);
@@ -255,7 +240,7 @@ const initOptions = () => {
     { value: 'number_14', label: trlang.value.number_14 },
     { value: 'number_16', label: trlang.value.number_16 },
   ];
-  searchField.value = 'user_id';
+  filters.value.searchField = 'user_id';
   searchFieldOptions.value = [
     { value: 'user_id', label: trlang.value.id },
     { value: 'user_nickname', label: trlang.value.nickname },
@@ -271,11 +256,10 @@ const rowKey = (record) => record.betting_id || record._id;
 const buildQuery = () => {
   const params = new URLSearchParams({
     bettingStatus: 'progress',
-    partner: partner.value || '',
-    includeSub: includeSub.value ? 'true' : 'false',
-    bettingType: bettingType.value || '',
-    searchField: searchField.value || '',
-    search: search.value || '',
+    partner: filters.value.partner || '',
+    bettingType: filters.value.bettingType || '',
+    searchField: filters.value.searchField || '',
+    search: filters.value.search || '',
     sort: 'created_date:desc',
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
@@ -327,68 +311,30 @@ const fetchData = async (silent = false) => {
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
   if (fetchDataTimeout) {
     clearTimeout(fetchDataTimeout);
   }
 
+  searchLoading.value = true;
   paginationConfig.value.current = 1;
 
-  fetchDataTimeout = setTimeout(() => {
-    fetchData();
-  }, 300);
+  try {
+    await fetchData();
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
-const refreshPage = () => {
-  if (fetchDataTimeout) {
-    clearTimeout(fetchDataTimeout);
-  }
-
-  initOptions();
-  partner.value = '';
-  includeSub.value = false;
-  bettingType.value = '';
-  search.value = '';
+const resetFilters = () => {
+  filters.value = {
+    partner: '',
+    bettingType: '',
+    search: '',
+    searchField: 'user_id',
+  };
   paginationConfig.value.current = 1;
   fetchData();
-};
-
-const startAutoRefresh = () => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
-  }
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-
-  if (autoRefresh.value) {
-    refreshCountdown.value = REFRESH_INTERVAL;
-    
-    countdownInterval = setInterval(() => {
-      if (refreshCountdown.value > 0) {
-        refreshCountdown.value--;
-      }
-    }, 1000);
-
-    refreshInterval = setInterval(() => {
-      refreshCountdown.value = REFRESH_INTERVAL;
-      fetchData(true);
-    }, REFRESH_INTERVAL * 1000);
-  }
-};
-
-const stopAutoRefresh = () => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
-  }
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-  refreshCountdown.value = REFRESH_INTERVAL;
 };
 
 const setupSocketListeners = () => {
@@ -411,14 +357,14 @@ const setupSocketListeners = () => {
 
   socket.on('start_game', (data) => {
     console.log('Game started:', data);
-    if (autoRefresh.value && !isFetching.value) {
+    if (!isFetching.value) {
       fetchData(true);
     }
   });
 
   socket.on('end_game', (data) => {
     console.log('Game ended:', data);
-    if (autoRefresh.value && !isFetching.value) {
+    if (!isFetching.value) {
       fetchData(true);
     }
   });
@@ -439,26 +385,13 @@ watch(
   }
 );
 
-watch(
-  () => autoRefresh.value,
-  (newVal) => {
-    if (newVal) {
-      startAutoRefresh();
-    } else {
-      stopAutoRefresh();
-    }
-  }
-);
-
 onMounted(() => {
   initOptions();
   fetchData();
-  startAutoRefresh();
   setupSocketListeners();
 });
 
 onUnmounted(() => {
-  stopAutoRefresh();
   removeSocketListeners();
   
   if (fetchDataTimeout) {

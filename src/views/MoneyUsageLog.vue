@@ -1,24 +1,29 @@
 <template>
-  <a-layout class="money-log-view">
-    <header class="money-log-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.money_usage_log }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.money_log_description }}
       </a-typography-text>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.transaction_range">
-              <a-range-picker v-model:value="filters.range" style="width: 100%" />
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.transaction_range">
+              <a-range-picker 
+                v-model:value="filters.range" 
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.transaction_type">
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.transaction_type">
               <a-select v-model:value="filters.type" allow-clear>
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
                 <a-select-option value="charge">{{ trlang.charge }}</a-select-option>
@@ -27,33 +32,37 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.member">
-              <a-input v-model:value="filters.member" :placeholder="trlang.member_placeholder" />
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.member">
+              <a-input 
+                v-model:value="filters.member" 
+                :placeholder="trlang.member_placeholder"
+                class="input-lg search-input"
+              />
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
+          </a-col>
         </a-row>
-        <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
-            {{ trlang.search }}
-          </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
-        </div>
       </a-form>
     </a-card>
 
     <a-row :gutter="[16, 16]">
       <a-col :xs="24" :md="12" :lg="6" v-for="card in summaryCards" :key="card.key">
-        <a-card class="summary-card">
+        <a-card class="summary-card" :loading="summaryLoading">
           <template #title>{{ card.title }}</template>
-          <a-typography-title :level="2" class="summary-value">
+          <a-typography-title :level="2" class="mb-0">
             {{ card.value }}
           </a-typography-title>
         </a-card>
       </a-col>
     </a-row>
 
-    <a-card class="table-card">
+    <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
@@ -62,8 +71,11 @@
         row-key="transaction_id"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'amount' || column.dataIndex === 'balance_after'">
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+          </template>
+          <template v-else-if="column.dataIndex === 'amount' || column.dataIndex === 'balance_after'">
             {{ formatCurrency(record[column.dataIndex]) }}
           </template>
           <template v-else-if="column.dataIndex === 'member_nickname'">
@@ -74,7 +86,7 @@
           </template>
         </template>
       </a-table>
-    </a-card>
+    </a-layout-content>
   </a-layout>
 </template>
 
@@ -92,8 +104,10 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
+const summaryLoading = ref(false);
+const searchLoading = ref(false);
 const filters = ref({
-  range: [dayjs().subtract(7, "day"), dayjs()],
+  range: null,
   type: "all",
   member: "",
 });
@@ -129,6 +143,7 @@ const summaryCards = computed(() => [
 ]);
 
 const columns = computed(() => [
+  { title: trlang.value.no_column, key: "no", width: 80 },
   { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
   { title: trlang.value.transaction_type, dataIndex: "type", key: "type", width: 140 },
   { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
@@ -156,12 +171,16 @@ const buildQuery = () => {
     pageSize: paginationConfig.value.pageSize.toString(),
   });
 
-  if (filters.value.range && filters.value.range.length === 2) {
-    if (filters.value.range[0]) {
-      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
     }
-    if (filters.value.range[1]) {
-      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
     }
   }
 
@@ -218,6 +237,7 @@ const fetchData = async () => {
 };
 
 const fetchSummary = async () => {
+  summaryLoading.value = true;
   try {
     const res = await getData(`${apiLink.get_money_usage_summary}?${buildSummaryQuery()}`);
 
@@ -228,27 +248,41 @@ const fetchSummary = async () => {
         total_outflow: 0,
         net_change: 0,
       };
+    } else {
+      message.error(res.message || trlang.value.failed_to_fetch_summary_data);
     }
   } catch (error) {
     console.error("Error fetching summary:", error);
+    const errorMessage = error?.response?.data?.message || error?.message || trlang.value.failed_to_fetch_summary_data;
+    message.error(errorMessage);
+  } finally {
+    summaryLoading.value = false;
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
+  searchLoading.value = true;
   paginationConfig.value.current = 1;
-  fetchData();
-  fetchSummary();
+  try {
+    await Promise.all([fetchData(), fetchSummary()]);
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
-const resetFilters = () => {
+const resetFilters = async () => {
   filters.value = {
-    range: [dayjs().subtract(7, "day"), dayjs()],
+    range: null,
     type: "all",
     member: "",
   };
   paginationConfig.value.current = 1;
-  fetchData();
-  fetchSummary();
+  searchLoading.value = true;
+  try {
+    await Promise.all([fetchData(), fetchSummary()]);
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
 watch(
@@ -263,43 +297,3 @@ onMounted(() => {
   fetchSummary();
 });
 </script>
-
-<style scoped>
-.money-log-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.money-log-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.summary-card {
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.summary-value {
-  margin-bottom: 0;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-</style>
-

@@ -1,23 +1,23 @@
 <template>
-  <a-collapse-panel class="bg-white">
+  <a-collapse-panel>
     <template #header>
       <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
         {{ trlang.currency_exchange_setting }}
       </a-typography-text>
     </template>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.exchange_amount }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="flex gap-2 border p-2 flex-wrap">
-        <P class="flex items-center text-helper">
+      <a-layout-content class="flex gap-2 p-2 flex-wrap">
+        <P class="flex items-center text-helper mb-0">
           {{ trlang.minimum }}
         </P>
         <a-input v-model:value="exchangeMin" type="number" :min="0" style="width: 80px" />
-        <P class="flex items-center text-helper">
+        <P class="flex items-center text-helper mb-0">
           {{ trlang.from }}
         </P>
         <a-typography-text class="flex items-center">
@@ -42,23 +42,23 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.time_zone_available_for_currency_exchange }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex flex-column items-start gap-2">
+      <a-layout-content class="p-2 flex flex-column items-start gap-2">
         <a-layout class="w-100">
           <a-layout class="w-100">
-            <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+            <a-layout-sider class="border text-center p-2 setting-sider">
               <a-switch v-model:checked="exchangeTimezone" class="w-fit me-2" />
               <a-typography-text class="flex item-center text-white" style="width: 45px">
                 {{ exchangeTimezone ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 bg-white">
-              <a-layout class="bg-white flex flex-row gap-2 flex-wrap">
+            <a-layout-content class="p-2">
+              <a-layout class="flex flex-row gap-2 flex-wrap">
                 <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
@@ -78,12 +78,12 @@
             </a-layout-content>
           </a-layout>
           <a-layout class="w-100">
-            <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+            <a-layout-sider class="border text-center p-2 setting-sider">
               <a-typography-text class="text-white">
                 {{ trlang.impossible_time_zone_display_text }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 flex gap-2 bg-white">
+            <a-layout-content class="p-2 flex gap-2">
               <a-textarea
                 :rows="4"
                 v-model:value="exchangeImpossibleTimezoneMessage"
@@ -95,13 +95,13 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.restrictions_on_currency_exchange_applications }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex flex-column items-start gap-2">
+      <a-layout-content class="p-2 flex flex-column items-start gap-2">
         <a-button
           v-for="item in exchangeRestrictionOption"
           :key="item.key"
@@ -114,13 +114,13 @@
 
         <a-layout class="w-100">
           <a-layout class="w-100">
-            <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+            <a-layout-sider class="border text-center p-2 setting-sider">
               <a-switch v-model:checked="exchangeRestrictionUse" class="w-fit me-2" />
               <a-typography-text class="flex item-center text-white" style="width: 45px">
                 {{ exchangeRestrictionUse ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 flex gap-2 bg-white flex-wrap">
+            <a-layout-content class="p-2 flex gap-2 flex-wrap">
               <a-typography-text class="flex items-center">
                 {{ trlang.since_the_last_exchange }}
               </a-typography-text>
@@ -132,13 +132,13 @@
           </a-layout>
 
           <a-layout class="w-100">
-            <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+            <a-layout-sider class="border text-center p-2 setting-sider">
               <a-switch v-model:checked="chargeRestrictionUse" class="w-fit me-2" />
               <a-typography-text class="flex item-center text-white" style="width: 45px">
                 {{ chargeRestrictionUse ? trlang.use : trlang.no_use }}
               </a-typography-text>
             </a-layout-sider>
-            <a-layout-content class="border p-2 flex gap-2 bg-white flex-wrap">
+            <a-layout-content class="p-2 flex gap-2 flex-wrap">
               <a-typography-text class="flex items-center">
                 {{ trlang.since_the_last_charge }}
               </a-typography-text>
@@ -152,13 +152,13 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.exchange_completion_notification_message }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-textarea :rows="4" v-model:value="exchangeCompleteMessage" allow-clear />
       </a-layout-content>
     </a-layout>
@@ -180,15 +180,15 @@ const trlang = computed(() => langState?.translations || {});
 const exchangeMin = ref('');
 const exchangeMax = ref('');
 const exchangeMaxOption = ref([]);
-const exchangeTimezone = ref(true);
+const exchangeTimezone = ref(false);
 const exchangeImpossibleTimezoneMessage = ref('');
 const exchangeStartTime = ref('');
 const exchangeEndTime = ref('');
 const exchangeRestrictionOption = ref([]);
 const exchangeRestriction = ref(0);
-const exchangeRestrictionUse = ref(true);
+const exchangeRestrictionUse = ref(false);
+const chargeRestrictionUse = ref(false);
 const exchangeRestrictionLimit = ref('');
-const chargeRestrictionUse = ref(true);
 const chargeRestrictionLimit = ref('');
 const exchangeCompleteMessage = ref('');
 
@@ -234,19 +234,19 @@ const loadData = (data) => {
   exchangeMax.value = data.exchange_max
     ? data.exchange_max
     : exchangeMaxOption.value[0]?.amount;
-  exchangeTimezone.value = data.exchange_timezone ?? true;
+  exchangeTimezone.value = data.exchange_timezone !== undefined ? Boolean(data.exchange_timezone) : false;
   exchangeStartTime.value = formatTime(data.exchange_start_time);
   exchangeEndTime.value = formatTime(data.exchange_end_time);
   exchangeImpossibleTimezoneMessage.value =
     data.exchange_impossible_timezone_message ?? '';
   exchangeRestriction.value = data.exchange_restriction ?? '';
-  exchangeRestrictionUse.value = data.exchange_restriction_use ?? true;
+  exchangeRestrictionUse.value = data.exchange_restriction_use !== undefined ? Boolean(data.exchange_restriction_use) : false;
   exchangeRestrictionLimit.value =
     data.exchange_restriction_limit !== undefined &&
     data.exchange_restriction_limit !== null
       ? data.exchange_restriction_limit.toString()
       : '';
-  chargeRestrictionUse.value = data.charge_restriction_use ?? true;
+  chargeRestrictionUse.value = data.charge_restriction_use !== undefined ? Boolean(data.charge_restriction_use) : false;
   chargeRestrictionLimit.value =
     data.charge_restriction_limit !== undefined &&
     data.charge_restriction_limit !== null

@@ -25,7 +25,7 @@
                   @click.stop
                 >
                   <component :is="menu.icon" class="header-icon" />
-                  <span class="menu-btn-text">{{ trlang[menu.label] || menu.label }}</span>
+                  <span>{{ trlang[menu.label] }}</span>
                 </button>
               </template>
               <template #overlay>
@@ -36,7 +36,7 @@
                     @click="clickMenu(child.to)"
                     :class="{ 'ant-menu-item-selected': currentRoute === child.to }"
                   >
-                    {{ trlang[child.label] || child.label }}
+                    {{ trlang[child.label] }}
                   </a-menu-item>
                 </a-menu>
               </template>
@@ -48,7 +48,7 @@
               @click="clickMenu(menu.to)"
             >
               <component :is="menu.icon" class="header-icon" />
-              <span class="menu-btn-text">{{ trlang[menu.label] || menu.label }}</span>
+              <span>{{ trlang[menu.label] }}</span>
             </button>
           </template>
         </a-layout>
@@ -106,7 +106,7 @@
           </a-collapse>
         </div>
         <a-divider />
-        <a-button block type="primary" ghost @click="logout">
+        <a-button block type="primary" class ghost @click="logout">
           {{ trlang.logout }}
         </a-button>
       </div>
@@ -117,6 +117,7 @@
 <script>
 import { inject, computed, ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
 import router from "@/Router";
 import { routeLink } from "@/utils/route-link";
 import { menuList } from "@/utils/menu-list";
@@ -137,6 +138,7 @@ export default {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
     const route = useRoute();
+    const store = useStore();
     const currentRoute = computed(() => route.path);
 
     useOnlineStatus(localStorage.getItem('token'));
@@ -146,6 +148,10 @@ export default {
 
     const logout = () => {
       localStorage.removeItem("token");
+      localStorage.removeItem("permissions");
+      localStorage.removeItem("partnerRole");
+      store.commit("clearPermissions");
+      store.commit("clearPartnerRole");
       navDrawerOpen.value = false;
       router.push(routeLink.login.link);
     };
@@ -172,8 +178,33 @@ export default {
       return false;
     };
 
+    const filterMenus = (menuItems) => {
+      const isHeadquater = store.getters.isHeadquater;
+      const permissions = store.getters.getPermissions;
+      const hasPartnerAccessPermission = permissions?.partner_access_permission === true;
+      
+      return menuItems.map(menu => {
+        if (menu.children && menu.children.length) {
+          const filteredChildren = menu.children.filter(child => {
+            if (child.key === 'site_setting' && !isHeadquater) {
+              return false;
+            }
+            if (child.key === 'partner_manage' && !isHeadquater && !hasPartnerAccessPermission) {
+              return false;
+            }
+            return true;
+          });
+          if (filteredChildren.length === 0) {
+            return null;
+          }
+          return { ...menu, children: filteredChildren };
+        }
+        return menu;
+      }).filter(menu => menu !== null);
+    };
+
     onMounted(() => {
-      menus.value = menuList();
+      menus.value = filterMenus(menuList());
     });
 
     const singleMenus = computed(() =>
@@ -188,6 +219,14 @@ export default {
       () => {
         navDrawerOpen.value = false;
       }
+    );
+
+    watch(
+      () => [store.getters.isHeadquater, store.getters.getPermissions],
+      () => {
+        menus.value = filterMenus(menuList());
+      },
+      { deep: true }
     );
 
     return {

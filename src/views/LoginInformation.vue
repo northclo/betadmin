@@ -1,54 +1,64 @@
 <template>
-  <a-layout class="bg-white px-5">
-    <a-typography-text class="text-dark-gray fs-1">
-      {{ trlang.login_information }}
-    </a-typography-text>
-  </a-layout>
+  <a-layout>
+    <div class="mb-4">
+      <a-typography-title :level="3">
+        {{ trlang.login_information }}
+      </a-typography-title>
+    </div>
 
-  <a-layout class="p-2 flex flex-column gap-2">
-    <a-layout-header class="bg-white flex items-center gap-2 shadow">
-      <a-typography-text>{{ trlang.start_date }}</a-typography-text>
-      <a-date-picker
-        v-model:value="startDate"
-        class="input-lg"
-        format="YYYY-MM-DD"
-        value-format="YYYY-MM-DD"
-        @change="handleFilterChange"
-      />
-      <a-typography-text>~</a-typography-text>
-      <a-typography-text>{{ trlang.end_date }}</a-typography-text>
-      <a-date-picker
-        v-model:value="endDate"
-        class="input-lg"
-        format="YYYY-MM-DD"
-        value-format="YYYY-MM-DD"
-        @change="handleFilterChange"
-      />
-      <a-select
-        v-model:value="searchField"
-        :options="searchFieldOptions"
-        class="input-lg"
-        @change="handleFilterChange"
-      />
-      <a-input
-        v-model:value="search"
-        :placeholder="trlang.search_placeholder"
-        class="input-lg"
-        @press-enter="handleFilterChange"
-      >
-        <template #prefix>
-          <SearchOutlined />
-        </template>
-      </a-input>
-      <a-button type="primary" @click="handleFilterChange">
-        {{ trlang.search }}
-      </a-button>
-    </a-layout-header>
+    <a-card class="filters-card">
+      <a-form :model="filters" layout="vertical" @submit.prevent>
+        <a-row :gutter="[16, 16]">
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.date_range">
+              <a-range-picker
+                v-model:value="filters.range"
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select
+                v-model:value="filters.searchField"
+                :options="searchFieldOptions"
+                class="input-lg"
+                @change="handleFilterChange"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-input
+                v-model:value="filters.search"
+                :placeholder="trlang.search_placeholder"
+                class="input-lg search-input"
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="loading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
 
-    <a-layout-content class="bg-white p-2 shadow">
+    <a-layout-content>
       <a-table :columns="loginInformationColumn" :data-source="dataSource" row-key="key" class="w-100"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
-        @change="handleTableChange">
+        :loading="loading" @change="handleTableChange">
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -61,32 +71,29 @@
 
           <template v-if="column.key === 'user_id'">
             <span>
-              {{ record.own_partner_nickname || record.user_nickname }}
+              {{ record.partner_nickname || record.user_nickname }}
             </span>
-            <span> ({{ record.own_partner_id || record.user_id }}) </span>
-            <span :class="record.own_partner_nickname
+            <span> ({{ record.user_id }}) </span>
+            <span :class="record.partner_nickname
               ? 'bg-gray text-white p-1 radius-1'
               : ''
               ">
               {{
-                record.own_partner_nickname
-                  ? trlang[record.own_partner_role]
+                record.partner_nickname
+                  ? trlang[record.partner_role]
                   : ''
               }}
             </span>
           </template>
 
           <template v-if="column.key === 'distributor'">
-            <a-typography-text :class="record.own_partner_nickname || record.partner_nickname
+            <a-typography-text :class="record.partner_nickname
               ? 'bg-yellow border radius-1 flex flex-column'
               : ''
               ">
               {{
-                record.own_partner_nickname || record.partner_nickname || '-'
+                record.partner_nickname || '-'
               }}
-              <span class="bg-white radius-bottom-1">
-                {{ record.own_partner_id ? '' : record.partner_id || '' }}
-              </span>
             </a-typography-text>
           </template>
 
@@ -118,6 +125,7 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
+import dayjs from 'dayjs';
 import { loginInformationColumn as baseLoginInformationColumn } from '@/utils/table-column/login-information';
 import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
@@ -131,10 +139,12 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-const startDate = ref('');
-const endDate = ref('');
-const searchField = ref('');
-const search = ref('');
+const filters = ref({
+  range: null,
+  searchField: '',
+  search: '',
+});
+
 const searchFieldOptions = ref([]);
 
 const dataSource = ref([]);
@@ -160,7 +170,7 @@ const loginInformationColumn = computed(() => {
 });
 
 const initOptions = () => {
-  searchField.value = '';
+  filters.value.searchField = '';
   searchFieldOptions.value = [
     { value: '', label: trlang.value.search_term },
     { value: 'user_nickname', label: trlang.value.user_nickname_label },
@@ -174,13 +184,24 @@ const initOptions = () => {
 
 const buildQuery = () => {
   const params = new URLSearchParams({
-    startDate: startDate.value || '',
-    endDate: endDate.value || '',
-    searchField: searchField.value || '',
-    search: search.value || '',
+    searchField: filters.value.searchField || '',
+    search: filters.value.search || '',
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
+
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
+    }
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
+    }
+  }
 
   return params.toString();
 };
@@ -216,6 +237,16 @@ const fetchData = async () => {
 };
 
 const handleFilterChange = () => {
+  paginationConfig.value.current = 1;
+  fetchData();
+};
+
+const resetFilters = () => {
+  filters.value = {
+    range: null,
+    searchField: '',
+    search: '',
+  };
   paginationConfig.value.current = 1;
   fetchData();
 };

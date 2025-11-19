@@ -5,50 +5,47 @@
     :ok-text="trlang.process"
     :cancel-text="trlang.cancel"
     @ok="process"
-    @cancel="$emit('update:open', false)"
+    @cancel="handleCancel"
+    :confirm-loading="loading"
   >
-    <a-layout class="bg-white mt-5">
-      <a-typography-text class="text-dark-gray fs-3">
-        {{ trlang.cash_increase_decrease }}
-      </a-typography-text>
-
-      <a-layout class="bg-white mt-2">
-        <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout class="mt-5">
+      <a-layout class="mt-2 border-b border-t">
+        <a-layout-sider class="border p-2 setting-sider">
           <a-typography-text class="text-white">
             {{ trlang.target_member_id }}
           </a-typography-text>
         </a-layout-sider>
-        <a-layout-content class="border p-2 flex items-center justify-end gap-2">
+        <a-layout-content class="p-2 flex items-center justify-end gap-2">
           <a-typography-text>{{ dataSource.nickname }}</a-typography-text>
           <a-typography-text> ({{ dataSource.id }}) </a-typography-text>
-          <a-typography-text class="bg-gray text-white px-2">
+          <a-typography-text class="text-white px-2">
             {{ dataSource.role }}
           </a-typography-text>
         </a-layout-content>
       </a-layout>
 
-      <a-layout class="bg-white">
-        <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout class="border-b">
+        <a-layout-sider class="border p-2 setting-sider">
           <a-typography-text class="text-white text-center">{{
             trlang.target_member_holding_money
           }}</a-typography-text>
         </a-layout-sider>
-        <a-layout-content class="border p-2 flex items-center justify-end gap-2">
+        <a-layout-content class="p-2 flex items-center justify-end gap-2">
           <a-typography-text>{{ dataSource.holdingMoney }}</a-typography-text>
-          <a-typography-text>{{ dataSource.betMoneyUnit }}</a-typography-text>
+          <a-typography-text>USD</a-typography-text>
         </a-layout-content>
       </a-layout>
 
-      <a-layout class="bg-white">
-        <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout class="border-b">
+        <a-layout-sider class="border p-2 setting-sider">
           <a-typography-text class="text-white text-center">{{
             trlang.input_amount
           }}</a-typography-text>
         </a-layout-sider>
-        <a-layout-content class="border p-2 flex items-center justify-end gap-2">
+        <a-layout-content class="p-2 flex items-center justify-end gap-2">
           <a-radio-group v-model:value="amountRange" :options="amountRangeOption" />
-          <a-input v-model:value="amount" class="input-md" />
-          <a-typography-text>{{ dataSource.betMoneyUnit }}</a-typography-text>
+          <a-input-number v-model:value="amount" class="input-md" :min="0" :precision="2" />
+          <a-typography-text>USD</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -57,7 +54,7 @@
 
 <script setup>
 import { message } from "ant-design-vue";
-import { computed, defineProps, inject, ref } from "vue";
+import { computed, defineProps, inject, ref, watch } from "vue";
 import { postData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
 
@@ -74,29 +71,71 @@ const props = defineProps({
 const emit = defineEmits(["update:open"]);
 
 const amountRange = ref("+");
-const amountRangeOption = ref(["+", "-"]);
+const amountRangeOption = computed(() => [
+  { label: trlang.value.increase, value: "+" },
+  { label: trlang.value.decrease, value: "-" }
+]);
 const amount = ref(null);
+const loading = ref(false);
+
+const resetForm = () => {
+  amountRange.value = "+";
+  amount.value = null;
+};
+
+const handleCancel = () => {
+  emit("update:open", false);
+};
+
+watch(() => props.open, (newValue) => {
+  if (newValue) {
+    resetForm();
+  }
+});
 
 const process = async () => {
-  if (!amount.value || isNaN(Number(amount.value)) || Number(amount.value) === 0) {
-    return message.error(trlang.value.input_amount);
+  if (amount.value === null || amount.value === undefined) {
+    message.error(trlang.value.input_amount);
+    return;
+  }
+
+  const numAmount = Number(amount.value);
+  
+  if (isNaN(numAmount) || !isFinite(numAmount) || numAmount <= 0) {
+    message.error(trlang.value.invalid_amount || trlang.value.input_amount);
+    return;
   }
 
   const increaseAmount =
-    amountRange.value === "+" ? Number(amount.value) : -Number(amount.value);
+    amountRange.value === "+" ? numAmount : -numAmount;
 
-  const result = await postData(apiLink.cash_increase, {
-    role: props.dataSource.role,
-    id: props.dataSource.id,
-    amount: increaseAmount,
-    currency: props.dataSource.betMoneyUnit,
-  });
+  try {
+    loading.value = true;
+    const result = await postData(apiLink.cash_increase, {
+      id: props.dataSource.id,
+      amount: increaseAmount,
+      role: props.dataSource.role,
+    });
 
-  if (result.status) {
-    if (amountRange.value == "+") message.success(trlang.value.cash_increased_successful);
-    if (amountRange.value == "-") message.success(trlang.value.cash_decreased_successful);
-    props.fetchData();
-    emit("update:open", false);
+    if (result.status) {
+      if (amountRange.value === "+") {
+        message.success(trlang.value.cash_increased_successful);
+      } else {
+        message.success(trlang.value.cash_decreased_successful);
+      }
+      resetForm();
+      emit("update:open", false);
+      if (props.fetchData) {
+        props.fetchData();
+      }
+    } else {
+      message.error(result.message || trlang.value.operation_failed || trlang.value.registration_failed);
+    }
+  } catch (error) {
+    console.error("Error processing cash change:", error);
+    message.error(error.message || trlang.value.operation_failed || trlang.value.registration_failed);
+  } finally {
+    loading.value = false;
   }
 };
 </script>

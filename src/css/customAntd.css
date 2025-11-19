@@ -53,6 +53,6 @@ table tbody > tr > td:has(> .no-padding) {
 }
 
 .ant-layout-header {
-  min-height: 64px !important;
+  line-height: normal !important;
   height: auto !important;
 }

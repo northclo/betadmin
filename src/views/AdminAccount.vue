@@ -1,8 +1,8 @@
 <template>
-  <a-layout class="bg-white flex flex-row justify-between items-center p-5">
-    <a-typography-text class="text-dark-gray fs-1">
+  <a-layout class="flex flex-row justify-between items-center mb-4">
+    <a-typography-title :level="3">
       {{ trlang.change_administrator_information }}
-    </a-typography-text>
+    </a-typography-title>
     <a-button
       class="bg-main text-white flex justify-center items-center"
       :loading="saving"
@@ -13,12 +13,10 @@
     </a-button>
   </a-layout>
 
-  <a-layout class="p-2">
-    <AdminPassword ref="adminPasswordRef" :data="adminAccount" />
-    <ViewManagerPassword
-      ref="viewManagerPasswordRef"
-      :data="viewManagerAccount"
-    />
+  <a-layout>
+    <a-spin :spinning="loading">
+      <AdminPassword ref="adminPasswordRef" :data="adminAccount" />
+    </a-spin>
   </a-layout>
 </template>
 
@@ -30,34 +28,36 @@ import { apiLink } from '@/utils/api-link';
 import { getData, postData } from '@/helpers/Axios.js';
 import { SaveOutlined } from '@ant-design/icons-vue';
 import AdminPassword from '@/components/basic/account/AdminPassword.vue';
-import ViewManagerPassword from '@/components/basic/account/ViewManagerPassword.vue';
 
 export default {
   name: routeLink.admin_account.name,
-  components: { SaveOutlined, AdminPassword, ViewManagerPassword },
+  components: { SaveOutlined, AdminPassword },
   setup() {
     const langState = inject('langState');
     const trlang = computed(() => langState?.translations || {});
 
     const adminAccount = ref({ id: '', passwordChangedAt: null });
-    const viewManagerAccount = ref({ id: '', passwordChangedAt: null });
 
     const adminPasswordRef = ref(null);
-    const viewManagerPasswordRef = ref(null);
 
     const saving = ref(false);
+    const loading = ref(false);
 
     const fetchAccount = async () => {
-      const res = await getData(apiLink.admin_account);
-      if (res.status && res.data) {
-        adminAccount.value = {
-          id: res.data.admin?.id ?? '',
-          passwordChangedAt: res.data.admin?.passwordChangedAt ?? null,
-        };
-        viewManagerAccount.value = {
-          id: res.data.viewManager?.id ?? '',
-          passwordChangedAt: res.data.viewManager?.passwordChangedAt ?? null,
-        };
+      loading.value = true;
+      try {
+        const res = await getData(apiLink.admin_account);
+        if (res.status && res.data) {
+          adminAccount.value = {
+            id: res.data.admin?.id ?? '',
+            passwordChangedAt: res.data.admin?.passwordChangedAt ?? null,
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching admin account:', error);
+        message.error(trlang.value.error_loading_data || 'Failed to load administrator information');
+      } finally {
+        loading.value = false;
       }
     };
 
@@ -72,10 +72,9 @@ export default {
 
     const saveAccount = async () => {
       const adminValidation = adminPasswordRef.value?.validate?.();
-      const viewManagerValidation = viewManagerPasswordRef.value?.validate?.();
 
       const errors = [];
-      [adminValidation, viewManagerValidation]
+      [adminValidation]
         .filter(Boolean)
         .forEach((validation) => {
           if (!validation.valid) {
@@ -97,14 +96,7 @@ export default {
         }
       }
 
-      if (viewManagerValidation?.data) {
-        const viewManagerPayload = sanitizePayload(viewManagerValidation.data);
-        if (viewManagerPayload) {
-          payload.viewManager = viewManagerPayload;
-        }
-      }
-
-      if (!payload.admin && !payload.viewManager) {
+      if (!payload.admin) {
         message.error(trlang.value.please_fill_at_least_one_field);
         return;
       }
@@ -115,9 +107,14 @@ export default {
         if (res.status) {
           message.success(trlang.value.saved_successful);
           adminPasswordRef.value?.reset?.();
-          viewManagerPasswordRef.value?.reset?.();
           await fetchAccount();
+        } else {
+          message.error(res.message || trlang.value.error_saving_data || 'Failed to save administrator information');
         }
+      } catch (error) {
+        console.error('Error saving admin account:', error);
+        const errorMessage = error?.response?.data?.message || error?.message || trlang.value.error_saving_data || 'Failed to save administrator information';
+        message.error(errorMessage);
       } finally {
         saving.value = false;
       }
@@ -128,11 +125,10 @@ export default {
     return {
       trlang,
       adminAccount,
-      viewManagerAccount,
       adminPasswordRef,
-      viewManagerPasswordRef,
       saveAccount,
       saving,
+      loading,
     };
   },
 };

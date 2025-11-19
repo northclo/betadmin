@@ -1,24 +1,29 @@
 <template>
-  <a-layout class="announcement-view">
-    <header class="announcement-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.announcement }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.announcement_description }}
       </a-typography-text>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
           <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.post_range">
-              <a-range-picker v-model:value="filters.range" style="width: 100%" />
+            <a-form-item class="mb-0" :label="trlang.post_range">
+              <a-range-picker 
+                v-model:value="filters.range" 
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.category">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.category">
               <a-select v-model:value="filters.category" allow-clear>
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
                 <a-select-option value="system_notice">{{ trlang.system_notice }}</a-select-option>
@@ -27,8 +32,8 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.status">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.status">
               <a-select v-model:value="filters.status" allow-clear>
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
                 <a-select-option value="draft">{{ trlang.draft }}</a-select-option>
@@ -38,30 +43,28 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="6">
-            <a-form-item :label="trlang.keyword_filter">
-              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword_filter">
+              <a-input class="search-input" v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
+          </a-col>
         </a-row>
-        <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
-            {{ trlang.search }}
-          </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
-        </div>
       </a-form>
     </a-card>
 
-    <a-card class="table-card">
-      <template #title>
-        <div class="table-title">
-          <span>{{ trlang.announcement_list }}</span>
-          <a-button type="primary" class="bg-main text-white" @click="handleCreate">
-            {{ trlang.create_announcement }}
-          </a-button>
-        </div>
-      </template>
+    <div class="flex items-center justify-between mb-4">
+      <span class="fs-4 font-semibold">{{ trlang.announcement_list }}</span>
+      <a-button type="primary" class="bg-main text-white" @click="handleCreate">
+        {{ trlang.create_announcement }}
+      </a-button>
+    </div>
+    <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
@@ -70,8 +73,15 @@
         row-key="id"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'category'">
+        <template #emptyText>
+          <a-spin v-if="loading" />
+          <span v-else>{{ trlang.no_data }}</span>
+        </template>
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+          </template>
+          <template v-else-if="column.dataIndex === 'category'">
             <a-tag :color="categoryColor(record.category)">
               {{ trlang[record.category] || record.category }}
             </a-tag>
@@ -97,7 +107,7 @@
           </template>
         </template>
       </a-table>
-    </a-card>
+    </a-layout-content>
 
     <a-modal
       v-model:open="modalVisible"
@@ -168,6 +178,7 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
+const searchLoading = ref(false);
 const saving = ref(false);
 const modalVisible = ref(false);
 const editingRecord = ref(null);
@@ -188,6 +199,7 @@ const formData = ref({
 });
 
 const columns = computed(() => [
+  { title: trlang.value.no_column, key: "no", width: 80 },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.category, dataIndex: "category", key: "category", width: 140 },
   { title: trlang.value.author, dataIndex: "author", key: "author", width: 160 },
@@ -250,12 +262,16 @@ const buildQuery = () => {
     params.append("keyword", filters.value.keyword.trim());
   }
 
-  if (filters.value.range && filters.value.range.length === 2) {
-    if (filters.value.range[0]) {
-      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+  const range = filters.value.range;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
     }
-    if (filters.value.range[1]) {
-      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
     }
   }
 
@@ -286,9 +302,14 @@ const fetchData = async () => {
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
+  searchLoading.value = true;
   paginationConfig.value.current = 1;
-  fetchData();
+  try {
+    await fetchData();
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
 const resetFilters = () => {
@@ -384,37 +405,3 @@ onMounted(() => {
   fetchData();
 });
 </script>
-
-<style scoped>
-.announcement-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.announcement-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-
-.table-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-</style>

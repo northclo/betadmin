@@ -1,127 +1,119 @@
 <template>
-  <a-layout class="panel-heading">
-    <a-typography-text class="panel-heading__title">
-      {{ trlang.betting_list }}
-    </a-typography-text>
-  </a-layout>
+  <a-layout>
+    <div class="mb-4">
+      <a-typography-title :level="3">
+        {{ trlang.betting_list }}
+      </a-typography-title>
+    </div>
 
-  <a-layout class="panel-body">
-    <a-layout-header
-      class="panel-toolbar flex items-center flex-wrap gap-5"
-    >
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.duration
-        }}</a-typography-text>
-        <a-range-picker
-          v-model:value="dateRange"
-          class="input-lg"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          style="width: 100%"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.user_status
-        }}</a-typography-text>
-        <a-select
-          v-model:value="userStatus"
-          :options="userStatusOptions"
-          class="input-md"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.partner
-        }}</a-typography-text>
-        <a-select
-          v-model:value="partner"
-          :options="partnerOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-        <a-typography-text>{{ trlang.include_sub }}</a-typography-text>
-        <a-checkbox v-model:checked="includeSub" @change="handleFilterChange" />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.betting_status
-        }}</a-typography-text>
-        <a-select
-          v-model:value="bettingStatus"
-          :options="bettingStatusOptions"
-          class="input-md"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.betting_type
-        }}</a-typography-text>
-        <a-select
-          v-model:value="bettingType"
-          :options="bettingTypeOptions"
-          class="input-md"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.win
-        }}</a-typography-text>
-        <a-select
-          v-model:value="win"
-          :options="winOptions"
-          class="input-md"
-          @change="handleFilterChange"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">{{
-          trlang.keyword
-        }}</a-typography-text>
-        <a-select
-          v-model:value="searchField"
-          :options="searchFieldOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-        <a-input
-          v-model:value="search"
-          :placeholder="trlang.search_placeholder"
-          class="input-lg"
-          @press-enter="handleFilterChange"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-        <a-button type="primary" @click="handleFilterChange">
-          {{ trlang.search }}
-        </a-button>
-      </div>
-      <div class="flex items-center gap-2">
-        <a-typography-text class="bg-gray text-white p-2 px-5">
-          {{ trlang.sort }}
-        </a-typography-text>
-        <a-select
-          v-model:value="sort"
-          :options="sortOptions"
-          class="input-lg"
-          @change="handleFilterChange"
-        />
-      </div>
-      <a-button @click="refreshPage">{{ trlang.refresh_page }}</a-button>
-    </a-layout-header>
+    <a-card class="filters-card">
+      <a-form :model="filters" layout="vertical" @submit.prevent>
+        <a-row :gutter="[16, 16]">
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.duration">
+              <a-range-picker
+                v-model:value="filters.dateRange"
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.user_status">
+              <a-select
+                v-model:value="filters.userStatus"
+                :options="userStatusOptions"
+                class="input-md"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.partner">
+              <a-select
+                v-model:value="filters.partner"
+                :options="partnerOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.betting_status">
+              <a-select
+                v-model:value="filters.bettingStatus"
+                :options="bettingStatusOptions"
+                class="input-md"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.betting_type">
+              <a-select
+                v-model:value="filters.bettingType"
+                :options="bettingTypeOptions"
+                class="input-md"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.win">
+              <a-select
+                v-model:value="filters.win"
+                :options="winOptions"
+                class="input-md"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.sort">
+              <a-select
+                v-model:value="filters.sort"
+                :options="sortOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select
+                v-model:value="filters.searchField"
+                :options="searchFieldOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-input
+                v-model:value="filters.search"
+                :placeholder="trlang.search_placeholder"
+                class="input-lg search-input"
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="loading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
 
-    <a-layout-content class="table-panel">
+    <a-layout-content>
       <a-table
         :columns="bettingListColumn"
         :data-source="dataSource"
         :row-key="rowKey"
+        :loading="loading"
         class="w-100 table-transparent"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
@@ -183,10 +175,10 @@
           <template v-if="column.key === 'partner'">
             <div class="flex flex-column">
               <a-typography-text>
-                {{ record.own_partner_nickname || record.partner_nickname || '-' }}
+                {{ record.partner_nickname || '-' }}
               </a-typography-text>
-              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2" v-if="record.own_partner_role || record.partner_role">
-                {{ trlang[record.own_partner_role || record.partner_role] || '' }}
+              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2" v-if="record.partner_role">
+                {{ trlang[record.partner_role] || '' }}
               </a-typography-text>
             </div>
           </template>
@@ -201,7 +193,7 @@
           </template>
           <template v-if="column.key === 'bet_amount'">
             <a-typography-text class="text-main">
-              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}USD
+              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}{{ trlang.usd_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_rate'">
@@ -209,7 +201,7 @@
           </template>
           <template v-if="column.key === 'earning_amount'">
             <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
-              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}USD
+              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}{{ trlang.usd_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'win'">
@@ -254,22 +246,24 @@ defineOptions({
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-const dateRange = ref(null);
-const userStatus = ref('');
+const filters = ref({
+  dateRange: null,
+  userStatus: '',
+  partner: '',
+  bettingStatus: '',
+  bettingType: '',
+  win: '',
+  search: '',
+  searchField: '',
+  sort: '',
+});
+
 const userStatusOptions = ref([]);
-const partner = ref('');
 const partnerOptions = ref([]);
-const includeSub = ref(false);
-const bettingStatus = ref('');
 const bettingStatusOptions = ref([]);
-const bettingType = ref('');
 const bettingTypeOptions = ref([]);
-const win = ref('');
 const winOptions = ref([]);
-const search = ref('');
-const searchField = ref('');
 const searchFieldOptions = ref([]);
-const sort = ref('');
 const sortOptions = ref([]);
 
 const dataSource = ref([]);
@@ -327,7 +321,7 @@ const initOptions = () => {
     { value: 'true', label: trlang.value.win },
     { value: 'false', label: trlang.value.lose },
   ];
-  searchField.value = 'user_id';
+  filters.value.searchField = 'user_id';
   searchFieldOptions.value = [
     { value: 'user_id', label: trlang.value.id },
     { value: 'user_nickname', label: trlang.value.nickname },
@@ -336,7 +330,7 @@ const initOptions = () => {
     { value: 'total_no', label: trlang.value.total_no },
     { value: 'today_no', label: trlang.value.today_no },
   ];
-  sort.value = 'created_date:desc';
+  filters.value.sort = 'created_date:desc';
   sortOptions.value = [
     { value: 'created_date:desc', label: trlang.value.created_date },
     { value: 'bet_amount:desc', label: trlang.value.bet_amount },
@@ -350,25 +344,28 @@ const rowKey = (record) => record.betting_id || record._id;
 
 const buildQuery = () => {
   const params = new URLSearchParams({
-    userStatus: userStatus.value || '',
-    partner: partner.value || '',
-    includeSub: includeSub.value ? 'true' : 'false',
-    bettingStatus: bettingStatus.value || '',
-    bettingType: bettingType.value || '',
-    win: win.value || '',
-    searchField: searchField.value || '',
-    search: search.value || '',
-    sort: sort.value || '',
+    userStatus: filters.value.userStatus || '',
+    partner: filters.value.partner || '',
+    bettingStatus: filters.value.bettingStatus || '',
+    bettingType: filters.value.bettingType || '',
+    win: filters.value.win || '',
+    searchField: filters.value.searchField || '',
+    search: filters.value.search || '',
+    sort: filters.value.sort || '',
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
 
-  if (dateRange.value && dateRange.value.length === 2) {
-    if (dateRange.value[0]) {
-      params.append("startDate", dayjs(dateRange.value[0]).format("YYYY-MM-DD"));
+  const range = filters.value.dateRange;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const [start, end] = range;
+    if (start) {
+      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
+      params.set('startDate', startDate);
     }
-    if (dateRange.value[1]) {
-      params.append("endDate", dayjs(dateRange.value[1]).format("YYYY-MM-DD"));
+    if (end) {
+      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
+      params.set('endDate', endDate);
     }
   }
 
@@ -402,9 +399,10 @@ const fetchData = async () => {
 };
 
 const validateDateRange = () => {
-  if (dateRange.value && dateRange.value.length === 2) {
-    const start = dayjs(dateRange.value[0]);
-    const end = dayjs(dateRange.value[1]);
+  const range = filters.value.dateRange;
+  if (range && Array.isArray(range) && range.length === 2) {
+    const start = dayjs.isDayjs(range[0]) ? range[0] : dayjs(range[0]);
+    const end = dayjs.isDayjs(range[1]) ? range[1] : dayjs(range[1]);
     if (start.isAfter(end)) {
       message.warning(trlang.value.end_date_must_be_after_start_date);
       return false;
@@ -421,16 +419,18 @@ const handleFilterChange = () => {
   fetchData();
 };
 
-const refreshPage = () => {
-  initOptions();
-  dateRange.value = null;
-  userStatus.value = '';
-  partner.value = '';
-  includeSub.value = false;
-  bettingStatus.value = '';
-  bettingType.value = '';
-  win.value = '';
-  search.value = '';
+const resetFilters = () => {
+  filters.value = {
+    dateRange: null,
+    userStatus: '',
+    partner: '',
+    bettingStatus: '',
+    bettingType: '',
+    win: '',
+    search: '',
+    searchField: 'user_id',
+    sort: 'created_date:desc',
+  };
   paginationConfig.value.current = 1;
   fetchData();
 };

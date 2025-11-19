@@ -1,17 +1,18 @@
 <template>
-  <a-layout class="bg-white p-2">
-    <a-typography-text class="text-dark-gray font-bold p-2 fs-4 mb-2 border-bottom">
-      <RightCircleFilled />
-      {{ trlang.game_settings_powerball_game }}
-    </a-typography-text>
+  <a-spin :spinning="loading">
+    <a-layout>
+      <a-typography-text class="text-dark-gray font-bold fs-4 mb-5">
+        <RightCircleFilled />
+        {{ trlang.game_settings_powerball_game }}
+      </a-typography-text>
 
     <a-layout class="bg-none">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.activate }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex gap-2">
+      <a-layout-content class="p-2 flex gap-2">
         <a-switch v-model:checked="activate" class="w-fit" />
         <a-typography-text class="flex item-center">
           {{ activate ? trlang.activate : trlang.disable }}
@@ -20,12 +21,12 @@
     </a-layout>
 
     <a-layout class="bg-none">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.notification_message_when_inactive }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-textarea :rows="3" v-model:value="inactiveMessage" allow-clear />
       </a-layout-content>
     </a-layout>
@@ -36,7 +37,7 @@
           {{ trlang.prevent_duplicate_betting }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 bg-none">
           <a-switch v-model:checked="duplicateBetting" class="w-fit" />
           <a-typography-text class="flex item-center">
@@ -61,28 +62,28 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-none mt-2">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.division }}
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex">
         <a-layout
-          class="w-50 bg-gray flex flex-row justify-center items-center border p-2"
+          class="w-50 flex flex-row justify-center items-center border p-2"
         >
           <a-typography-text class="text-white"> {{ trlang.division_a }} </a-typography-text>
         </a-layout>
         <a-typography-text
-          class="w-50 bg-gray text-white flex justify-center items-center border"
+          class="w-50 text-white flex justify-center items-center border"
         >
           {{ trlang.division_b }}
         </a-typography-text>
       </a-layout-content>
     </a-layout>
 
-    <a-layout v-for="(item, idx) in options" :key="idx" class="bg-white">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
+    <a-layout v-for="(item, idx) in options" :key="idx">
+      <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ item.name }}
         </a-typography-text>
@@ -112,7 +113,8 @@
         </a-space>
       </a-layout-content>
     </a-layout>
-  </a-layout>
+    </a-layout>
+  </a-spin>
 </template>
 
 <script setup>
@@ -124,6 +126,8 @@ import { apiLink } from '@/utils/api-link.js';
 
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
+
+const emit = defineEmits(['update:loading', 'update:saving']);
 
 const activate = ref(true);
 const inactiveMessage = ref('');
@@ -173,6 +177,7 @@ const validateDuplicateBettingLimit = (value) => {
 const fetchData = async () => {
   try {
     loading.value = true;
+    emit('update:loading', true);
     const res = await getData(`${apiLink.game_setting}?name=PowerballGame`);
 
     if (res.status && res.data) {
@@ -204,6 +209,7 @@ const fetchData = async () => {
     message.error(trlang.value.load_failed);
   } finally {
     loading.value = false;
+    emit('update:loading', false);
   }
 };
 
@@ -243,6 +249,7 @@ const saveData = async () => {
     }
 
     saving.value = true;
+    emit('update:saving', true);
 
     const optionA = { name: 'A' };
     const optionB = { name: 'B' };
@@ -273,6 +280,7 @@ const saveData = async () => {
     message.error(trlang.value.save_failed);
   } finally {
     saving.value = false;
+    emit('update:saving', false);
   }
 };
 

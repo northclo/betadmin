@@ -1,31 +1,59 @@
 <template>
-  <a-layout class="panel-heading">
-    <a-typography-text class="panel-heading__title">
-      {{ trlang.game_management }}
-    </a-typography-text>
-  </a-layout>
+  <a-layout>
+    <div class="mb-4">
+      <a-typography-title :level="3">
+        {{ trlang.game_management }}
+      </a-typography-title>
+    </div>
 
-  <a-layout class="panel-body">
-    <a-layout-header class="panel-toolbar flex items-center gap-2">
-      <a-typography-text class="filter-label p-2">
-        {{ trlang.game_process }}
-      </a-typography-text>
-      <a-select v-model:value="gameProcess" :options="gameProcessOptions" class="input-lg" @change="fetchData" />
-      <a-typography-text class="filter-label p-2">
-        {{ trlang.keyword }}
-      </a-typography-text>
-      <a-select v-model:value="searchField" :options="searchFieldOptions" class="input-lg" />
-      <a-input v-model:value="search" :placeholder="trlang.search_placeholder" class="input-lg" @press-enter="fetchData">
-        <template #prefix>
-          <SearchOutlined />
-        </template>
-      </a-input>
-      <a-button type="primary" @click="fetchData">
-        {{ trlang.search }}
-      </a-button>
-    </a-layout-header>
+    <a-card class="filters-card">
+      <a-form :model="filters" layout="vertical" @submit.prevent>
+        <a-row :gutter="[16, 16]">
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.game_process">
+              <a-select
+                v-model:value="filters.gameProcess"
+                :options="gameProcessOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select
+                v-model:value="filters.searchField"
+                :options="searchFieldOptions"
+                class="input-lg"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-input
+                v-model:value="filters.search"
+                :placeholder="trlang.search_placeholder"
+                class="input-lg search-input"
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="loading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
 
-    <a-layout-content class="table-panel">
+    <a-layout-content>
       <a-space class="p-2">
         <template v-for="status in statusLegend" :key="status.key">
           <a-typography-text>
@@ -39,14 +67,18 @@
 
       <a-table :columns="gameManagementColumn" :data-source="dataSource" row-key="key" class="w-100 table-transparent"
         :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
-        @change="handleTableChange">
+        :loading="loading" @change="handleTableChange">
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
         </template>
 
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'round_id'">
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+          </template>
+
+          <template v-else-if="column.key === 'round_id'">
             <a-layout class="bg-none">
               <a-typography-text class="text-main font-bold">
                 {{ record.total_no }}
@@ -125,9 +157,12 @@ defineOptions({ name: routeLink.game_management.name });
 const langState = inject('langState');
 const trlang = computed(() => langState.translations);
 
-const searchField = ref('total_no');
-const search = ref('');
-const gameProcess = ref('');
+const filters = ref({
+  gameProcess: '',
+  searchField: 'total_no',
+  search: '',
+});
+
 const searchFieldOptions = ref([]);
 const gameProcessOptions = ref([]);
 
@@ -199,6 +234,7 @@ const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => 
 })));
 
 const initOptions = () => {
+  filters.value.searchField = 'total_no';
   gameProcessOptions.value = [
     { value: '', label: `:: ${trlang.value.all_process} ::` },
     { value: 'register', label: trlang.value.register_game },
@@ -214,7 +250,7 @@ const initOptions = () => {
 };
 
 const fetchData = async () => {
-  const searchValue = search.value?.toString().trim() ?? '';
+  const searchValue = filters.value.search?.toString().trim() ?? '';
   if (searchValue && Number.isNaN(Number(searchValue))) {
     message.error(trlang.value.invalid_data);
     return;
@@ -226,9 +262,9 @@ const fetchData = async () => {
     const pageSize = paginationConfig.value.pageSize;
     
     const params = new URLSearchParams();
-    if (gameProcess.value) params.append('status', gameProcess.value);
+    if (filters.value.gameProcess) params.append('status', filters.value.gameProcess);
     if (searchValue) {
-      params.append('searchField', searchField.value);
+      params.append('searchField', filters.value.searchField);
       params.append('search', searchValue);
     }
     params.append('page', page);
@@ -253,9 +289,29 @@ const fetchData = async () => {
         message.error(res.message);
       }
     }
+  } catch (error) {
+    console.error('Error fetching game management data:', error);
+    dataSource.value = [];
+    setTotal(0);
+    message.error(trlang.value.error_occurred || 'An error occurred while fetching data');
   } finally {
     loading.value = false;
   }
+};
+
+const handleFilterChange = () => {
+  paginationConfig.value.current = 1;
+  fetchData();
+};
+
+const resetFilters = () => {
+  filters.value = {
+    gameProcess: '',
+    searchField: 'total_no',
+    search: '',
+  };
+  paginationConfig.value.current = 1;
+  fetchData();
 };
 
 watch(

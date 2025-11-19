@@ -1,18 +1,18 @@
 <template>
-  <a-collapse-panel class="bg-white">
+  <a-collapse-panel>
     <template #header>
       <a-typography-text class="text-dark-gray font-bold fs-4 leading-0">
         {{ trlang.membership_setting }}
       </a-typography-text>
     </template>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.use_membership_registration }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex items-center gap-2 flex-wrap">
+      <a-layout-content class="p-2 flex items-center gap-2 flex-wrap">
         <a-button
           v-for="item in membershipRegistrationOptions"
           :key="item.key"
@@ -24,22 +24,22 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
+    <a-layout>
       <a-layout-sider
-        class="bg-gray border flex justify-center items-center p-2 setting-sider"
+        class="border flex justify-center items-center p-2 setting-sider"
       >
         <a-typography-text class="text-white text-center">
           {{ trlang.whether_membership_registration_is_approved }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2 flex flex-column">
-        <a-layout class="flex flex-row gap-2 bg-white items-center">
+      <a-layout-content class="p-2 flex flex-column">
+        <a-layout class="flex flex-row gap-2 items-center">
           <a-switch v-model:checked="membershipApproval" class="w-fit" />
           <a-typography-text>
             {{ membershipApproval ? trlang.use : trlang.no_use }}
           </a-typography-text>
         </a-layout>
-        <p class="text-helper mt-2">
+        <p class="text-helper mt-2 mb-1">
           {{
             trlang.if_you_set_approval_for_membership_registration_the_pending_message_will_appear_at_the_top_of_the_screen_when_registering
           }}
@@ -52,13 +52,13 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="bg-white">
-      <a-layout-sider class="bg-gray border text-center p-2 setting-sider">
+    <a-layout>
+      <a-layout-sider class="border text-center p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.notification_message_when_signing_up_for_membership }}
         </a-typography-text>
       </a-layout-sider>
-      <a-layout-content class="border p-2">
+      <a-layout-content class="p-2">
         <a-textarea v-model:value="membershipSignupMessage" :rows="4" allow-clear />
       </a-layout-content>
     </a-layout>

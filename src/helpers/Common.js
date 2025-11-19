@@ -1,27 +1,11 @@
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-/**
- * @summary
- * This feature checks if an email is right email style
- * 
- * @param {string} email - email address
- * 
- * @returns {boolean} email style is right, return true. else return false
- */
 export const checkValidEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
 
-/**
- * @summary
- * This download excel of data
- * 
- * @param {Array} data - export data
- * @param {string} title - excel title
- * @param {string} fileName - saved file name
- */
 export const exportExcel = (data, title, fileName) => {
     if (!data.length) return;
 

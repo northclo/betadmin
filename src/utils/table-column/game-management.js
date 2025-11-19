@@ -1,5 +1,12 @@
 export const gameManagementColumn = [
     {
+        titleKey: "no",
+        dataIndex: "no",
+        key: "no",
+        align: 'center',
+        width: '80px',
+    },
+    {
         titleKey: "round_id",
         dataIndex: "round_id",
         key: "round_id",

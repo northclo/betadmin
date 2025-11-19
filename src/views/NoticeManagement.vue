@@ -1,39 +1,42 @@
 <template>
-  <a-layout class="notice-view">
-    <header class="notice-header">
+  <a-layout>
+    <div class="mb-4">
       <a-typography-title :level="3">
         {{ trlang.notice_management }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.notice_management_description }}
       </a-typography-text>
-    </header>
+    </div>
 
     <a-card class="filters-card">
       <a-form :model="filters" layout="vertical" @submit.prevent>
         <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.post_range">
-              <a-range-picker v-model:value="filters.range" style="width: 100%" />
+          <a-col :xs="24" :md="6">
+            <a-form-item class="mb-0" :label="trlang.post_range">
+              <a-range-picker 
+                v-model:value="filters.range" 
+                style="width: 100%"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.search_type">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.search_type">
               <a-select v-model:value="filters.searchType" allow-clear>
                 <a-select-option value="title">{{ trlang.title }}</a-select-option>
                 <a-select-option value="content">{{ trlang.content }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.keyword_filter">
-              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword_filter">
+              <a-input class="search-input" v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="[16, 16]">
-          <a-col :xs="24" :md="8">
-            <a-form-item :label="trlang.partner">
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.partner">
               <a-select v-model:value="filters.partnerId" allow-clear :placeholder="trlang.all_partners">
                 <a-select-option value="all">{{ trlang.all_partners }}</a-select-option>
                 <a-select-option v-for="partner in partnerList" :key="partner.id" :value="partner.id">
@@ -42,25 +45,25 @@
               </a-select>
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="4" class="actions">
+            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+              {{ trlang.search }}
+            </a-button>
+            <a-button @click="resetFilters">
+              {{ trlang.reset }}
+            </a-button>
+          </a-col>
         </a-row>
-        <div class="actions">
-          <a-button type="primary" class="bg-main text-white" @click="handleFilterChange">
-            {{ trlang.search }}
-          </a-button>
-          <a-button @click="resetFilters">{{ trlang.reset }}</a-button>
-        </div>
       </a-form>
     </a-card>
 
-    <a-card class="table-card">
-      <template #title>
-        <div class="table-title">
-          <span>{{ trlang.notice_list }}</span>
-          <a-button type="primary" class="bg-main text-white" @click="handleCreate">
-            {{ trlang.add_notice_message }}
-          </a-button>
-        </div>
-      </template>
+    <div class="flex items-center justify-between mb-4">
+      <span class="fs-4 font-semibold">{{ trlang.notice_list }}</span>
+      <a-button type="primary" class="bg-main text-white" @click="handleCreate">
+        {{ trlang.add_notice_message }}
+      </a-button>
+    </div>
+    <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
@@ -69,8 +72,11 @@
         row-key="id"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'partner'">
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+          </template>
+          <template v-else-if="column.dataIndex === 'partner'">
             {{ record.partner || trlang.all_partners }}
           </template>
           <template v-else-if="column.dataIndex === 'date'">
@@ -82,6 +88,7 @@
               <a-popconfirm
                 :title="trlang.confirm_delete"
                 @confirm="handleDelete(record.id)"
+                :ok-button-props="{ loading: deleting }"
               >
                 <a-button type="link" danger>{{ trlang.delete }}</a-button>
               </a-popconfirm>
@@ -89,7 +96,7 @@
           </template>
         </template>
       </a-table>
-    </a-card>
+    </a-layout-content>
 
     <a-modal
       v-model:open="modalVisible"
@@ -177,7 +184,9 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
+const searchLoading = ref(false);
 const saving = ref(false);
+const deleting = ref(false);
 const modalVisible = ref(false);
 const editingRecord = ref(null);
 const formRef = ref(null);
@@ -199,11 +208,11 @@ const formData = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.number, dataIndex: "no", key: "no", width: 80 },
+  { title: trlang.value.no_column, dataIndex: "no", key: "no", width: 80 },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.partner, dataIndex: "partner", key: "partner", width: 150 },
   { title: trlang.value.date, dataIndex: "date", key: "date", width: 180 },
-  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 150 },
+  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
 ]);
 
 const tableData = ref([]);
@@ -248,7 +257,6 @@ const fetchPartnerList = async () => {
   try {
     const res = await getData(apiLink.get_game_partner);
     if (res.status && res.data) {
-      // Flatten the partner tree to get all sub partners
       const flattenPartners = (partner) => {
         const partners = [];
         if (partner && partner.id) {
@@ -293,11 +301,7 @@ const fetchData = async () => {
       const payload = res.data || {};
       const items = payload.list || payload.items || [];
       
-      // Add row numbers
-      tableData.value = items.map((item, index) => ({
-        ...item,
-        no: (paginationConfig.value.current - 1) * paginationConfig.value.pageSize + index + 1,
-      }));
+      tableData.value = items;
       
       setTotal(payload.total || 0);
       if (payload.page) {
@@ -320,9 +324,14 @@ const fetchData = async () => {
   }
 };
 
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
+  searchLoading.value = true;
   paginationConfig.value.current = 1;
-  fetchData();
+  try {
+    await fetchData();
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
 const resetFilters = () => {
@@ -411,7 +420,6 @@ const handleSave = async () => {
     }
   } catch (error) {
     if (error.errorFields) {
-      // Form validation error
       return;
     }
     console.error("Error saving notice:", error);
@@ -434,6 +442,7 @@ const handleCancel = () => {
 };
 
 const handleDelete = async (noticeId) => {
+  deleting.value = true;
   try {
     const res = await deleteData(`${apiLink.delete_notice_message}/${noticeId}`);
     if (res.status) {
@@ -445,6 +454,8 @@ const handleDelete = async (noticeId) => {
   } catch (error) {
     console.error("Error deleting notice:", error);
     message.error(error.message || trlang.value.failed_to_delete_notice);
+  } finally {
+    deleting.value = false;
   }
 };
 
@@ -467,24 +478,5 @@ onMounted(() => {
   gap: 8px;
 }
 
-.filters-card {
-  background: var(--surface-color);
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.table-card {
-  background: var(--surface-color);
-}
-
-.table-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 </style>
 

@@ -108,13 +108,12 @@
       </template>
       <template v-if="column.key === 'function'">
         <a-layout class="bg-none flex flex-row justify-center items-center flex-wrap gap-2">
-          <a-button v-if="record.role === 'headquater'" class="bg-gray text-white">
-            <CheckCircleOutlined /> {{ trlang.full_message }}
-          </a-button>
-          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="bg-gray text-white">
+          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="bg-gray text-white"
+            @click="$emit('openSettingModal', record)">
             <CheckCircleOutlined /> {{ trlang.setting }}
           </a-button>
-          <a-button v-if="record.role === 'user'" class="bg-gray text-white">
+          <a-button v-if="record.role === 'user'" class="bg-gray text-white"
+            @click="$emit('openMemberSettingModal', record)">
             <CheckCircleOutlined /> {{ trlang.member_settings }}
           </a-button>
           <a-button v-if="record.role !== 'headquater'" class="bg-gray text-white"
@@ -129,17 +128,23 @@
             @click="$emit('openRemoveModal', record)">
             <CheckCircleOutlined /> {{ trlang.delete }}
           </a-button>
-          <a-button v-if="
-            record.role !== 'headquater' &&
-            record.role !== 'store' &&
-            record.role !== 'user'
-          " class="bg-gray text-white">
+          <a-button 
+            v-if="
+              canCreateSubPartner &&
+              record.role !== 'headquater' &&
+              record.role !== 'store' &&
+              record.role !== 'user'
+            " 
+            class="bg-gray text-white" 
+            @click="$emit('openAddSubModal', record)"
+          >
             <CheckCircleOutlined /> {{ trlang.add_sub }}
           </a-button>
-          <a-button v-if="record.role === 'user'" class="bg-gray text-white" @click="$emit('openNoticeModal', record)">
-            <CheckCircleOutlined /> {{ trlang.notice }}
-          </a-button>
-          <a-button v-if="record.role !== 'user'" class="bg-green text-white" @click="$emit('openRegisterUser')">
+          <a-button 
+            v-if="canCreateUser && record.role !== 'user'" 
+            class="bg-green text-white" 
+            @click="$emit('openRegisterUser')"
+          >
             <UserAddOutlined /> {{ trlang.member_registration }}
           </a-button>
         </a-layout>
@@ -151,9 +156,12 @@
 <script setup>
 import { computed, defineProps, inject } from 'vue';
 import { CheckCircleOutlined, UserAddOutlined } from '@ant-design/icons-vue';
+import { usePermissions } from '@/composables/usePermissions';
 
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
+
+const { canCreateSubPartner, canCreateUser, } = usePermissions();
 
 defineProps({
   columns: Array,
