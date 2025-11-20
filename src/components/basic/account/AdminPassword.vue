@@ -98,7 +98,7 @@ const validate = () => {
 
   if (!newPassword) {
     errors.push(trlang.value.administrator_password_required);
-  } else if (newPassword.length < 8) {
+  } else if (newPassword.length < 6) {
     errors.push(trlang.value.administrator_password_min_length);
   }
 

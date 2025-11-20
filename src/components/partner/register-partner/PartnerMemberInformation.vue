@@ -25,7 +25,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 flex-wrap">
-          <a-input v-model:value="partnerId" class="input-md" :disabled="isEdit" />
+          <a-input v-model:value="partnerId" class="w-100" :disabled="isEdit" />
           <a-button :loading="checkingPartnerId" @click="testPartnerId">{{ trlang.test }}</a-button>
           <a-typography-text class="flex items-center text-dark-brown">
             {{
@@ -62,12 +62,14 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="p-2">
-        <a-layout class="flex flex-row gap-2">
-          <a-input v-model:value="nickname" class="input-md" />
-          <a-button :loading="checkingNickname" @click="testNickname">{{ trlang.test }}</a-button>
-          <a-typography-text class="flex items-center text-dark-brown">
-            {{ trlang.number_3_to_10_characters_including_English_numbers }}
-          </a-typography-text>
+        <a-layout class="flex flex-column gap-2">
+          <a-input v-model:value="nickname" class="w-100" />
+          <div class="flex items-center gap-2">
+            <a-button :loading="checkingNickname" @click="testNickname">{{ trlang.test }}</a-button>
+            <a-typography-text class="flex items-center text-dark-brown">
+              {{ trlang.number_3_to_10_characters_including_English_numbers }}
+            </a-typography-text>
+          </div>
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -80,7 +82,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2">
-          <a-input-password v-model:value="password" class="input-md" />
+          <a-input-password v-model:value="password" class="w-100" />
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -115,7 +117,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row items-center gap-2 bg-none">
-          <a-select v-model:value="bank" class="input-lg" :options="bankOption" />
+          <a-select v-model:value="bank" class="w-100" :options="bankOption" />
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -128,7 +130,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 bg-none">
-          <a-input v-model:value="account" class="input-md" />
+          <a-input v-model:value="account" class="w-100" />
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -141,7 +143,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 bg-none">
-          <a-input v-model:value="name" class="input-md" />
+          <a-input v-model:value="name" class="w-100" />
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -154,7 +156,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 bg-none">
-          <a-input-password v-model:value="exchangePassword" class="input-md" />
+          <a-input-password v-model:value="exchangePassword" class="w-100" />
         </a-layout>
       </a-layout-content>
     </a-layout>

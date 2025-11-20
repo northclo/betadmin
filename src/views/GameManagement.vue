@@ -14,7 +14,6 @@
               <a-select
                 v-model:value="filters.gameProcess"
                 :options="gameProcessOptions"
-                class="input-lg"
               />
             </a-form-item>
           </a-col>
@@ -23,7 +22,6 @@
               <a-select
                 v-model:value="filters.searchField"
                 :options="searchFieldOptions"
-                class="input-lg"
               />
             </a-form-item>
           </a-col>
@@ -32,7 +30,7 @@
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
-                class="input-lg search-input"
+                class="search-input"
                 @press-enter="handleFilterChange"
               >
                 <template #prefix>
@@ -75,7 +73,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
 
           <template v-else-if="column.key === 'round_id'">

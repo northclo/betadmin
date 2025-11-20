@@ -63,7 +63,10 @@
       :row-key="record => record.id"
       @change="handleTableChange"
     >
-      <template #bodyCell="{ column, text }">
+      <template #bodyCell="{ column, text, index }">
+        <template v-if="column.key === 'no'">
+          <a-typography-text>{{ index + 1 }}</a-typography-text>
+        </template>
         <template v-if="column.dataIndex === 'bet_amount' || column.dataIndex === 'payout' || column.dataIndex === 'profit'">
           {{ formatCurrency(text) }}
         </template>
@@ -87,7 +90,7 @@ const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
 const filters = ref({
-  range: [dayjs().subtract(7, "day"), dayjs()],
+  range: null,
   partner: "all",
 });
 
@@ -244,12 +247,9 @@ const fetchData = async (page = pagination.value.current) => {
     pagination.value.total = settlementData.total || 0;
 
     tableData.value = items.map((item, index) => {
-      const rowNumber = (pagination.value.current - 1) * pagination.value.pageSize + index + 1;
-      
       if (!item || typeof item !== "object") {
         return {
           id: `settlement-${index}`,
-          no: rowNumber,
           round: "-",
           partner: "-",
           bet_amount: 0,
@@ -277,7 +277,6 @@ const fetchData = async (page = pagination.value.current) => {
 
       return {
         id: rowKeyParts || `settlement-${index}`,
-        no: rowNumber,
         round: formatRoundLabel(item),
         partner: item.partnerName || item.partnerCode || "-",
         bet_amount: Number.isFinite(item.betAmount) ? Number(item.betAmount) : 0,
@@ -322,7 +321,7 @@ const handleTableChange = (paginationConfig) => {
 
 const resetFilters = () => {
   filters.value = {
-    range: [dayjs().subtract(7, "day"), dayjs()],
+    range: null,
     partner: "all",
   };
   pagination.value.current = 1;

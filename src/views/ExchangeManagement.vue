@@ -64,7 +64,7 @@
       >
       <template #bodyCell="{ column, record, index }">
         <template v-if="column.key === 'no'">
-          {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+          <a-typography-text>{{ index + 1 }}</a-typography-text>
         </template>
         <template v-else-if="column.dataIndex === 'amount'">
           <span>{{ formatAmount(record.amount) }}</span>

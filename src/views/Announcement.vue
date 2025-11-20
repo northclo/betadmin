@@ -79,7 +79,7 @@
         </template>
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'category'">
             <a-tag :color="categoryColor(record.category)">
@@ -185,7 +185,7 @@ const editingRecord = ref(null);
 const formRef = ref(null);
 
 const filters = ref({
-  range: [dayjs().subtract(30, "day"), dayjs()],
+  range: null,
   category: "all",
   status: "all",
   keyword: "",
@@ -314,7 +314,7 @@ const handleFilterChange = async () => {
 
 const resetFilters = () => {
   filters.value = {
-    range: [dayjs().subtract(30, "day"), dayjs()],
+    range: null,
     category: "all",
     status: "all",
     keyword: "",

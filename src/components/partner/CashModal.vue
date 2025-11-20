@@ -16,10 +16,9 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center justify-end gap-2">
-          <a-typography-text>{{ dataSource.nickname }}</a-typography-text>
-          <a-typography-text> ({{ dataSource.id }}) </a-typography-text>
+          <a-typography-text> {{ dataSource?.id || '' }} </a-typography-text>
           <a-typography-text class="text-white px-2">
-            {{ dataSource.role }}
+            {{ dataSource?.role || '' }}
           </a-typography-text>
         </a-layout-content>
       </a-layout>
@@ -31,7 +30,7 @@
           }}</a-typography-text>
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center justify-end gap-2">
-          <a-typography-text>{{ dataSource.holdingMoney }}</a-typography-text>
+          <a-typography-text>{{ dataSource?.money || 0 }}</a-typography-text>
           <a-typography-text>USD</a-typography-text>
         </a-layout-content>
       </a-layout>
@@ -94,6 +93,11 @@ watch(() => props.open, (newValue) => {
 });
 
 const process = async () => {
+  if (!props.dataSource || !props.dataSource.id) {
+    message.error(trlang.value.invalid_data);
+    return;
+  }
+
   if (amount.value === null || amount.value === undefined) {
     message.error(trlang.value.input_amount);
     return;

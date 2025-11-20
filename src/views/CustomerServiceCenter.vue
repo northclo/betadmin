@@ -79,9 +79,9 @@
         row-key="id"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'no'">
-            {{ record.no }}
+        <template #bodyCell="{ column, record, index }">
+          <template v-if="column.key === 'no'">
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'title'">
             <div>
@@ -230,7 +230,7 @@ const filters = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no, dataIndex: "no", key: "no", width: 80 },
+  { title: trlang.value.no, key: "no", width: 80 },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.id, dataIndex: "userId", key: "userId", width: 200 },
   { title: trlang.value.parent_partner, dataIndex: "parentPartner", key: "parentPartner", width: 150 },

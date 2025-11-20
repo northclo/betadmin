@@ -417,7 +417,7 @@
 }
 
 .left-rail__eyebrow {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(148, 163, 184, 0.9);
@@ -444,7 +444,7 @@
 }
 
 .left-rail__meta {
-  font-size: 10px;
+  font-size: 12px;
   color: rgba(203, 213, 225, 0.9);
   line-height: 1.4;
   margin-top: 2px;
@@ -464,7 +464,7 @@
 }
 
 .left-rail__label {
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(203, 213, 225, 0.85);
@@ -494,18 +494,71 @@
 }
 
 .left-rail__select :deep(.ant-select-selector) {
-  height: 30px !important;
+  height: auto !important;
+}
+
+.left-rail__select .ant-select-selector {
+  height: auto !important;
+}
+
+.left-rail__select :deep(.ant-select-selector) {
   border-radius: 8px !important;
-  background: rgba(15, 23, 42, 0.35) !important;
-  border: 1px solid rgba(148, 163, 184, 0.22) !important;
-  font-size: 11px !important;
+  background: rgba(30, 41, 59, 0.6) !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+  font-size: 13px !important;
   color: #f8fafc !important;
-  padding: 0 8px !important;
+  padding: 0 10px !important;
+}
+
+.left-rail__select .ant-select-selection-item {
+  line-height: 30px !important;
+  font-size: 13px !important;
+  color: var(--white-color) !important;
 }
 
 .left-rail__select :deep(.ant-select-selection-item) {
-  line-height: 28px !important;
-  font-size: 11px !important;
+  line-height: 30px !important;
+  font-size: 13px !important;
+  color: var(--white-color) !important;
+}
+
+.left-rail__select :deep(.ant-select-selector:hover) {
+  border-color: rgba(148, 163, 184, 0.6) !important;
+  background: rgba(30, 41, 59, 0.7) !important;
+}
+
+.left-rail__select :deep(.ant-select-focused .ant-select-selector) {
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  background: rgba(30, 41, 59, 0.75) !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+.left-rail__select :deep(.ant-select-arrow) {
+  color: rgba(203, 213, 225, 0.8) !important;
+}
+
+/* Select dropdown options styling */
+.left-rail__select :deep(.ant-select-dropdown) {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+  border-radius: 8px !important;
+}
+
+.left-rail__select :deep(.ant-select-item) {
+  color: rgba(226, 232, 240, 0.9) !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+}
+
+.left-rail__select :deep(.ant-select-item:hover) {
+  background: rgba(30, 41, 59, 0.8) !important;
+  color: #f8fafc !important;
+}
+
+.left-rail__select :deep(.ant-select-item-option-selected) {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #f8fafc !important;
+  font-weight: 500 !important;
 }
 
 .left-rail__pillset {
@@ -517,7 +570,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 10px;
+  font-size: 12px;
   background: rgba(15, 23, 42, 0.45);
   border-radius: 8px;
   padding: 8px 10px;
@@ -525,12 +578,12 @@
 }
 
 .left-rail__pillset .pill strong {
-  font-size: 12px;
+  font-size: 14px;
   color: #f8fafc;
 }
 
 .left-rail__section--list header {
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(203, 213, 225, 0.75);
@@ -550,13 +603,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 10px;
+  font-size: 12px;
   color: rgba(226, 232, 240, 0.85);
   padding: 2px 0;
 }
 
 .left-rail__section--list strong {
-  font-size: 11px;
+  font-size: 13px;
   color: #f8fafc;
   font-weight: 600;
 }
@@ -694,8 +747,7 @@
   }
 
   .left-rail__select :deep(.ant-select-selector) {
-    height: 30px !important;
-    font-size: 11px !important;
+    font-size: 13px !important;
   }
 
   .left-rail__pillset {
@@ -785,12 +837,13 @@
   }
 
   .left-rail__select :deep(.ant-select-selector) {
-    height: 28px !important;
-    font-size: 10px !important;
+    font-size: 12px !important;
   }
 
   .left-rail__select :deep(.ant-select-selection-item) {
-    line-height: 26px !important;
+    line-height: 28px !important;
+    font-size: 12px !important;
+    color: var(--white-color) !important;
   }
 
   .left-rail__pillset {
@@ -864,19 +917,19 @@
 }
 
 .input-sm {
-  width: 80px;
+  width: 80px !important;
 }
 
 .input-md {
-  width: 120px;
+  width: 120px !important;
 }
 
 .input-lg {
-  width: 200px;
+  width: 200px !important;
 }
 
 .input-xl {
-  width: 300px;
+  width: 300px !important;
 }
 
 .partner-table table {

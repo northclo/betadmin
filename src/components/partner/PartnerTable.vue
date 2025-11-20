@@ -3,21 +3,26 @@
     <template #emptyText>
       <a-spin v-if="loading" /> <span v-else>{{ trlang.no_data }}</span>
     </template>
-    <template #bodyCell="{ column, record }">
+    <template #bodyCell="{ column, record, index }">
+      <template v-if="column.key === 'no'">
+        <a-typography-text>{{ index + 1 }}</a-typography-text>
+      </template>
+      <template v-if="column.key === 'headquater'">
+        <a-layout v-if="record.role === 'headquater'" class="bg-light-pink">
+          <a-typography-text>{{ record.id }}</a-typography-text>
+        </a-layout>
+      </template>
       <template v-if="column.key === 'branch_office'">
         <a-layout v-if="record.role === 'branch_office'" class="bg-light-pink">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
+          <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
-        <a-layout v-if="record.role === 'headquater'" class="bg-none headquater-content">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
-        </a-layout>
+        <a-typography-text v-if="record.role === 'headquater'" class="text-main">
+          {{ record.subs === 0 ? '' : record.subs }}
+        </a-typography-text>
       </template>
       <template v-if="column.key === 'regional_office' && record.role !== 'user'">
         <a-layout v-if="record.role === 'regionalOffice'" class="bg-light-pink">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
+          <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
         <a-typography-text v-if="record.role === 'branch_office'" class="text-main">
           {{ record.subs === 0 ? '' : record.subs }}
@@ -25,8 +30,7 @@
       </template>
       <template v-if="column.key === 'agency' && record.role !== 'user'">
         <a-layout v-if="record.role === 'agency'" class="bg-light-pink">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
+          <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
         <a-typography-text v-if="record.role === 'regionalOffice'" class="text-main">
           {{ record.subs === 0 ? '' : record.subs }}
@@ -34,8 +38,7 @@
       </template>
       <template v-if="column.key === 'distributor' && record.role !== 'user'">
         <a-layout v-if="record.role === 'distributor'" class="bg-light-pink">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
+          <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
         <a-typography-text v-if="record.role === 'agency'" class="text-main">
           {{ record.subs === 0 ? '' : record.subs }}
@@ -43,8 +46,7 @@
       </template>
       <template v-if="column.key === 'store' && record.role !== 'user'">
         <a-layout v-if="record.role === 'store'" class="bg-light-pink">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
+          <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
         <a-typography-text v-if="record.role === 'distributor'" class="text-main">
           {{ record.subs === 0 ? '' : record.subs }}
@@ -52,23 +54,19 @@
       </template>
       <template v-if="column.key === 'users'">
         <a-layout v-if="record.role === 'user'" class="bg-light-pink">
-          <a-typography-text> {{ record.nickname }} </a-typography-text>
-          <a-typography-text>({{ record.id }})</a-typography-text>
+          <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
         <a-typography-text v-else class="text-dark-brown">
           {{ record.members === 0 ? '' : record.members }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'nickname'">
-        <a-typography-text v-if="record.role === 'headquater'" class="bg-none">
-          -
-        </a-typography-text>
-        <a-typography-text v-else> {{ record.nickname }} </a-typography-text>
+        <a-typography-text> {{ record.nickname }} </a-typography-text>
       </template>
       <template v-if="column.key === 'money'">
         <a-layout class="bg-none text-end">
           <a-typography-text class="text-dark-brown text-end">
-            {{ record.money }}{{ record.betMoneyUnit }}
+            {{ record.money }}$
           </a-typography-text>
           <a-typography-text>{{ record.point }}{{ trlang.points_unit }}</a-typography-text>
         </a-layout>
@@ -91,20 +89,8 @@
       </template>
       <template v-if="column.key === 'number_of_members'">
         <a-typography-text>
-          {{
-            record.members === 0
-              ? '1' + trlang.person
-              : record.members + 1 + trlang.people
-          }}
+          {{ record.members + 1 }}
         </a-typography-text>
-      </template>
-      <template v-if="column.key === 'total_member_holdings'">
-        <a-layout class="bg-none text-end">
-          <a-typography-text class="text-dark-brown text-end">
-            {{ record.holdingMoney }}{{ record.betMoneyUnit }}
-          </a-typography-text>
-          <a-typography-text>{{ record.holdingPoint }}{{ trlang.points_unit }}</a-typography-text>
-        </a-layout>
       </template>
       <template v-if="column.key === 'function'">
         <a-layout class="bg-none flex flex-row justify-center items-center flex-wrap gap-2">

@@ -87,4 +87,10 @@ export const memberListColumn = [
     dataIndex: "created_date",
     key: "created_date",
   },
+  {
+    title: "Actions",
+    key: "actions",
+    align: "center",
+    width: 120,
+  },
 ];

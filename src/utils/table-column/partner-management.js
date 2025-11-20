@@ -1,6 +1,18 @@
 export const partnerManagementColumns = (trlang) => {
     return [
         {
+            key: "no",
+            dataIndex: "no",
+            title: trlang.value.no_column,
+            width: "80px",
+        },
+        {
+            key: "headquater",
+            dataIndex: "headquater",
+            title: trlang.value.headquater,
+            width: "120px",
+        },
+        {
             key: "branch_office",
             dataIndex: "branch_office",
             title: trlang.value.branch_office,
@@ -58,12 +70,6 @@ export const partnerManagementColumns = (trlang) => {
             key: "number_of_members",
             dataIndex: "number_of_members",
             title: trlang.value.number_of_members,
-            width: "100px",
-        },
-        {
-            key: "total_member_holdings",
-            dataIndex: 'total_member_holdings',
-            title: trlang.value.total_member_holdings,
             width: "100px",
         },
         {

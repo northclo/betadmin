@@ -17,7 +17,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="nickname" class="input-lg" :disabled="true" />
+          <a-input v-model:value="nickname" class="w-100" :disabled="true" />
           <a-typography-text class="text-dark-brown">
             {{ trlang.nickname_cannot_be_changed }}
           </a-typography-text>
@@ -31,7 +31,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="email" class="input-lg" />
+          <a-input v-model:value="email" class="w-100" />
         </a-layout-content>
       </a-layout>
 
@@ -42,7 +42,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="userName" class="input-lg" />
+          <a-input v-model:value="userName" class="w-100" />
         </a-layout-content>
       </a-layout>
 
@@ -53,7 +53,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input-password v-model:value="password" class="input-lg" :placeholder="trlang.leave_blank_to_keep_current_password" />
+          <a-input-password v-model:value="password" class="w-100" :placeholder="trlang.leave_blank_to_keep_current_password" />
         </a-layout-content>
       </a-layout>
 
@@ -64,7 +64,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input-password v-model:value="exchangePassword" class="input-lg" :placeholder="trlang.leave_blank_to_keep_current_password" />
+          <a-input-password v-model:value="exchangePassword" class="w-100" :placeholder="trlang.leave_blank_to_keep_current_password" />
         </a-layout-content>
       </a-layout>
 
@@ -97,7 +97,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-select v-model:value="bankName" class="input-lg" :placeholder="trlang.select_bank">
+          <a-select v-model:value="bankName" class="w-100" :placeholder="trlang.select_bank">
             <a-select-option
               v-for="item in bankNameOptions"
               :key="item.value"
@@ -116,7 +116,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="bankNumber" class="input-lg" />
+          <a-input v-model:value="bankNumber" class="w-100" />
         </a-layout-content>
       </a-layout>
 
@@ -127,7 +127,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="bankOwner" class="input-lg" />
+          <a-input v-model:value="bankOwner" class="w-100" />
         </a-layout-content>
       </a-layout>
 

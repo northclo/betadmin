@@ -417,7 +417,7 @@ export default {
   confirm_view_manager_password: "Confirm view manager password",
   please_enter_administrator_id: "Please enter administrator ID.",
   administrator_id_must_be_valid_email: "Administrator ID must be a valid email address.",
-  administrator_password_min_length: "Administrator password must be at least 8 characters.",
+  administrator_password_min_length: "Administrator password must be at least 6 characters.",
   administrator_password_mismatch: "Administrator password and confirmation do not match.",
   please_enter_view_manager_id: "Please enter view manager ID.",
   view_manager_id_rule: "View manager ID must start with a letter and can include letters, numbers, hyphen, or underscore (4-32 characters).",
@@ -657,6 +657,10 @@ export default {
   user_status: "User Status",
   block_ip: "Block IP",
   allow_ip: "Allow IP",
+  edit_user: "Edit User",
+  invalid_user_id: "Invalid user ID",
+  user_updated_successfully: "User updated successfully",
+  error_updating_user: "Error updating user",
 
   // Announcement Page
   view: "View",

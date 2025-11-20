@@ -78,7 +78,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
           <template v-if="column.key === 'round'">
             <div class="flex flex-column">

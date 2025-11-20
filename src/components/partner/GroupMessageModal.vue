@@ -66,7 +66,7 @@
         <a-select
           ref="select"
           v-model:value="expire"
-          class="input-lg"
+          class="w-100"
           :options="expireOptions"
         />
         <a-typography-text class="text-dark-brown">

@@ -24,7 +24,6 @@
               <a-select
                 v-model:value="filters.userStatus"
                 :options="userStatusOptions"
-                class="input-md"
               />
             </a-form-item>
           </a-col>
@@ -33,7 +32,6 @@
               <a-select
                 v-model:value="filters.partner"
                 :options="partnerOptions"
-                class="input-lg"
               />
             </a-form-item>
           </a-col>
@@ -42,7 +40,6 @@
               <a-select
                 v-model:value="filters.bettingStatus"
                 :options="bettingStatusOptions"
-                class="input-md"
               />
             </a-form-item>
           </a-col>
@@ -51,7 +48,6 @@
               <a-select
                 v-model:value="filters.bettingType"
                 :options="bettingTypeOptions"
-                class="input-md"
               />
             </a-form-item>
           </a-col>
@@ -60,7 +56,6 @@
               <a-select
                 v-model:value="filters.win"
                 :options="winOptions"
-                class="input-md"
               />
             </a-form-item>
           </a-col>
@@ -69,7 +64,6 @@
               <a-select
                 v-model:value="filters.sort"
                 :options="sortOptions"
-                class="input-lg"
               />
             </a-form-item>
           </a-col>
@@ -78,7 +72,6 @@
               <a-select
                 v-model:value="filters.searchField"
                 :options="searchFieldOptions"
-                class="input-lg"
               />
             </a-form-item>
           </a-col>
@@ -87,7 +80,7 @@
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
-                class="input-lg search-input"
+                class="search-input"
                 @press-enter="handleFilterChange"
               >
                 <template #prefix>
@@ -126,7 +119,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
           <template v-if="column.key === 'round'">
             <div class="flex flex-column">

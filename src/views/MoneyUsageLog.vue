@@ -37,7 +37,7 @@
               <a-input 
                 v-model:value="filters.member" 
                 :placeholder="trlang.member_placeholder"
-                class="input-lg search-input"
+                class="search-input"
               />
             </a-form-item>
           </a-col>
@@ -73,7 +73,7 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'amount' || column.dataIndex === 'balance_after'">
             {{ formatCurrency(record[column.dataIndex]) }}

@@ -8,7 +8,7 @@
     <a-layout class="px-2">
       <PartnerChart :data-source="dataSource" :loading="loading" />
 
-      <a-layout class="p-5 bg-white mt-5">
+      <a-layout class="mt-5">
         <a-layout class="pt-5 pb-5 flex flex-row justify-between items-center">
           <a-layout-content class="flex items-center gap-2">
             <a-typography-text>{{ trlang.id_or_nickname }}</a-typography-text>
@@ -157,8 +157,11 @@ const openSettingModal = (record) => {
   openSetting.value = true;
 };
 
+const isRegisterPartnerFromAddSub = ref(false);
+
 const openAddSubModal = (record) => {
   selectedRecord.value = record;
+  isRegisterPartnerFromAddSub.value = true;
   openRegisterPartner.value = true;
 };
 
@@ -168,8 +171,12 @@ const openMemberSettingModal = (record) => {
 };
 
 watch(() => openRegisterPartner.value, (newValue) => {
-  if (!newValue) {
-    selectedRecord.value = null;
+  if (!newValue && isRegisterPartnerFromAddSub.value) {
+    if (!openCash.value && !openSetting.value && !openMemberSetting.value && 
+        !openGroupMessage.value && !openRemove.value) {
+      selectedRecord.value = null;
+    }
+    isRegisterPartnerFromAddSub.value = false;
   }
 });
 

@@ -186,7 +186,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
           <template v-if="column.key === 'login'">
             <div
@@ -323,10 +323,38 @@
               </a-typography-text>
             </div>
           </template>
+          <template v-if="column.key === 'actions'">
+            <a-button
+              type="primary"
+              size="small"
+              @click="handleEdit(record)"
+            >
+              <template #icon><EditOutlined /></template>
+              {{ trlang.edit }}
+            </a-button>
+          </template>
         </template>
       </a-table>
     </div>
   </a-layout>
+
+  <a-modal
+    v-model:open="editModalVisible"
+    :title="trlang.edit_user"
+    @ok="handleSaveEdit"
+    @cancel="handleCancelEdit"
+    :confirm-loading="loadingEdit"
+  >
+    <a-form :model="editForm" layout="vertical">
+      <a-form-item :label="trlang.user_status">
+        <a-select
+          v-model:value="editForm.user_status"
+          :options="userStatusOptions"
+          style="width: 100%"
+        />
+      </a-form-item>
+    </a-form>
+  </a-modal>
 
   <a-modal
     v-model:open="blockIpModalVisible"
@@ -373,7 +401,10 @@
           :loading="loadingBlockedIps"
           row-key="id"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'no'">
+              <a-typography-text>{{ index + 1 }}</a-typography-text>
+            </template>
             <template v-if="column.key === 'ip'">
               {{ record.ip_address }}
             </template>
@@ -421,11 +452,12 @@ import {
   RightOutlined,
   CheckOutlined,
   CloseOutlined,
+  EditOutlined,
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { memberListColumn as baseMemberListColumn } from '@/utils/table-column/member-list.js';
-import { getData, putData, deleteData } from '@/helpers/Axios';
+import { getData, putData, deleteData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -473,8 +505,21 @@ const loadingBlockedIps = ref(false);
 const loadingSearch = ref(false);
 const loadingRegisterIp = ref(false);
 const loadingRemoveIp = ref({});
+const editModalVisible = ref(false);
+const editForm = ref({
+  _id: null,
+  user_status: '',
+});
+const loadingEdit = ref(false);
 
 const blockedIpColumns = computed(() => [
+  {
+    title: trlang.value.no_column,
+    dataIndex: 'no',
+    key: 'no',
+    width: 80,
+    align: 'center',
+  },
   {
     title: trlang.value.ip,
     dataIndex: 'ip_address',
@@ -512,6 +557,7 @@ const memberListColumn = computed(() => {
     "Last Import Date": trlang.value.last_import_date,
     "Connect Date": trlang.value.connect_date,
     "Created Date": trlang.value.created_date,
+    "Actions": trlang.value.actions,
   };
   return baseMemberListColumn.map(col => ({
     ...col,
@@ -535,7 +581,6 @@ const initOptions = () => {
     },
   ];
   userStatusOptions.value = [
-    { value: '', label: trlang.value.all },
     { value: 'wait', label: trlang.value.wait },
     { value: 'normal', label: trlang.value.normal },
     { value: 'stop', label: trlang.value.stop },
@@ -826,6 +871,52 @@ const handleRemoveIp = async (id) => {
 const handleCloseBlockIpModal = () => {
   blockIpModalVisible.value = false;
   newBlockedIp.value = '';
+};
+
+const handleEdit = (record) => {
+  const userId = record._id ? String(record._id) : record.user_id;
+  editForm.value = {
+    _id: userId,
+    user_status: record.user_status || '',
+  };
+  editModalVisible.value = true;
+};
+
+const handleCancelEdit = () => {
+  editModalVisible.value = false;
+  editForm.value = {
+    _id: null,
+    user_status: '',
+  };
+};
+
+const handleSaveEdit = async () => {
+  if (!editForm.value._id) {
+    message.error(trlang.value.invalid_user_id);
+    return;
+  }
+
+  loadingEdit.value = true;
+  try {
+    const res = await postData(apiLink.member_list, {
+      _id: editForm.value._id,
+      user_status: editForm.value.user_status,
+    });
+
+    if (res && res.status) {
+      message.success(res.message || trlang.value.user_updated_successfully);
+      editModalVisible.value = false;
+      await fetchData();
+    } else {
+      message.error(res.message || trlang.value.error_updating_user);
+    }
+  } catch (error) {
+    console.error('Error updating user:', error);
+    const errorMessage = error?.response?.data?.message || trlang.value.error_updating_user;
+    message.error(errorMessage);
+  } finally {
+    loadingEdit.value = false;
+  }
 };
 
 onMounted(() => {

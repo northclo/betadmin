@@ -17,7 +17,7 @@
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
         <a-tree-select
           v-model:value="partner"
-          class="input-lg"
+          class="w-100"
           :tree-data="partnerTreeOptions"
           :placeholder="trlang.select_partner"
           allow-clear
@@ -69,10 +69,12 @@
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
         <a-input v-model:value="email" class="input-lg" />
-        <a-button @click="testEmail">{{ trlang.test }}</a-button>
-        <a-typography-text class="text-dark-brown">
-          {{ trlang.email_format_required }}
-        </a-typography-text>
+        <div class="flex items-center gap-2">
+          <a-button @click="testEmail">{{ trlang.test }}</a-button>
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.email_format_required }}
+          </a-typography-text>
+        </div>
       </a-layout-content>
     </a-layout>
 
@@ -83,7 +85,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input-password v-model:value="password" class="input-lg" />
+        <a-input-password v-model:value="password" class="w-100" />
       </a-layout-content>
     </a-layout>
 
@@ -94,7 +96,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input-password v-model:value="verifyPassword" class="input-lg" />
+        <a-input-password v-model:value="verifyPassword" class="w-100" />
       </a-layout-content>
     </a-layout>
 
@@ -105,11 +107,13 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input v-model:value="nickname" class="input-lg" />
-        <a-button @click="testNickname">{{ trlang.test }}</a-button>
-        <a-typography-text class="text-dark-brown">
-          {{ trlang.num_2_10_characters_in_combination_of_english_and_numbers }}
-        </a-typography-text>
+        <a-input v-model:value="nickname" class="w-100" />
+        <div class="flex items-center gap-2">
+          <a-button @click="testNickname">{{ trlang.test }}</a-button>
+          <a-typography-text class="text-dark-brown">
+            {{ trlang.num_2_10_characters_in_combination_of_english_and_numbers }}
+          </a-typography-text>
+        </div>
       </a-layout-content>
     </a-layout>
 
@@ -142,7 +146,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-select v-model:value="bankName" class="input-lg" :placeholder="trlang.select_bank">
+        <a-select v-model:value="bankName" class="w-100" :placeholder="trlang.select_bank">
           <a-select-option
             v-for="item in bankNameOptions"
             :key="item.value"
@@ -161,7 +165,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input v-model:value="bankNumber" class="input-lg" />
+        <a-input v-model:value="bankNumber" class="w-100" />
       </a-layout-content>
     </a-layout>
 
@@ -172,7 +176,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input v-model:value="bankOwner" class="input-lg" />
+        <a-input v-model:value="bankOwner" class="w-100" />
       </a-layout-content>
     </a-layout>
 
@@ -183,7 +187,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input-password v-model:value="exchangePassword" class="input-lg" />
+        <a-input-password v-model:value="exchangePassword" class="w-100" />
       </a-layout-content>
     </a-layout>
 

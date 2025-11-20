@@ -24,7 +24,6 @@
               <a-select
                 v-model:value="filters.searchField"
                 :options="searchFieldOptions"
-                class="input-lg"
                 @change="handleFilterChange"
               />
             </a-form-item>
@@ -34,7 +33,7 @@
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
-                class="input-lg search-input"
+                class="search-input"
                 @press-enter="handleFilterChange"
               >
                 <template #prefix>
@@ -66,7 +65,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            {{ index + 1 }}
+            <a-typography-text>{{ index + 1 }}</a-typography-text>
           </template>
 
           <template v-if="column.key === 'user_id'">

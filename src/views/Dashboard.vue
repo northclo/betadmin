@@ -54,10 +54,12 @@
               {{ trlang.this_month_loggedin_users }}
             </span>
           </template>
-          <div v-if="chartLoading" class="chart-loading">
-            <a-spin size="large" />
+          <div class="chart-wrapper">
+            <div v-if="chartLoading" class="chart-loading">
+              <a-spin size="large" />
+            </div>
+            <div class="chart-container" ref="loggedInChartRef" />
           </div>
-          <div v-else class="chart-container" ref="loggedInChartRef" />
         </a-card>
       </a-col>
       <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
@@ -68,10 +70,12 @@
               {{ trlang.this_month_charge_exchange }}
             </span>
           </template>
-          <div v-if="chartLoading" class="chart-loading">
-            <a-spin size="large" />
+          <div class="chart-wrapper">
+            <div v-if="chartLoading" class="chart-loading">
+              <a-spin size="large" />
+            </div>
+            <div class="chart-container" ref="chargeExchangeChartRef" />
           </div>
-          <div v-else class="chart-container" ref="chargeExchangeChartRef" />
         </a-card>
       </a-col>
     </a-row>
@@ -104,6 +108,11 @@ const loggedInChartRef = ref(null);
 const chargeExchangeChartRef = ref(null);
 let loggedInChart = null;
 let chargeExchangeChart = null;
+
+const chartInitStatus = ref({
+  loggedIn: false,
+  chargeExchange: false
+});
 
 const titleLevel = computed(() => {
   if (windowWidth.value <= 480) return 4;
@@ -154,14 +163,22 @@ const fetchLoggedInUsersData = async () => {
       await nextTick();
       if (loggedInChartRef.value) {
         initLoggedInChart(result.data);
+        chartInitStatus.value.loggedIn = true;
       } else {
         console.error("Logged in chart ref not available");
+        chartInitStatus.value.loggedIn = true;
       }
     } else {
       console.error("Failed to fetch logged in users data:", result);
+      chartInitStatus.value.loggedIn = true;
     }
   } catch (error) {
     console.error("Error fetching logged in users data:", error);
+    chartInitStatus.value.loggedIn = true;
+  } finally {
+    if (chartInitStatus.value.loggedIn && chartInitStatus.value.chargeExchange) {
+      chartLoading.value = false;
+    }
   }
 };
 
@@ -172,14 +189,22 @@ const fetchChargeExchangeData = async () => {
       await nextTick();
       if (chargeExchangeChartRef.value) {
         initChargeExchangeChart(result.data);
+        chartInitStatus.value.chargeExchange = true;
       } else {
         console.error("Charge exchange chart ref not available");
+        chartInitStatus.value.chargeExchange = true;
       }
     } else {
       console.error("Failed to fetch charge exchange data:", result);
+      chartInitStatus.value.chargeExchange = true;
     }
   } catch (error) {
     console.error("Error fetching charge exchange data:", error);
+    chartInitStatus.value.chargeExchange = true;
+  } finally {
+    if (chartInitStatus.value.loggedIn && chartInitStatus.value.chargeExchange) {
+      chartLoading.value = false;
+    }
   }
 };
 
@@ -287,7 +312,7 @@ const initChargeExchangeChart = (data) => {
       }
     },
     legend: {
-      data: [trlang.value.charge, trlang.value.withdrawal, trlang.value.charge_minus_withdraw],
+      data: [trlang.value.charge, trlang.value.withdrawal],
       bottom: 0,
       itemGap: 20
     },
@@ -327,17 +352,9 @@ const initChargeExchangeChart = (data) => {
       {
         name: trlang.value.withdrawal,
         type: 'bar',
-        data: data.withdraw || [],
+        data: data.exchange || [],
         itemStyle: {
           color: '#E67E22'
-        }
-      },
-      {
-        name: trlang.value.charge_minus_withdraw,
-        type: 'bar',
-        data: data.chargeMinusWithdraw || [],
-        itemStyle: {
-          color: '#27AE60'
         }
       }
     ]
@@ -374,16 +391,17 @@ onMounted(async () => {
   
   await fetchDashboardSummary();
   
-  chartLoading.value = false;
-  
   await nextTick();
   
   const refsReady = await waitForRefs();
   
   if (!refsReady) {
     console.error("Chart refs not available");
+    chartLoading.value = false;
     return;
   }
+  
+  chartInitStatus.value = { loggedIn: false, chargeExchange: false };
   
   try {
     await Promise.all([
@@ -392,6 +410,7 @@ onMounted(async () => {
     ]);
   } catch (error) {
     console.error("Error fetching chart data:", error);
+    chartLoading.value = false;
   }
 });
 
@@ -722,22 +741,38 @@ onBeforeUnmount(() => {
   font-size: 14px;
 }
 
-.chart-container {
+.chart-wrapper {
+  position: relative;
   width: 100%;
   height: 350px;
+  min-height: 350px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 100%;
   min-height: 350px;
 }
 
 .chart-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 350px;
-  min-height: 350px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
 }
 
 @media (max-width: 768px) {
+  .chart-wrapper {
+    height: 300px;
+    min-height: 300px;
+  }
+  
   .chart-container {
     height: 300px;
     min-height: 300px;
@@ -749,6 +784,11 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 576px) {
+  .chart-wrapper {
+    height: 250px;
+    min-height: 250px;
+  }
+  
   .chart-container {
     height: 250px;
     min-height: 250px;
