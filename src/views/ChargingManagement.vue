@@ -96,6 +96,13 @@
               >
                 {{ trlang.reject }}
               </a-button>
+              <a-popconfirm
+                :title="trlang.confirm_delete"
+                @confirm="handleDelete(record._id || record.id)"
+                :ok-button-props="{ loading: deleting[record._id || record.id] }"
+              >
+                <a-button type="link" danger size="small">{{ trlang.delete }}</a-button>
+              </a-popconfirm>
             </a-space>
           </template>
         </template>
@@ -108,7 +115,7 @@
 import { computed, inject, ref, onMounted, watch } from "vue";
 import { message } from "ant-design-vue";
 import dayjs from "dayjs";
-import { getData, postData } from "@/helpers/Axios";
+import { getData, postData, deleteData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 import { usePagination } from "@/composables/usePagination";
 
@@ -121,6 +128,7 @@ const loading = ref(false);
 const summaryLoading = ref(false);
 const searchLoading = ref(false);
 const actionLoading = ref({});
+const deleting = ref({});
 const filters = ref({
   range: null,
   status: "all",
@@ -317,6 +325,30 @@ const handleAction = async (record, action) => {
     message.error(trlang.value.failed_to_update_transaction);
   } finally {
     delete actionLoading.value[recordId];
+  }
+};
+
+const handleDelete = async (id) => {
+  if (!id) {
+    message.error(trlang.value.invalid_id);
+    return;
+  }
+
+  deleting.value[id] = true;
+  try {
+    const res = await deleteData(`${apiLink.delete_charging_transaction}/${id}`);
+    if (res.status) {
+      message.success(res.message || trlang.value.charging_transaction_deleted_successfully);
+      await fetchData();
+      await fetchSummary();
+    } else {
+      message.error(res.message || trlang.value.failed_to_delete_charging_transaction);
+    }
+  } catch (error) {
+    console.error('Error deleting charging transaction:', error);
+    message.error(trlang.value.failed_to_delete_charging_transaction);
+  } finally {
+    deleting.value[id] = false;
   }
 };
 

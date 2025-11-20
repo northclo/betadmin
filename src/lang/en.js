@@ -671,7 +671,7 @@ export default {
   description_announcement_placeholder: "Enter announcement description",
   image: "Image",
   image_url_placeholder: "Image URL (optional)",
-  confirm_delete: "Are you sure you want to delete this announcement?",
+  confirm_delete: "Are you sure you want to delete?",
   draft: "Draft",
   published: "Published",
   archived: "Archived",
@@ -829,5 +829,12 @@ export default {
   thirty_minutes: "30 minutes",
   five_minutes: "5 minutes",
   mult: "mult",
-  login_time: "Login Time"
+  login_time: "Login Time",
+  login_information_deleted_successfully: "Login information deleted successfully",
+  failed_to_delete_login_information: "Failed to delete login information",
+  invalid_id: "Invalid ID",
+  charging_transaction_deleted_successfully: "Charging transaction deleted successfully",
+  failed_to_delete_charging_transaction: "Failed to delete charging transaction",
+  exchange_transaction_deleted_successfully: "Exchange transaction deleted successfully",
+  failed_to_delete_exchange_transaction: "Failed to delete exchange transaction"
 };

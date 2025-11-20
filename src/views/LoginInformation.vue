@@ -115,6 +115,16 @@
           <template v-if="column.key === 'mobile'">
             <a-typography-text>{{ record.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>
+
+          <template v-if="column.key === 'actions'">
+            <a-popconfirm
+              :title="trlang.confirm_delete"
+              @confirm="handleDelete(record.history_id || record.key)"
+              :ok-button-props="{ loading: deleting }"
+            >
+              <a-button type="link" danger>{{ trlang.delete }}</a-button>
+            </a-popconfirm>
+          </template>
         </template>
       </a-table>
     </a-layout-content>
@@ -124,9 +134,10 @@
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { loginInformationColumn as baseLoginInformationColumn } from '@/utils/table-column/login-information';
-import { getData } from '@/helpers/Axios';
+import { getData, deleteData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -148,6 +159,7 @@ const searchFieldOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
+const deleting = ref(false);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
@@ -161,6 +173,7 @@ const loginInformationColumn = computed(() => {
     "organ": trlang.value.organ,
     "mobile": trlang.value.mobile,
     "login_time": trlang.value.login_time,
+    "actions": trlang.value.actions,
   };
   return baseLoginInformationColumn.map(col => ({
     ...col,
@@ -248,6 +261,29 @@ const resetFilters = () => {
   };
   paginationConfig.value.current = 1;
   fetchData();
+};
+
+const handleDelete = async (id) => {
+  if (!id) {
+    message.error(trlang.value.invalid_id);
+    return;
+  }
+
+  deleting.value = true;
+  try {
+    const res = await deleteData(`${apiLink.delete_login_information}/${id}`);
+    if (res.status) {
+      message.success(res.message || trlang.value.login_information_deleted_successfully);
+      fetchData();
+    } else {
+      message.error(res.message || trlang.value.failed_to_delete_login_information);
+    }
+  } catch (error) {
+    console.error('Error deleting login information:', error);
+    message.error(trlang.value.failed_to_delete_login_information);
+  } finally {
+    deleting.value = false;
+  }
 };
 
 watch(

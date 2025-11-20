@@ -47,4 +47,11 @@ export const loginInformationColumn = [
         key: "login_time",
         align: 'center',
     },
+    {
+        title: "actions",
+        dataIndex: "actions",
+        key: "actions",
+        align: 'center',
+        width: 100,
+    },
 ];
