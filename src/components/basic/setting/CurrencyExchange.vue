@@ -63,7 +63,7 @@
                   {{ trlang.start }}
                 </a-typography-text>
                 <a-input v-model:value="exchangeStartTime" style="width: 80px" />
-                <a-typography-text class="flex items-center">{{ trlang.range_separator }}</a-typography-text>
+                <a-typography-text class="flex items-center">~</a-typography-text>
                 <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>

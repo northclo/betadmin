@@ -2,7 +2,7 @@
   <a-layout class="dashboard-view">
     <div>
       <a-typography-title :level="3">
-        {{ trlang.main_page }}
+        {{ trlang.dashboard }}
       </a-typography-title>
       <a-typography-text type="secondary">
         {{ trlang.dashboard_welcome }}

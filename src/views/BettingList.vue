@@ -20,51 +20,21 @@
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.user_status">
-              <a-select
-                v-model:value="filters.userStatus"
-                :options="userStatusOptions"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="4">
             <a-form-item class="mb-0" :label="trlang.partner">
-              <a-select
-                v-model:value="filters.partner"
-                :options="partnerOptions"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.betting_status">
-              <a-select
-                v-model:value="filters.bettingStatus"
-                :options="bettingStatusOptions"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="3">
-            <a-form-item class="mb-0" :label="trlang.betting_type">
-              <a-select
-                v-model:value="filters.bettingType"
-                :options="bettingTypeOptions"
+              <a-tree-select
+                v-model:value="filters.partnerId"
+                :tree-data="partnerTreeOptions"
+                :placeholder="trlang.select_partner"
+                allow-clear
+                tree-default-expand-all
+                :field-names="{ children: 'children', label: 'title', value: 'value' }"
+                style="width: 100%"
               />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="3">
-            <a-form-item class="mb-0" :label="trlang.win">
-              <a-select
-                v-model:value="filters.win"
-                :options="winOptions"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="3">
-            <a-form-item class="mb-0" :label="trlang.sort">
-              <a-select
-                v-model:value="filters.sort"
-                :options="sortOptions"
-              />
+            <a-form-item class="mb-0" :label="trlang.include_sub_partners">
+              <a-checkbox v-model:checked="filters.includeSubPartners" />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="3">
@@ -89,17 +59,51 @@
               </a-input>
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.betting_status">
+              <a-select
+                v-model:value="filters.bettingStatus"
+                :options="bettingStatusOptions"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.sort">
+              <a-select
+                v-model:value="filters.sort"
+                :options="sortOptions"
+              />
+            </a-form-item>
+          </a-col>
           <a-col :xs="24" :md="4" class="actions">
-            <a-button type="primary" class="bg-main text-white" :loading="loading" @click="handleFilterChange">
-              {{ trlang.search }}
-            </a-button>
-            <a-button @click="resetFilters">
-              {{ trlang.reset }}
-            </a-button>
+            <a-form-item class="mb-0">
+              <a-space>
+                <a-button type="primary" class="bg-main text-white" :loading="loading" @click="handleFilterChange">
+                  {{ trlang.search }}
+                </a-button>
+                <a-button @click="resetFilters">
+                  {{ trlang.reset }}
+                </a-button>
+              </a-space>
+            </a-form-item>
           </a-col>
         </a-row>
       </a-form>
     </a-card>
+
+    <div class="flex items-center justify-between mb-4">
+      <span class="fs-4 font-semibold">{{ trlang.betting_list }}</span>
+      <a-button 
+        danger 
+        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
+        :loading="bulkDeleteLoading"
+        @click="handleBulkDelete"
+      >
+        <template #icon><CloseOutlined /></template>
+        {{ trlang.delete_selected_items }}
+      </a-button>
+    </div>
 
     <a-layout-content>
       <a-table
@@ -107,8 +111,11 @@
         :data-source="dataSource"
         :row-key="rowKey"
         :loading="loading"
+        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
+        :expanded-row-keys="expandedRowKeys"
+        @expand="handleExpand"
+        @row-click="handleRowClick"
         class="w-100 table-transparent"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
         @change="handleTableChange"
       >
@@ -119,102 +126,102 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
-          <template v-if="column.key === 'round'">
-            <div class="flex flex-column">
-              <a-typography-text class="font-bold">
-                {{ record.total_no ? `#${record.total_no}` : record.game_id ? `#${record.game_id}` : '-' }}
-              </a-typography-text>
-              <a-typography-text v-if="record.today_no">
-                {{ trlang.today_no }}: {{ record.today_no }}
-              </a-typography-text>
-            </div>
-          </template>
-          <template v-if="column.key === 'game_time'">
-            <div class="flex flex-column justify-center items-center">
-              <a-typography-text v-if="record.game_start_time">
-                {{ new Date(record.game_start_time).toLocaleString() }}
-              </a-typography-text>
-              <a-typography-text v-else>-</a-typography-text>
-            </div>
-          </template>
-          <template v-if="column.key === 'result_list'">
-            <div class="flex justify-center items-center gap-1">
-              <span v-if="record.game_list && record.game_list.length > 0">
-                {{ record.game_list.join(', ') }}
-              </span>
-              <span v-else>-</span>
-            </div>
-          </template>
-          <template v-if="column.key === 'odd_even'">
-            <div class="flex justify-center items-center">
-              <a-tag v-if="record.game_odd !== null && record.game_odd !== undefined" :color="record.game_odd ? 'blue' : 'purple'">
-                {{ record.game_odd ? trlang.odd : trlang.even }}
-              </a-tag>
-              <span v-else>-</span>
-            </div>
-          </template>
-          <template v-if="column.key === 'user'">
-            <div class="flex flex-column">
-              <a-typography-text class="font-bold">
-                {{ record.user_nickname || '-' }}
-              </a-typography-text>
-              <a-typography-text class="text-light-gray">
-                {{ record.user_email || record.user_name || record.user_id || '-' }}
-              </a-typography-text>
-            </div>
+          <template v-if="column.key === 'user_id'">
+            <a-typography-text>{{ record.user_nickname || '-' }}</a-typography-text>
           </template>
           <template v-if="column.key === 'partner'">
-            <div class="flex flex-column">
-              <a-typography-text>
-                {{ record.partner_nickname || '-' }}
-              </a-typography-text>
-              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2" v-if="record.partner_role">
-                {{ trlang[record.partner_role] || '' }}
-              </a-typography-text>
-            </div>
+            <a-typography-text>{{ record.partner_nickname || '-' }}</a-typography-text>
           </template>
-          <template v-if="column.key === 'betting_type'">
-            <span>{{ record.betting_type || '-' }}</span>
+          <template v-if="column.key === 'round'">
+            <a-typography-text>
+              {{ record.total_no ? `#${record.total_no}` : record.game_id ? `#${record.game_id}` : '-' }}
+            </a-typography-text>
           </template>
-          <template v-if="column.key === 'number_sort'">
-            <span v-if="record.number_sort && record.number_sort.length > 0">
-              {{ record.number_sort.join(', ') }}
-            </span>
-            <span v-else>-</span>
-          </template>
-          <template v-if="column.key === 'bet_amount'">
-            <a-typography-text class="text-main">
-              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}{{ trlang.usd_currency }}
+          <template v-if="column.key === 'betting_history'">
+            <a-typography-text>
+              {{ formatBettingHistory(record) }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_rate'">
-            {{ record.betting_rate ? record.betting_rate.toLocaleString() : '-' }}
-          </template>
-          <template v-if="column.key === 'earning_amount'">
-            <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
-              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}{{ trlang.usd_currency }}
+            <a-typography-text>
+              {{ record.betting_rate ? record.betting_rate.toLocaleString() : '-' }}
             </a-typography-text>
           </template>
-          <template v-if="column.key === 'win'">
+          <template v-if="column.key === 'bet_amount'">
+            <a-typography-text class="text-main">
+              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'win_amount'">
+            <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
+              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'final_amount'">
+            <a-typography-text>
+              {{ record.final_amount ? record.final_amount.toLocaleString() : 0 }}
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'betting_time'">
+            <a-typography-text>
+              {{ formatBettingTime(record.createdAt) }}
+            </a-typography-text>
+          </template>
+          <template v-if="column.key === 'result'">
             <a-tag :color="record.win ? 'success' : 'error'">
               {{ record.win ? trlang.win : trlang.lose }}
             </a-tag>
           </template>
-          <template v-if="column.key === 'betting_status'">
-            {{ trlang[record.betting_status] || record.betting_status }}
-          </template>
-          <template v-if="column.key === 'created_date'">
-            <div class="flex flex-column justify-center items-center">
-              <a-typography-text class="font-bold">
-                {{ record.createdAt?.split('T')[0] || '-' }}
-              </a-typography-text>
+        </template>
+        <template #expandedRowRender="{ record }">
+          <div class="betting-detail-expanded">
+            <a-descriptions :column="4" bordered size="small" class="detail-descriptions">
+              <a-descriptions-item :label="trlang.game_end_time" :span="2">
+                {{ formatGameEndTime(record.game_start_time) }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.round_by_total_no" :span="2">
+                {{ record.total_no || '-' }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.choose_betting_type" :span="2">
+                {{ formatBettingType(record.betting_type) }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.betting_rate" :span="2">
+                {{ record.betting_rate || '-' }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.betting_time" :span="2">
+                {{ formatBettingTime(record.createdAt) }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.bet_amount" :span="2">
+                <a-typography-text class="text-main">
+                  {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}
+                </a-typography-text>
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.betting_rate" :span="2">
+                {{ record.betting_rate ? record.betting_rate.toLocaleString() : '-' }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.win_amount" :span="2">
+                <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
+                  {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}
+                </a-typography-text>
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.real_getting_amount" :span="2">
+                {{ record.final_amount ? record.final_amount.toLocaleString() : 0 }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.result" :span="2">
+                <a-tag :color="getResultColor(record)">
+                  {{ record.win ? trlang.win : trlang.no_win }}
+                </a-tag>
+              </a-descriptions-item>
+            </a-descriptions>
+
+            <div class="detail-footer mt-3">
               <a-typography-text>
-                {{ record.createdAt?.split('T')[1]?.split('.')[0] || '-' }}
+                {{ record.user_nickname || '-' }} ({{ record.user_email || '-' }}) 
               </a-typography-text>
             </div>
-          </template>
+          </div>
         </template>
       </a-table>
     </a-layout-content>
@@ -223,11 +230,11 @@
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
-import { SearchOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { bettingListColumn as baseBettingListColumn } from '@/utils/table-column/betting-list.js';
-import { getData } from '@/helpers/Axios';
+import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -241,26 +248,24 @@ const trlang = computed(() => langState.translations);
 
 const filters = ref({
   dateRange: null,
-  userStatus: '',
-  partner: '',
+  partnerId: null,
+  includeSubPartners: false,
   bettingStatus: '',
-  bettingType: '',
-  win: '',
   search: '',
   searchField: '',
   sort: '',
 });
 
-const userStatusOptions = ref([]);
-const partnerOptions = ref([]);
+const partnerTreeOptions = ref([]);
 const bettingStatusOptions = ref([]);
-const bettingTypeOptions = ref([]);
-const winOptions = ref([]);
 const searchFieldOptions = ref([]);
 const sortOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
+const bulkDeleteLoading = ref(false);
+const selectedRowKeys = ref([]);
+const expandedRowKeys = ref([]);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
@@ -269,67 +274,65 @@ const bettingListColumn = computed(() => baseBettingListColumn.map(col => ({
   title: trlang.value[col.titleKey] || col.titleKey
 })));
 
+const convertPartnerToTree = (partner) => {
+  if (!partner || !partner.id) return null;
+  
+  const node = {
+    title: `${partner.nickname} (${partner.partner_id || partner.id})`,
+    value: partner.id,
+    children: []
+  };
+
+  if (partner.subs && Array.isArray(partner.subs) && partner.subs.length > 0) {
+    node.children = partner.subs
+      .map(sub => convertPartnerToTree(sub))
+      .filter(Boolean);
+  }
+
+  return node;
+};
+
+const fetchPartnerList = async () => {
+  try {
+    const res = await getData(apiLink.get_game_partner);
+    if (res.status && res.data) {
+      if (Array.isArray(res.data)) {
+        partnerTreeOptions.value = res.data
+          .map(partner => convertPartnerToTree(partner))
+          .filter(Boolean);
+      } else if (res.data.id) {
+        const tree = convertPartnerToTree(res.data);
+        partnerTreeOptions.value = tree ? [tree] : [];
+      } else {
+        partnerTreeOptions.value = [];
+      }
+    } else {
+      partnerTreeOptions.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching partner list:", error);
+    partnerTreeOptions.value = [];
+  }
+};
+
 const initOptions = () => {
-  userStatusOptions.value = [
-    { value: '', label: trlang.value.all },
-    { value: 'wait', label: trlang.value.wait },
-    { value: 'normal', label: trlang.value.normal },
-    { value: 'stop', label: trlang.value.stop },
-    { value: 'cancel', label: trlang.value.cancel },
-    { value: 'danger', label: trlang.value.danger },
-    { value: 'tester', label: trlang.value.tester },
-  ];
-  partnerOptions.value = [
-    { value: '', label: trlang.value.all },
-    { value: 'headquater', label: trlang.value.headquater },
-    { value: 'branch_office', label: trlang.value.branch_office },
-    { value: 'regional_office', label: trlang.value.regional_office },
-    { value: 'agency', label: trlang.value.agency },
-    { value: 'distributor', label: trlang.value.distributor },
-    { value: 'store', label: trlang.value.store },
-  ];
   bettingStatusOptions.value = [
     { value: '', label: trlang.value.all },
-    { value: 'wait', label: trlang.value.wait },
-    { value: 'progress', label: trlang.value.progress },
-    { value: 'complete', label: trlang.value.complete },
-    { value: 'cancel', label: trlang.value.cancel },
-  ];
-  bettingTypeOptions.value = [
-    { value: '', label: trlang.value.all },
-    { value: 'odd', label: trlang.value.odd },
-    { value: 'even', label: trlang.value.even },
-    { value: 'under', label: trlang.value.under },
-    { value: 'over', label: trlang.value.over },
-    { value: 'odd_under', label: trlang.value.odd_under },
-    { value: 'odd_over', label: trlang.value.odd_over },
-    { value: 'even_under', label: trlang.value.even_under },
-    { value: 'even_over', label: trlang.value.even_over },
-    { value: 'number_13', label: trlang.value.number_13 },
-    { value: 'number_14', label: trlang.value.number_14 },
-    { value: 'number_16', label: trlang.value.number_16 },
-  ];
-  winOptions.value = [
-    { value: '', label: trlang.value.all },
-    { value: 'true', label: trlang.value.win },
-    { value: 'false', label: trlang.value.lose },
+    { value: 'WAIT', label: trlang.value.wait },
+    { value: 'PROGRESS', label: trlang.value.progress },
+    { value: 'COMPLETE', label: trlang.value.complete },
+    { value: 'CANCEL', label: trlang.value.cancel },
   ];
   filters.value.searchField = 'user_id';
   searchFieldOptions.value = [
-    { value: 'user_id', label: trlang.value.id },
-    { value: 'user_nickname', label: trlang.value.nickname },
-    { value: 'game_id', label: trlang.value.game_id },
-    { value: 'betting_type', label: trlang.value.betting_type },
-    { value: 'total_no', label: trlang.value.total_no },
-    { value: 'today_no', label: trlang.value.today_no },
+    { value: 'user_id', label: trlang.value.user_id },
+    { value: 'all_rounds', label: trlang.value.all_rounds },
   ];
   filters.value.sort = 'created_date:desc';
   sortOptions.value = [
-    { value: 'created_date:desc', label: trlang.value.created_date },
-    { value: 'bet_amount:desc', label: trlang.value.bet_amount },
-    { value: 'earning_amount:desc', label: trlang.value.earning_amount },
-    { value: 'game_id:desc', label: trlang.value.game_id },
-    { value: 'total_no:desc', label: trlang.value.total_no },
+    { value: 'created_date:desc', label: trlang.value.by_date },
+    { value: 'bet_amount:desc', label: trlang.value.by_betting_amount },
+    { value: 'earning_amount:desc', label: trlang.value.by_win_account },
   ];
 };
 
@@ -337,11 +340,7 @@ const rowKey = (record) => record.betting_id || record._id;
 
 const buildQuery = () => {
   const params = new URLSearchParams({
-    userStatus: filters.value.userStatus || '',
-    partner: filters.value.partner || '',
     bettingStatus: filters.value.bettingStatus || '',
-    bettingType: filters.value.bettingType || '',
-    win: filters.value.win || '',
     searchField: filters.value.searchField || '',
     search: filters.value.search || '',
     sort: filters.value.sort || '',
@@ -360,6 +359,14 @@ const buildQuery = () => {
       const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
       params.set('endDate', endDate);
     }
+  }
+
+  if (filters.value.partnerId) {
+    params.set('partnerId', filters.value.partnerId);
+  }
+
+  if (filters.value.includeSubPartners) {
+    params.set('includeSubPartners', 'true');
   }
 
   return params.toString();
@@ -415,17 +422,98 @@ const handleFilterChange = () => {
 const resetFilters = () => {
   filters.value = {
     dateRange: null,
-    userStatus: '',
-    partner: '',
+    partnerId: null,
+    includeSubPartners: false,
     bettingStatus: '',
-    bettingType: '',
-    win: '',
     search: '',
     searchField: 'user_id',
     sort: 'created_date:desc',
   };
   paginationConfig.value.current = 1;
+  selectedRowKeys.value = [];
   fetchData();
+};
+
+const onSelectChange = (keys) => {
+  selectedRowKeys.value = keys;
+};
+
+const formatBettingHistory = (record) => {
+  if (!record.betting_type) return '-';
+  
+  const bettingType = record.betting_type;
+  const winStatus = record.win ? trlang.value.win : trlang.value.no_win;
+  
+  let formattedType = bettingType
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('+');
+  
+  return `${formattedType}-${winStatus}`;
+};
+
+const formatBettingTime = (dateString) => {
+  if (!dateString) return '-';
+  return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss');
+};
+
+const handleExpand = (expanded, record) => {
+  const key = record.betting_id || record._id;
+  if (expanded) {
+    if (!expandedRowKeys.value.includes(key)) {
+      expandedRowKeys.value.push(key);
+    }
+  } else {
+    const index = expandedRowKeys.value.indexOf(key);
+    if (index > -1) {
+      expandedRowKeys.value.splice(index, 1);
+    }
+  }
+};
+
+const formatGameEndTime = (dateString) => {
+  if (!dateString) return '-';
+  return dayjs(dateString).format('MM/DD(ddd) HH:mm');
+};
+
+const formatBettingType = (bettingType) => {
+  if (!bettingType) return '-';
+  return bettingType
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('+');
+};
+
+const getResultColor = (record) => {
+  if (record.betting_status === 'CANCEL') return 'default';
+  return record.win ? 'success' : 'error';
+};
+
+const handleBulkDelete = async () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_items_to_delete);
+    return;
+  }
+
+  bulkDeleteLoading.value = true;
+  try {
+    const res = await postData(`${apiLink.bulk_delete_betting_list}`, {
+      ids: selectedRowKeys.value,
+    });
+
+    if (res.status) {
+      message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
+      selectedRowKeys.value = [];
+      await fetchData();
+    } else {
+      message.error(res.message || trlang.value.failed_to_delete_selected_items);
+    }
+  } catch (error) {
+    console.error("Error bulk deleting betting records:", error);
+    message.error(trlang.value.failed_to_delete_selected_items);
+  } finally {
+    bulkDeleteLoading.value = false;
+  }
 };
 
 watch(
@@ -437,7 +525,28 @@ watch(
 
 onMounted(() => {
   initOptions();
+  fetchPartnerList();
   fetchData();
 });
 </script>
+
+<style scoped>
+.betting-detail-expanded {
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.detail-descriptions {
+  background-color: #fff;
+}
+
+.detail-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+</style>
 

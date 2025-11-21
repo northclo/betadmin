@@ -23,7 +23,6 @@ const AnnouncementView = () => import('@/views/Announcement.vue');
 const CustomerServiceCenterView = () => import('@/views/CustomerServiceCenter.vue');
 const PopupManagementView = () => import('@/views/PopupManagement.vue');
 const NoticeManagementView = () => import('@/views/NoticeManagement.vue');
-const RealTimeBettingView = () => import('@/views/RealTimeBetting.vue');
 
 const routes = [
   {
@@ -144,12 +143,6 @@ const routes = [
     path: routeLink.notice_management.link,
     name: routeLink.notice_management.name,
     component: NoticeManagementView,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: routeLink.real_time_betting.link,
-    name: routeLink.real_time_betting.name,
-    component: RealTimeBettingView,
     meta: { requiresAuth: true },
   },
   {

@@ -4,9 +4,6 @@
       <a-typography-title :level="3">
         {{ trlang.charging_management }}
       </a-typography-title>
-      <a-typography-text type="secondary">
-        {{ trlang.charging_management_description }}
-      </a-typography-text>
     </div>
 
     <a-card class="filters-card">
@@ -32,28 +29,74 @@
               </a-select>
             </a-form-item>
           </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-select v-model:value="filters.keywordType" allow-clear>
+                <a-select-option value="user_nickname">{{ trlang.nickname }}</a-select-option>
+                <a-select-option value="user_id">{{ trlang.id }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.keyword">
+              <a-input
+                v-model:value="filters.keyword"
+                class="search-input"
+                :placeholder="trlang.search_placeholder"
+                allow-clear
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.partner">
+              <a-tree-select
+                v-model:value="filters.partnerId"
+                :tree-data="partnerTreeOptions"
+                :placeholder="trlang.select_partner"
+                allow-clear
+                tree-default-expand-all
+                :field-names="{ children: 'children', label: 'title', value: 'value' }"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="4">
+            <a-form-item class="mb-0" :label="trlang.include_sub_partners">
+              <a-checkbox v-model:checked="filters.includeSubPartners" />
+            </a-form-item>
+          </a-col>
           <a-col :xs="24" :md="4" class="actions">
-            <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
-              {{ trlang.search }}
-            </a-button>
-            <a-button @click="resetFilters">
-              {{ trlang.reset }}
-            </a-button>
+            <a-form-item class="mb-0">
+              <a-space>
+                <a-button type="primary" class="bg-main text-white" :loading="searchLoading" @click="handleFilterChange">
+                  {{ trlang.search }}
+                </a-button>
+                <a-button @click="resetFilters">
+                  {{ trlang.reset }}
+                </a-button>
+              </a-space>
+            </a-form-item>
           </a-col>
         </a-row>
       </a-form>
     </a-card>
 
-    <a-row :gutter="[16, 16]">
-      <a-col :xs="24" :md="12" :lg="6" v-for="card in summaryCards" :key="card.key">
-        <a-card class="summary-card" :loading="summaryLoading">
-          <template #title>{{ card.title }}</template>
-          <a-typography-title :level="2" class="mb-0">
-            {{ card.value }}
-          </a-typography-title>
-        </a-card>
-      </a-col>
-    </a-row>
+    <div class="flex items-center justify-end mb-4">
+      <a-button 
+        danger 
+        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
+        :loading="bulkDeleteLoading"
+        @click="handleBulkDelete"
+      >
+        <template #icon><CloseOutlined /></template>
+        {{ trlang.delete_selected_items }}
+      </a-button>
+    </div>
 
     <a-layout-content>
       <a-table
@@ -61,18 +104,57 @@
         :data-source="tableData"
         :loading="loading"
         :pagination="paginationConfig"
+        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
         row-key="id"
         @change="handleTableChange"
       >
       <template #bodyCell="{ column, record, index }">
         <template v-if="column.key === 'no'">
-          <a-typography-text>{{ index + 1 }}</a-typography-text>
+          <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+        </template>
+        <template v-else-if="column.dataIndex === 'user_id'">
+          <div>
+            <div>{{ record.user_nickname || '-' }}</div>
+          </div>
+        </template>
+        <template v-else-if="column.dataIndex === 'partner_id'">
+          {{ record.partner_id || '-' }}
         </template>
         <template v-else-if="column.dataIndex === 'amount'">
           {{ formatCurrency(record.amount) }}
         </template>
+        <template v-else-if="column.dataIndex === 'account_amount'">
+          {{ record.account_amount ? formatCurrency(record.account_amount) : '-' }}
+        </template>
         <template v-else-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
+        </template>
+        <template v-else-if="column.dataIndex === 'comment'">
+          <div v-if="editingCommentId !== record._id" @dblclick="handleCommentDoubleClick(record)" style="cursor: pointer; min-height: 24px;">
+            {{ record.comment || '' }}
+          </div>
+          <div 
+            v-else 
+            :ref="el => { if (el) commentInputRefs[record._id] = el; }"
+            style="display: flex; gap: 8px; align-items: center;"
+            @click.stop
+          >
+            <a-input
+              v-model:value="editingCommentValue"
+              :placeholder="trlang.comment"
+              @press-enter="handleCommentSubmit(record)"
+              style="flex: 1;"
+              @click.stop
+            />
+            <a-button
+              type="primary"
+              size="small"
+              :loading="commentLoading[record._id]"
+              @click.stop="handleCommentSubmit(record)"
+            >
+              {{ trlang.edit }}
+            </a-button>
+          </div>
         </template>
         <template v-else-if="column.dataIndex === 'action'">
             <a-space>
@@ -96,13 +178,6 @@
               >
                 {{ trlang.reject }}
               </a-button>
-              <a-popconfirm
-                :title="trlang.confirm_delete"
-                @confirm="handleDelete(record._id || record.id)"
-                :ok-button-props="{ loading: deleting[record._id || record.id] }"
-              >
-                <a-button type="link" danger size="small">{{ trlang.delete }}</a-button>
-              </a-popconfirm>
             </a-space>
           </template>
         </template>
@@ -112,10 +187,11 @@
 </template>
 
 <script setup>
-import { computed, inject, ref, onMounted, watch } from "vue";
+import { computed, inject, ref, onMounted, onBeforeUnmount } from "vue";
 import { message } from "ant-design-vue";
+import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
-import { getData, postData, deleteData } from "@/helpers/Axios";
+import { getData, postData, putData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 import { usePagination } from "@/composables/usePagination";
 
@@ -125,56 +201,46 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
-const summaryLoading = ref(false);
 const searchLoading = ref(false);
 const actionLoading = ref({});
-const deleting = ref({});
+const bulkDeleteLoading = ref(false);
+const selectedRowKeys = ref([]);
+const editingCommentId = ref(null);
+const editingCommentValue = ref("");
+const commentLoading = ref({});
+const commentInputRefs = ref({});
+const partnerTreeOptions = ref([]);
 const filters = ref({
   range: null,
   status: "all",
+  keywordType: "user_nickname",
+  keyword: "",
+  partnerId: null,
+  includeSubPartners: false,
 });
-
-const summaryData = ref({
-  total_requests: 0,
-  pending_requests: 0,
-  completed_amount: 0,
-  average_processing_time: "0m",
-});
-
-const summaryCards = computed(() => [
-  {
-    key: "total_requests",
-    title: trlang.value.total_requests,
-    value: summaryData.value.total_requests,
-  },
-  {
-    key: "pending_requests",
-    title: trlang.value.pending_requests,
-    value: summaryData.value.pending_requests,
-  },
-  {
-    key: "completed_amount",
-    title: trlang.value.completed_amount,
-    value: formatCurrency(summaryData.value.completed_amount),
-  },
-  {
-    key: "average_processing",
-    title: trlang.value.average_processing_time,
-    value: formatMinutesLabel(summaryData.value.average_processing_time),
-  },
-]);
 
 const columns = computed(() => [
   { title: trlang.value.no_column, key: "no", width: 80 },
-  { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
-  { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
-  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
-  { title: trlang.value.submitted_at, dataIndex: "submitted_at", key: "submitted_at", width: 200 },
+  { title: trlang.value.user_id, dataIndex: "user_id", key: "user_id", width: 120 },
+  { title: trlang.value.partner_id, dataIndex: "partner_id", key: "partner_id", width: 120 },
+  { title: trlang.value.request_amount, dataIndex: "amount", key: "amount", width: 140 },
+  { title: trlang.value.request_username, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 120 },
+  { title: trlang.value.request_date, dataIndex: "submitted_at", key: "submitted_at", width: 180 },
+  { title: trlang.value.process_date, dataIndex: "processed_at", key: "processed_at", width: 180 },
+  { title: trlang.value.account_amount, dataIndex: "account_amount", key: "account_amount", width: 140 },
+  { title: trlang.value.comment, dataIndex: "comment", key: "comment", width: 200 },
   { title: trlang.value.action, dataIndex: "action", key: "action", width: 150 },
 ]);
 
 const tableData = ref([]);
-const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { paginationConfig, setTotal } = usePagination(10);
+
+const handleTableChange = (pagination) => {
+  paginationConfig.value.current = pagination.current;
+  paginationConfig.value.pageSize = pagination.pageSize;
+  fetchData();
+};
 
 const statusColor = (status) => {
   switch (status) {
@@ -198,16 +264,47 @@ const formatCurrency = (value) => {
   }).format(numeric);
 };
 
-const formatMinutesLabel = (value) => {
-  if (typeof value === "string" && value.endsWith("m")) {
-    const num = value.slice(0, -1);
-    return `${num}${trlang.value.min}`;
+const convertPartnerToTree = (partner) => {
+  if (!partner || !partner.id) return null;
+  
+  const node = {
+    title: `${partner.nickname} (${partner.partner_id || partner.id})`,
+    value: partner.id,
+    children: []
+  };
+
+  if (partner.subs && Array.isArray(partner.subs) && partner.subs.length > 0) {
+    node.children = partner.subs
+      .map(sub => convertPartnerToTree(sub))
+      .filter(Boolean);
   }
-  if (typeof value === "number") {
-    return `${value}${trlang.value.min}`;
-  }
-  return value;
+
+  return node;
 };
+
+const fetchPartnerList = async () => {
+  try {
+    const res = await getData(apiLink.get_game_partner);
+    if (res.status && res.data) {
+      if (Array.isArray(res.data)) {
+        partnerTreeOptions.value = res.data
+          .map(partner => convertPartnerToTree(partner))
+          .filter(Boolean);
+      } else if (res.data.id) {
+        const tree = convertPartnerToTree(res.data);
+        partnerTreeOptions.value = tree ? [tree] : [];
+      } else {
+        partnerTreeOptions.value = [];
+      }
+    } else {
+      partnerTreeOptions.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching partner list:", error);
+    partnerTreeOptions.value = [];
+  }
+};
+
 const buildQuery = () => {
   const params = new URLSearchParams({
     status: filters.value.status || "all",
@@ -228,27 +325,21 @@ const buildQuery = () => {
     }
   }
 
-  return params.toString();
-};
+  if (filters.value.keywordType && filters.value.keyword && filters.value.keyword.trim()) {
+    params.set('keywordType', filters.value.keywordType);
+    params.set('keyword', filters.value.keyword.trim());
+  }
 
-const buildSummaryQuery = () => {
-  const params = new URLSearchParams();
-
-  const range = filters.value.range;
-  if (range && Array.isArray(range) && range.length === 2) {
-    const [start, end] = range;
-    if (start) {
-      const startDate = dayjs.isDayjs(start) ? start.format('YYYY-MM-DD') : start;
-      params.set('startDate', startDate);
-    }
-    if (end) {
-      const endDate = dayjs.isDayjs(end) ? end.format('YYYY-MM-DD') : end;
-      params.set('endDate', endDate);
+  if (filters.value.partnerId) {
+    params.set('partnerId', filters.value.partnerId);
+    if (filters.value.includeSubPartners) {
+      params.set('includeSubPartners', 'true');
     }
   }
 
   return params.toString();
 };
+
 
 const fetchData = async () => {
   loading.value = true;
@@ -259,39 +350,12 @@ const fetchData = async () => {
       const payload = res.data || {};
       tableData.value = payload.list || [];
       setTotal(payload.total || 0);
-      if (payload.page) {
-        paginationConfig.value.current = payload.page;
-      }
-      if (payload.pageSize) {
-        paginationConfig.value.pageSize = payload.pageSize;
-      }
     }
   } catch (error) {
     console.error("Error fetching charging list:", error);
     message.error(trlang.value.failed_to_fetch_charging_list);
   } finally {
     loading.value = false;
-  }
-};
-
-const fetchSummary = async () => {
-  summaryLoading.value = true;
-  try {
-    const res = await getData(`${apiLink.get_charging_summary}?${buildSummaryQuery()}`);
-
-    if (res.status) {
-      summaryData.value = res.data || {
-        total_requests: 0,
-        pending_requests: 0,
-        completed_amount: 0,
-        average_processing_time: "0m",
-      };
-    }
-  } catch (error) {
-    console.error("Error fetching summary:", error);
-    message.error(trlang.value.failed_to_fetch_summary_data);
-  } finally {
-    summaryLoading.value = false;
   }
 };
 
@@ -316,7 +380,6 @@ const handleAction = async (record, action) => {
       const successMessage = res.message || (action === "approve" ? trlang.value.transaction_approved_successfully : trlang.value.transaction_rejected_successfully);
       message.success(successMessage);
       await fetchData();
-      await fetchSummary();
     } else {
       message.error(res.message || trlang.value.failed_to_update_transaction);
     }
@@ -328,35 +391,11 @@ const handleAction = async (record, action) => {
   }
 };
 
-const handleDelete = async (id) => {
-  if (!id) {
-    message.error(trlang.value.invalid_id);
-    return;
-  }
-
-  deleting.value[id] = true;
-  try {
-    const res = await deleteData(`${apiLink.delete_charging_transaction}/${id}`);
-    if (res.status) {
-      message.success(res.message || trlang.value.charging_transaction_deleted_successfully);
-      await fetchData();
-      await fetchSummary();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_charging_transaction);
-    }
-  } catch (error) {
-    console.error('Error deleting charging transaction:', error);
-    message.error(trlang.value.failed_to_delete_charging_transaction);
-  } finally {
-    deleting.value[id] = false;
-  }
-};
-
 const handleFilterChange = async () => {
   searchLoading.value = true;
   paginationConfig.value.current = 1;
   try {
-    await Promise.all([fetchData(), fetchSummary()]);
+    await fetchData();
   } finally {
     searchLoading.value = false;
   }
@@ -366,22 +405,106 @@ const resetFilters = () => {
   filters.value = {
     range: null,
     status: "all",
+    keywordType: "user_nickname",
+    keyword: "",
+    partnerId: null,
+    includeSubPartners: false,
   };
   paginationConfig.value.current = 1;
+  selectedRowKeys.value = [];
   fetchData();
-  fetchSummary();
 };
 
-watch(
-  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
-  () => {
-    fetchData();
+const onSelectChange = (keys) => {
+  selectedRowKeys.value = keys;
+};
+
+const handleBulkDelete = async () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_items_to_delete);
+    return;
   }
-);
+
+  bulkDeleteLoading.value = true;
+  try {
+    const res = await postData(apiLink.bulk_delete_charging, {
+      ids: selectedRowKeys.value,
+    });
+
+    if (res.status) {
+      message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
+      selectedRowKeys.value = [];
+      await fetchData();
+    } else {
+      message.error(res.message || trlang.value.failed_to_delete_selected_items);
+    }
+  } catch (error) {
+    console.error("Error bulk deleting charging transactions:", error);
+    message.error(trlang.value.failed_to_delete_selected_items);
+  } finally {
+    bulkDeleteLoading.value = false;
+  }
+};
+
+const handleCommentDoubleClick = (record) => {
+  editingCommentId.value = record._id;
+  editingCommentValue.value = record.comment || "";
+};
+
+const handleCommentCancel = () => {
+  editingCommentId.value = null;
+  editingCommentValue.value = "";
+};
+
+const handleCommentSubmit = async (record) => {
+  const transactionId = record._id || record.id?.replace("REQ-", "");
+  
+  if (!transactionId) {
+    message.error(trlang.value.transaction_id_not_found);
+    handleCommentCancel();
+    return;
+  }
+
+  commentLoading.value[record._id] = true;
+  
+  try {
+    const res = await putData(`${apiLink.update_charging_comment}/${transactionId}/comment`, {
+      comment: editingCommentValue.value,
+    });
+
+    if (res.status) {
+      message.success(res.message || trlang.value.comment_updated_successfully);
+      record.comment = editingCommentValue.value || null;
+      editingCommentId.value = null;
+      editingCommentValue.value = "";
+    } else {
+      message.error(res.message || trlang.value.failed_to_update_comment);
+    }
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    message.error(trlang.value.failed_to_update_comment);
+  } finally {
+    delete commentLoading.value[record._id];
+  }
+};
+
+const handleClickOutside = (event) => {
+  if (editingCommentId.value) {
+    const inputContainer = commentInputRefs.value[editingCommentId.value];
+    if (inputContainer && !inputContainer.contains(event.target)) {
+      handleCommentCancel();
+    }
+  }
+};
 
 onMounted(() => {
+  fetchPartnerList();
   fetchData();
-  fetchSummary();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 

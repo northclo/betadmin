@@ -38,10 +38,10 @@
       </a-layout-sider>
       <a-layout-content class="p-2 flex items-center gap-2">
         <a-typography-text> {{ trlang.distributor_id }}: </a-typography-text>
-        <a-typography-text> {{ dataSource.id }}: </a-typography-text>
-        <a-typography-text class="text-dark-brown">
+        <a-typography-text> {{ dataSource?.id || '' }}: </a-typography-text>
+        <p class="text-dark-brown">
           ({{ trlang.including_subordinates }})
-        </a-typography-text>
+        </p>
       </a-layout-content>
     </a-layout>
 
@@ -69,11 +69,11 @@
           class="w-100"
           :options="expireOptions"
         />
-        <a-typography-text class="text-dark-brown">
+        <p class="text-dark-brown mt-1">
           *{{
             trlang.when_set_messages_will_be_automatically_deleted_after_the_specified_period
           }}
-        </a-typography-text>
+        </p>
       </a-layout-content>
     </a-layout>
   </a-modal>

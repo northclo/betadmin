@@ -4,9 +4,6 @@
       <a-typography-title :level="3">
         {{ trlang.popup_management }}
       </a-typography-title>
-      <a-typography-text type="secondary">
-        {{ trlang.popup_management_description }}
-      </a-typography-text>
     </div>
 
     <a-card class="filters-card">
@@ -26,8 +23,8 @@
             <a-form-item class="mb-0" :label="trlang.status">
               <a-select v-model:value="filters.status" allow-clear>
                 <a-select-option value="">{{ trlang.all }}</a-select-option>
-                <a-select-option value="active">{{ trlang.active }}</a-select-option>
-                <a-select-option value="inactive">{{ trlang.inactive }}</a-select-option>
+                <a-select-option value="ACTIVE">{{ trlang.active }}</a-select-option>
+                <a-select-option value="INACTIVE">{{ trlang.inactive }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -63,18 +60,15 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'status'">
             <a-tag :color="statusColor(record.status)">
-              {{ record.status === 'active' ? trlang.active : trlang.inactive }}
+              {{ record.status === 'ACTIVE' ? trlang.active : trlang.inactive }}
             </a-tag>
           </template>
-          <template v-else-if="column.dataIndex === 'start_date'">
-            {{ record.start_date ? formatDate(record.start_date) : '-' }}
-          </template>
-          <template v-else-if="column.dataIndex === 'end_date'">
-            {{ record.end_date ? formatDate(record.end_date) : '-' }}
+          <template v-else-if="column.dataIndex === 'date'">
+            {{ record.date ? formatDate(record.date) : '-' }}
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
             <a-space>
@@ -99,7 +93,7 @@
       :confirm-loading="saving"
       @ok="handleSave"
       @cancel="handleCancel"
-      :width="900"
+      :width="600"
     >
       <a-form :model="formData" layout="vertical" ref="formRef">
         <a-form-item
@@ -120,47 +114,11 @@
             :rows="6"
           />
         </a-form-item>
-        <a-row :gutter="16">
-          <a-col :span="12">
             <a-form-item :label="trlang.status">
               <a-select v-model:value="formData.status">
-                <a-select-option value="active">{{ trlang.active }}</a-select-option>
-                <a-select-option value="inactive">{{ trlang.inactive }}</a-select-option>
+            <a-select-option value="ACTIVE">{{ trlang.active }}</a-select-option>
+            <a-select-option value="INACTIVE">{{ trlang.inactive }}</a-select-option>
               </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="trlang.display_order">
-              <a-input-number v-model:value="formData.display_order" :min="0" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item :label="trlang.start_date">
-              <a-date-picker
-                v-model:value="formData.start_date"
-                show-time
-                style="width: 100%"
-                :placeholder="trlang.select_start_date"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="trlang.end_date">
-              <a-date-picker
-                v-model:value="formData.end_date"
-                show-time
-                style="width: 100%"
-                :placeholder="trlang.select_end_date"
-              />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-form-item>
-          <a-checkbox v-model:checked="formData.is_closable">
-            {{ trlang.is_closable }}
-          </a-checkbox>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -197,31 +155,31 @@ const filters = ref({
 const formData = ref({
   title: "",
   content: "",
-  status: "inactive",
-  start_date: null,
-  end_date: null,
-  display_order: 0,
-  is_closable: true,
+  status: "INACTIVE",
 });
 
 const columns = computed(() => [
   { title: trlang.value.no_column, key: "no", width: 80 },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 100 },
-  { title: trlang.value.start_date, dataIndex: "start_date", key: "start_date", width: 180 },
-  { title: trlang.value.end_date, dataIndex: "end_date", key: "end_date", width: 180 },
-  { title: trlang.value.order, dataIndex: "display_order", key: "display_order", width: 80 },
+  { title: trlang.value.date, dataIndex: "date", key: "date", width: 180 },
   { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
 ]);
 
 const tableData = ref([]);
-const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { paginationConfig, setTotal } = usePagination(10);
+
+const handleTableChange = (pagination) => {
+  paginationConfig.value.current = pagination.current;
+  paginationConfig.value.pageSize = pagination.pageSize;
+  fetchData();
+};
 
 const statusColor = (value) => {
   switch (value) {
-    case "active":
+    case "ACTIVE":
       return "green";
-    case "inactive":
+    case "INACTIVE":
       return "default";
     default:
       return "default";
@@ -230,7 +188,7 @@ const statusColor = (value) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
-  return dayjs(dateString).format("YYYY-MM-DD HH:mm");
+  return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
 };
 
 const buildQuery = () => {
@@ -308,11 +266,7 @@ const handleCreate = () => {
   formData.value = {
     title: "",
     content: "",
-    status: "inactive",
-    start_date: null,
-    end_date: null,
-    display_order: 0,
-    is_closable: true,
+    status: "INACTIVE",
   };
   modalVisible.value = true;
 };
@@ -322,11 +276,7 @@ const handleEdit = (record) => {
   formData.value = {
     title: record.title || "",
     content: record.content || "",
-    status: record.status || "inactive",
-    start_date: record.start_date ? dayjs(record.start_date) : null,
-    end_date: record.end_date ? dayjs(record.end_date) : null,
-    display_order: record.display_order || 0,
-    is_closable: record.is_closable !== undefined ? record.is_closable : true,
+    status: record.status || "INACTIVE",
   };
   modalVisible.value = true;
 };
@@ -335,35 +285,13 @@ const handleSave = async () => {
   try {
     await formRef.value.validate();
     
-    if (formData.value.start_date && formData.value.end_date) {
-      if (formData.value.start_date.isAfter(formData.value.end_date)) {
-        message.error(trlang.value.start_date_must_be_before_end_date);
-        return;
-      }
-    }
-    
     saving.value = true;
 
     const payload = {
       title: formData.value.title.trim(),
       content: formData.value.content.trim(),
       status: formData.value.status,
-      display_order: formData.value.display_order || 0,
-      is_closable: formData.value.is_closable,
     };
-
-    // Convert dayjs objects to ISO strings
-    if (formData.value.start_date) {
-      payload.start_date = formData.value.start_date.toISOString();
-    } else {
-      payload.start_date = null;
-    }
-
-    if (formData.value.end_date) {
-      payload.end_date = formData.value.end_date.toISOString();
-    } else {
-      payload.end_date = null;
-    }
 
     let res;
     if (editingRecord.value) {
@@ -395,11 +323,7 @@ const handleCancel = () => {
   formData.value = {
     title: "",
     content: "",
-    status: "inactive",
-    start_date: null,
-    end_date: null,
-    display_order: 0,
-    is_closable: true,
+    status: "INACTIVE",
   };
 };
 

@@ -27,7 +27,7 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="3">
+          <a-col :xs="24" :md="4">
             <a-form-item class="mb-0" :label="trlang.user_status">
               <a-select
                 v-model:value="userStatus"
@@ -36,13 +36,22 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="3">
+          <a-col :xs="24" :md="4">
             <a-form-item class="mb-0" :label="trlang.partner">
-              <a-select
-                v-model:value="partner"
-                :options="partnerOptions"
+              <a-tree-select
+                v-model:value="filters.partnerId"
+                :tree-data="partnerTreeOptions"
+                :placeholder="trlang.select_partner"
                 allow-clear
+                tree-default-expand-all
+                :field-names="{ children: 'children', label: 'title', value: 'value' }"
+                style="width: 100%"
               />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="3">
+            <a-form-item class="mb-0" :label="trlang.include_sub_partners">
+              <a-checkbox v-model:checked="filters.includeSubPartners" />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="3">
@@ -54,7 +63,7 @@
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.search_placeholder">
+            <a-form-item class="mb-0" :label="trlang.keyword">
               <a-input
                 v-model:value="search"
                 class="search-input"
@@ -100,7 +109,6 @@
         <span class="text-sm">
           {{ trlang.all_users }} :
           <span class="font-bold text-blue-600">{{ statusCounts.all }}</span>
-          {{ trlang.ppl }}
         </span>
       </div>
       <div
@@ -111,7 +119,6 @@
         <span class="text-sm">
           {{ trlang.normal }} :
           <span class="font-bold text-green-600">{{ statusCounts.normal }}</span>
-          {{ trlang.ppl }}
         </span>
       </div>
       <div
@@ -122,7 +129,6 @@
         <span class="text-sm">
           {{ trlang.wait }} :
           <span class="font-bold text-gray-500">{{ statusCounts.wait }}</span>
-          {{ trlang.ppl }}
         </span>
       </div>
       <div
@@ -133,7 +139,6 @@
         <span class="text-sm">
           {{ trlang.stop }} :
           <span class="font-bold text-red-600">{{ statusCounts.stop }}</span>
-          {{ trlang.ppl }}
         </span>
       </div>
       <div
@@ -144,7 +149,6 @@
         <span class="text-sm">
           {{ trlang.cancel }} :
           <span class="font-bold text-red-600">{{ statusCounts.cancel }}</span>
-          {{ trlang.ppl }}
         </span>
       </div>
       <div
@@ -155,7 +159,6 @@
         <span class="text-sm">
           {{ trlang.danger }} :
           <span class="font-bold text-red-600">{{ statusCounts.danger }}</span>
-          {{ trlang.ppl }}
         </span>
       </div>
       <div class="flex-1" />
@@ -176,7 +179,6 @@
         :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
         @change="handleTableChange"
-        :row-selection="rowSelection"
         :loading="loading"
       >
         <template #emptyText>
@@ -201,71 +203,48 @@
               </a-typography-text>
             </div>
           </template>
-          <template v-if="column.key === 'nickname'">
+          <template v-if="column.key === 'user_id'">
             <div class="flex flex-column">
               <a-typography-text>
-                <span class="font-bold">
-                  {{
-                    record.partners?.[0]?.nickname ||
-                    record.user_nickname ||
-                    '-'
-                  }}
-                </span>
-                ({{
-                  record.partners?.[0]?.partner_id ||
-                  record.user_nickname ||
-                  '-'
-                }})
-              </a-typography-text>
-              <a-typography-text
-                v-if="record.partners?.[0]?.role"
-                class="filter-badge px-2 py-1 w-fit"
-              >
-                {{
-                  trlang[record.partners?.[0]?.role] || ''
-                }}
+                  {{ record.user_nickname || '-' }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'partner'">
-            {{
-              record.partners?.[0]?.nickname ||
-              '-'
-            }}
+            <a-typography-text>
+              {{ record.partner?.nickname || '-' }}
+            </a-typography-text>
           </template>
           <template v-if="column.key === 'status'">
-            {{ trlang[record.user_status] }}
+            <a-tag :color="getStatusColor(record.user_status)">
+              {{ trlang[record.user_status] || record.user_status }}
+            </a-tag>
           </template>
           <template v-if="column.key === 'owned_money'">
-            <div class="flex flex-column">
-              <a-typography-text class="text-red">
-                {{ (record.own_money || 0).toLocaleString() }}{{ trlang.usd_currency }}
-              </a-typography-text>
-              <a-typography-text>
-                {{ (record.point || 0).toLocaleString() }}{{ trlang.points_unit }}
-              </a-typography-text>
-            </div>
+            <a-typography-text class="text-red">
+              {{ (record.own_money || 0).toLocaleString() }}
+            </a-typography-text>
           </template>
           <template v-if="column.key === 'all_import_money'">
             {{
               record.totalImportAmount
                 ? record.totalImportAmount.toLocaleString()
                 : 0
-            }}{{ trlang.usd_currency }}
+            }}{{ trlang.usd }}
           </template>
           <template v-if="column.key === 'all_exchange_money'">
             {{
               record.totalExchangeAmount
                 ? record.totalExchangeAmount.toLocaleString()
                 : 0
-            }}{{ trlang.usd_currency }}
+            }}{{ trlang.usd }}
           </template>
           <template v-if="column.key === 'partner_earning'">
             {{
               record.totalPartnerEarning
                 ? record.totalPartnerEarning.toLocaleString()
                 : 0
-            }}{{ trlang.usd_currency }}
+            }}{{ trlang.usd }}
           </template>
           <template v-if="column.key === 'total_betting_amount'">
             <a-typography-text class="text-main">
@@ -273,7 +252,7 @@
                 record.totalBettingAmount
                   ? record.totalBettingAmount.toLocaleString()
                   : 0
-              }}{{ trlang.usd_currency }}
+              }}{{ trlang.usd }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'total_win_number'">
@@ -287,7 +266,7 @@
                 record.totalEarningAmount
                   ? record.totalEarningAmount.toLocaleString()
                   : 0
-              }}{{ trlang.usd_currency }}
+              }}{{ trlang.usd }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_provide_point'">
@@ -396,14 +375,15 @@
         </div>
         <a-table
           :columns="blockedIpColumns"
-          :data-source="blockedIpList"
-          :pagination="{ pageSize: 10 }"
+          :data-source="paginatedBlockedIpList"
+          :pagination="blockedIpPaginationConfig"
           :loading="loadingBlockedIps"
           row-key="id"
+          @change="handleBlockedIpTableChange"
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'no'">
-              <a-typography-text>{{ index + 1 }}</a-typography-text>
+              <a-typography-text>{{ (blockedIpPaginationConfig.current - 1) * blockedIpPaginationConfig.pageSize + index + 1 }}</a-typography-text>
             </template>
             <template v-if="column.key === 'ip'">
               {{ record.ip_address }}
@@ -471,14 +451,15 @@ const trlang = computed(() => langState.translations);
 
 const filters = ref({
   range: null,
+  partnerId: null,
+  includeSubPartners: false,
 });
 
 const duration = ref('');
 const durationOptions = ref([]);
 const userStatus = ref('');
 const userStatusOptions = ref([]);
-const partner = ref('');
-const partnerOptions = ref([]);
+const partnerTreeOptions = ref([]);
 const search = ref('');
 const searchField = ref('');
 const searchFieldOptions = ref([]);
@@ -487,7 +468,6 @@ const sortOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
-const selectedRowKeys = ref([]);
 const statusCounts = ref({
   all: 0,
   normal: 0,
@@ -500,7 +480,7 @@ const statusCounts = ref({
 
 const blockIpModalVisible = ref(false);
 const newBlockedIp = ref('');
-const blockedIpList = ref([]);
+const blockedIpListFull = ref([]);
 const loadingBlockedIps = ref(false);
 const loadingSearch = ref(false);
 const loadingRegisterIp = ref(false);
@@ -538,6 +518,11 @@ const blockedIpColumns = computed(() => [
 ]);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { 
+  paginationConfig: blockedIpPaginationConfig, 
+  handleTableChange: handleBlockedIpTableChange, 
+  setTotal: setBlockedIpTotal 
+} = usePagination(10);
 
 const memberListColumn = computed(() => {
   const titleMap = {
@@ -581,21 +566,13 @@ const initOptions = () => {
     },
   ];
   userStatusOptions.value = [
+    { value: '', label: trlang.value.all },
     { value: 'wait', label: trlang.value.wait },
     { value: 'normal', label: trlang.value.normal },
     { value: 'stop', label: trlang.value.stop },
     { value: 'cancel', label: trlang.value.cancel },
     { value: 'danger', label: trlang.value.danger },
     { value: 'tester', label: trlang.value.tester },
-  ];
-  partnerOptions.value = [
-    { value: '', label: trlang.value.all },
-    { value: 'headquater', label: trlang.value.headquater },
-    { value: 'branch_office', label: trlang.value.branch_office },
-    { value: 'regional_office', label: trlang.value.regional_office },
-    { value: 'agency', label: trlang.value.agency },
-    { value: 'distributor', label: trlang.value.distributor },
-    { value: 'store', label: trlang.value.store },
   ];
   searchField.value = 'user_id';
   searchFieldOptions.value = [
@@ -620,14 +597,67 @@ const initOptions = () => {
   ];
 };
 
-const rowSelection = computed(() => ({
-  selectedRowKeys: selectedRowKeys.value,
-  onChange: (keys) => {
-    selectedRowKeys.value = keys;
-  },
-}));
-
 const rowKey = (record) => record.user_id;
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'normal':
+      return 'green';
+    case 'wait':
+      return 'default';
+    case 'stop':
+      return 'red';
+    case 'cancel':
+      return 'red';
+    case 'danger':
+      return 'red';
+    case 'tester':
+      return 'blue';
+    default:
+      return 'default';
+  }
+};
+
+const convertPartnerToTree = (partner) => {
+  if (!partner || !partner.id) return null;
+  
+  const node = {
+    title: `${partner.nickname} (${partner.partner_id || partner.id})`,
+    value: partner.id,
+    children: []
+  };
+
+  if (partner.subs && Array.isArray(partner.subs) && partner.subs.length > 0) {
+    node.children = partner.subs
+      .map(sub => convertPartnerToTree(sub))
+      .filter(Boolean);
+  }
+
+  return node;
+};
+
+const fetchPartnerList = async () => {
+  try {
+    const res = await getData(apiLink.get_game_partner);
+    if (res.status && res.data) {
+      if (Array.isArray(res.data)) {
+        partnerTreeOptions.value = res.data
+          .map(partner => convertPartnerToTree(partner))
+          .filter(Boolean);
+      } else if (res.data.id) {
+        const tree = convertPartnerToTree(res.data);
+        partnerTreeOptions.value = tree ? [tree] : [];
+      } else {
+        partnerTreeOptions.value = [];
+      }
+    } else {
+      partnerTreeOptions.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching partner list:", error);
+    partnerTreeOptions.value = [];
+  }
+};
 
 const formatDate = (dateValue) => {
   if (!dateValue) return { date: '-', time: '-' };
@@ -659,13 +689,20 @@ const buildQuery = () => {
   const params = new URLSearchParams({
     duration: duration.value || '',
     userStatus: userStatus.value || '',
-    partner: partner.value || '',
     searchField: searchField.value || '',
     search: search.value || '',
     sort: formattedSort,
     page: paginationConfig.value.current.toString(),
     pageSize: paginationConfig.value.pageSize.toString(),
   });
+
+  if (filters.value.partnerId) {
+    params.set('partnerId', filters.value.partnerId);
+  }
+
+  if (filters.value.includeSubPartners) {
+    params.set('includeSubPartners', 'true');
+  }
 
   const range = filters.value.range;
   if (range && Array.isArray(range) && range.length === 2) {
@@ -767,8 +804,9 @@ const handleFilterChange = async () => {
 const resetFilters = () => {
   duration.value = 'import_exchange_betting';
   filters.value.range = null;
+  filters.value.partnerId = null;
+  filters.value.includeSubPartners = false;
   userStatus.value = '';
-  partner.value = '';
   search.value = '';
   searchField.value = 'user_id';
   sort.value = 'created_date';
@@ -799,18 +837,29 @@ const fetchBlockedIps = async () => {
   try {
     const res = await getData(apiLink.get_blocked_ips);
     if (res && res.status) {
-      blockedIpList.value = res.data?.list || [];
+      blockedIpListFull.value = res.data?.list || [];
+      setBlockedIpTotal(blockedIpListFull.value.length);
+      blockedIpPaginationConfig.value.current = 1;
     } else {
-      blockedIpList.value = [];
+      blockedIpListFull.value = [];
+      setBlockedIpTotal(0);
     }
   } catch (error) {
     console.error('Error fetching blocked IPs:', error);
-    blockedIpList.value = [];
+    blockedIpListFull.value = [];
+    setBlockedIpTotal(0);
     message.error(trlang.value.error_loading_data);
   } finally {
     loadingBlockedIps.value = false;
   }
 };
+
+const paginatedBlockedIpList = computed(() => {
+  const { current, pageSize } = blockedIpPaginationConfig.value;
+  const start = (current - 1) * pageSize;
+  const end = start + pageSize;
+  return blockedIpListFull.value.slice(start, end);
+});
 
 const handleRegisterIp = async () => {
   if (!newBlockedIp.value || !newBlockedIp.value.trim()) {
@@ -871,6 +920,7 @@ const handleRemoveIp = async (id) => {
 const handleCloseBlockIpModal = () => {
   blockIpModalVisible.value = false;
   newBlockedIp.value = '';
+  blockedIpPaginationConfig.value.current = 1;
 };
 
 const handleEdit = (record) => {
@@ -921,6 +971,7 @@ const handleSaveEdit = async () => {
 
 onMounted(() => {
   initOptions();
+  fetchPartnerList();
   fetchData();
 });
 </script>

@@ -21,13 +21,13 @@
               {{ trlang.search }}
             </a-button>
             <a-typography-text class="ms-5 me-2">
-              {{ trlang.expand_all }}
+              {{ trlang.expand }}
             </a-typography-text>
-            <a-checkbox v-model:checked="expand" @change="fetchData" />
+            <a-checkbox v-model:checked="expand" @change="handleExpandChange" />
           </a-layout-content>
           <a-layout-content class="flex justify-end">
             <a-button 
-              v-if="canCreateSubPartner" 
+              v-if="isHeadquater" 
               class="bg-gray text-white" 
               @click="openRegisterPartner = true"
             >
@@ -36,14 +36,14 @@
           </a-layout-content>
         </a-layout>
 
-        <PartnerTable :columns="columns" :data-source="dataSource" :loading="loading" :fetch-data="fetchData"
-          @open-register-user="openRegisterUser = true" @open-cash-modal="openCashModal"
+        <PartnerTable ref="partnerTableRef" :columns="columns" :data-source="dataSource" :loading="loading" :fetch-data="fetchData"
+          @open-register-user="openRegisterUserModal" @open-cash-modal="openCashModal"
           @open-notice-modal="openNoticeModal" @open-group-message-modal="openGroupMessageModal"
           @open-remove-modal="openRemoveModal" @open-setting-modal="openSettingModal"
           @open-add-sub-modal="openAddSubModal" @open-member-setting-modal="openMemberSettingModal" />
       </a-layout>
       <RegisterUserModal v-model:open="openRegisterUser" :data-source="selectedRecord" :fetch-data="fetchData" />
-      <RegisterPartnerModal v-model:open="openRegisterPartner" :data-source="selectedRecord" :fetch-data="fetchData" />
+      <RegisterPartnerModal v-model:open="openRegisterPartner" :data-source="rootPartner" :fetch-data="fetchData" />
       <PartnerSettingModal v-model:open="openSetting" :data-source="selectedRecord" :fetch-data="fetchData" />
       <MemberSettingModal v-model:open="openMemberSetting" :data-source="selectedRecord" :fetch-data="fetchData" />
       <CashModal v-model:open="openCash" :data-source="selectedRecord" :fetch-data="fetchData" />
@@ -56,6 +56,7 @@
 <script setup>
 import { ref, inject, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { partnerManagementColumns } from '@/utils/table-column/partner-management';
@@ -74,12 +75,14 @@ import CashModal from '@/components/partner/CashModal.vue';
 import GroupMessageModal from '@/components/partner/GroupMessageModal.vue';
 import RemovePartnerModal from '@/components/partner/RemovePartnerModal.vue';
 
-/* Translations */
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
 const router = useRouter();
-const { canCreateSubPartner, canAccessPartner } = usePermissions();
+const store = useStore();
+const { canAccessPartner } = usePermissions();
+
+const isHeadquater = computed(() => store.getters.isHeadquater);
 
 const expand = ref(true);
 const search = ref('');
@@ -96,6 +99,18 @@ const openGroupMessage = ref(false);
 const openRemove = ref(false);
 const selectedRecord = ref(null);
 const searchLoading = ref(false);
+const partnerTableRef = ref(null);
+
+const rootPartner = computed(() => {
+  if (selectedRecord.value) {
+    return selectedRecord.value;
+  }
+  if (dataSource.value && dataSource.value.length > 0) {
+    const headquater = dataSource.value.find(p => p.role === 'headquater');
+    return headquater || null;
+  }
+  return null;
+});
 
 const fetchData = async () => {
   if (!canAccessPartner.value) {
@@ -170,6 +185,19 @@ const openMemberSettingModal = (record) => {
   openMemberSetting.value = true;
 };
 
+const openRegisterUserModal = (record) => {
+  selectedRecord.value = record;
+  openRegisterUser.value = true;
+};
+
+const handleExpandChange = () => {
+  if (expand.value && partnerTableRef.value) {
+    partnerTableRef.value.expandAll();
+  } else if (!expand.value && partnerTableRef.value) {
+    partnerTableRef.value.collapseAll();
+  }
+};
+
 watch(() => openRegisterPartner.value, (newValue) => {
   if (!newValue && isRegisterPartnerFromAddSub.value) {
     if (!openCash.value && !openSetting.value && !openMemberSetting.value && 
@@ -180,7 +208,6 @@ watch(() => openRegisterPartner.value, (newValue) => {
   }
 });
 
-/* Load data on mount */
 onMounted(() => {
   if (!canAccessPartner.value) {
     message.error(trlang.value.permission_denied);

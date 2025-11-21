@@ -4,9 +4,6 @@
       <a-typography-title :level="3">
         {{ trlang.notice_management }}
       </a-typography-title>
-      <a-typography-text type="secondary">
-        {{ trlang.notice_management_description }}
-      </a-typography-text>
     </div>
 
     <a-card class="filters-card">
@@ -23,7 +20,7 @@
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.search_type">
+            <a-form-item class="mb-0" :label="trlang.keyword">
               <a-select v-model:value="filters.searchType" allow-clear>
                 <a-select-option value="title">{{ trlang.title }}</a-select-option>
                 <a-select-option value="content">{{ trlang.content }}</a-select-option>
@@ -40,7 +37,7 @@
               <a-select v-model:value="filters.partnerId" allow-clear :placeholder="trlang.all_partners">
                 <a-select-option value="all">{{ trlang.all_partners }}</a-select-option>
                 <a-select-option v-for="partner in partnerList" :key="partner.id" :value="partner.id">
-                  {{ partner.nickname || partner.id }}
+                  {{ partner.nickname }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -74,7 +71,7 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'partner'">
             {{ record.partner || trlang.all_partners }}
@@ -136,35 +133,13 @@
             style="width: 100%"
           >
             <a-select-option v-for="partner in partnerList" :key="partner.id" :value="partner.id">
-              {{ partner.nickname || partner.id }}
+              {{ partner.nickname }}
             </a-select-option>
           </a-select>
           <a-typography-text type="danger" style="display: block; margin-top: 8px;">
             {{ trlang.if_not_choose_partner_then_all_partners }}
           </a-typography-text>
         </a-form-item>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item :label="trlang.start_date">
-              <a-date-picker
-                v-model:value="formData.start_date"
-                show-time
-                style="width: 100%"
-                :placeholder="trlang.select_start_date"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="trlang.end_date">
-              <a-date-picker
-                v-model:value="formData.end_date"
-                show-time
-                style="width: 100%"
-                :placeholder="trlang.select_end_date"
-              />
-            </a-form-item>
-          </a-col>
-        </a-row>
       </a-form>
     </a-modal>
   </a-layout>
@@ -203,8 +178,6 @@ const formData = ref({
   title: "",
   content: "",
   partnerIds: [],
-  start_date: null,
-  end_date: null,
 });
 
 const columns = computed(() => [
@@ -216,7 +189,13 @@ const columns = computed(() => [
 ]);
 
 const tableData = ref([]);
-const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { paginationConfig, setTotal } = usePagination(10);
+
+const handleTableChange = (pagination) => {
+  paginationConfig.value.current = pagination.current;
+  paginationConfig.value.pageSize = pagination.pageSize;
+  fetchData();
+};
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
@@ -241,12 +220,13 @@ const buildQuery = () => {
     params.append("partnerId", filters.value.partnerId.trim());
   }
 
-  if (filters.value.range && filters.value.range.length === 2) {
-    if (filters.value.range[0]) {
-      params.append("startDate", dayjs(filters.value.range[0]).format("YYYY-MM-DD"));
+  if (filters.value.range && Array.isArray(filters.value.range) && filters.value.range.length === 2) {
+    const [startDate, endDate] = filters.value.range;
+    if (startDate) {
+      params.append("startDate", dayjs(startDate).format("YYYY-MM-DD"));
     }
-    if (filters.value.range[1]) {
-      params.append("endDate", dayjs(filters.value.range[1]).format("YYYY-MM-DD"));
+    if (endDate) {
+      params.append("endDate", dayjs(endDate).format("YYYY-MM-DD"));
     }
   }
 
@@ -262,7 +242,8 @@ const fetchPartnerList = async () => {
         if (partner && partner.id) {
           partners.push({
             id: partner.id,
-            nickname: partner.nickname || partner.id,
+            _id: partner._id || null,
+            nickname: partner.nickname,
           });
           if (partner.subs && Array.isArray(partner.subs)) {
             partner.subs.forEach(sub => {
@@ -351,20 +332,50 @@ const handleCreate = () => {
     title: "",
     content: "",
     partnerIds: [],
-    start_date: null,
-    end_date: null,
   };
   modalVisible.value = true;
 };
 
-const handleEdit = (record) => {
+const handleEdit = async (record) => {
   editingRecord.value = record;
+  
+  let partnerIdStrings = [];
+  if (record.partner_ids && Array.isArray(record.partner_ids) && record.partner_ids.length > 0) {
+    try {
+      const partnerIdMap = new Map();
+      partnerList.value.forEach(partner => {
+        if (partner._id) {
+          partnerIdMap.set(String(partner._id), partner.id);
+        }
+      });
+      
+      partnerIdStrings = record.partner_ids
+        .map(partnerId => {
+          if (!partnerId) return null;
+          const idString = String(partnerId).trim();
+          
+          if (partnerIdMap.has(idString)) {
+            return partnerIdMap.get(idString);
+          }
+          
+          const partner = partnerList.value.find(p => {
+            if (!p._id) return false;
+            return String(p._id) === idString || String(p._id).trim() === idString;
+          });
+          
+          return partner ? partner.id : null;
+        })
+        .filter(id => id !== null);
+    } catch (error) {
+      console.error("Error converting partner IDs:", error);
+      partnerIdStrings = [];
+    }
+  }
+  
   formData.value = {
     title: record.title || "",
     content: record.content || "",
-    partnerIds: record.partner_ids && Array.isArray(record.partner_ids) ? record.partner_ids : [],
-    start_date: record.start_date ? dayjs(record.start_date) : null,
-    end_date: record.end_date ? dayjs(record.end_date) : null,
+    partnerIds: partnerIdStrings,
   };
   modalVisible.value = true;
 };
@@ -373,21 +384,6 @@ const handleSave = async () => {
   try {
     await formRef.value.validate();
     
-    const hasStartDate = formData.value.start_date !== null && formData.value.start_date !== undefined;
-    const hasEndDate = formData.value.end_date !== null && formData.value.end_date !== undefined;
-    
-    if ((hasStartDate && !hasEndDate) || (!hasStartDate && hasEndDate)) {
-      message.error(trlang.value.both_start_and_end_date_required);
-      return;
-    }
-    
-    if (hasStartDate && hasEndDate) {
-      if (formData.value.start_date.isAfter(formData.value.end_date)) {
-        message.error(trlang.value.start_date_must_be_before_end_date);
-        return;
-      }
-    }
-    
     saving.value = true;
 
     const payload = {
@@ -395,14 +391,6 @@ const handleSave = async () => {
       content: formData.value.content.trim(),
       partnerIds: formData.value.partnerIds && Array.isArray(formData.value.partnerIds) ? formData.value.partnerIds : [],
     };
-
-    if (hasStartDate) {
-      payload.start_date = dayjs(formData.value.start_date).toISOString();
-    }
-    
-    if (hasEndDate) {
-      payload.end_date = dayjs(formData.value.end_date).toISOString();
-    }
 
     let res;
     if (editingRecord.value) {
@@ -436,8 +424,6 @@ const handleCancel = () => {
     title: "",
     content: "",
     partnerIds: [],
-    start_date: null,
-    end_date: null,
   };
 };
 

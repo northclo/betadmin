@@ -13,9 +13,9 @@ export const currentLoginUserColumn = [
         align: 'center'
     },
     {
-        title: "ID(Nickname)",
-        dataIndex: "id_nickname",
-        key: "id_nickname",
+        title: "ID",
+        dataIndex: "id",
+        key: "id",
     },
     {
         title: "Partner",

@@ -17,10 +17,7 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="nickname" class="w-100" :disabled="true" />
-          <a-typography-text class="text-dark-brown">
-            {{ trlang.nickname_cannot_be_changed }}
-          </a-typography-text>
+          <a-input v-model:value="nickname" class="w-100" />
         </a-layout-content>
       </a-layout>
 
@@ -173,7 +170,7 @@
 <script setup>
 import { computed, defineProps, inject, ref, watch, onMounted } from "vue";
 import { getCountryCallingCode, getCountries } from "libphonenumber-js";
-import { checkValidEmail } from "@/helpers/Common.js";
+import { checkValidEmail, testEnglishNumberWithoutSpecialCharacter } from "@/helpers/Common.js";
 import { message } from "ant-design-vue";
 import { postData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
@@ -243,20 +240,17 @@ const fetchUserData = async () => {
 
   try {
     loadingData.value = true;
-    let res;
     
-    if (props.dataSource.userId) {
-      userId.value = props.dataSource.userId;
-      res = await getData(`${apiLink.member_list}?search=${props.dataSource.userId}&searchField=_id`);
-    } else if (props.dataSource.id) {
-      res = await getData(`${apiLink.member_list}?search=${props.dataSource.id}&searchField=user_nickname`);
-    } else {
+    if (!props.dataSource.userId) {
       message.error(trlang.value.user_not_found);
       return;
     }
+
+    userId.value = props.dataSource.userId;
+    const res = await getData(`${apiLink.get_member_by_id}?id=${props.dataSource.userId}`);
     
-    if (res.status && res.data && res.data.list && res.data.list.length > 0) {
-      const user = res.data.list[0];
+    if (res.status && res.data) {
+      const user = res.data;
       userId.value = user._id;
       nickname.value = user.user_nickname || "";
       userName.value = user.user_name || "";
@@ -338,12 +332,32 @@ const update = async () => {
     return message.error(trlang.value.user_not_found);
   }
 
+  if (!nickname.value || !nickname.value.trim()) {
+    return message.error(trlang.value.please_input_nickname);
+  }
+
+  if (!testEnglishNumberWithoutSpecialCharacter(2, 10, nickname.value.trim())) {
+    return message.error(trlang.value.invalid_nickname_format);
+  }
+
   if (!email.value || !email.value.trim()) {
     return message.error(trlang.value.please_input_email);
   }
 
   if (!checkValidEmail(email.value.trim())) {
     return message.error(trlang.value.invalid_email_format);
+  }
+
+  if (!userName.value || !userName.value.trim()) {
+    return message.error(trlang.value.user_name_required);
+  }
+
+  if (!testEnglishNumberWithoutSpecialCharacter(4, 12, userName.value.trim())) {
+    return message.error(trlang.value.invalid_user_name_format);
+  }
+
+  if (!bankOwner.value || !bankOwner.value.trim()) {
+    return message.error(trlang.value.please_input_bank_owner_name);
   }
 
   if (!bankName.value || !bankName.value.trim()) {
@@ -366,6 +380,7 @@ const update = async () => {
     loading.value = true;
     const payload = {
       _id: userId.value,
+      user_nickname: nickname.value.trim(),
       user_email: email.value.trim(),
       user_name: userName.value.trim() || undefined,
       phone_number: activeCode.value + (phoneNumber1.value || '') + (phoneNumber2.value || ''),
@@ -383,7 +398,7 @@ const update = async () => {
     }
 
     if (exchangePassword.value && exchangePassword.value.trim()) {
-      payload.exchange_password = exchangePassword.value.trim();
+      payload.exchange_secure_number = exchangePassword.value.trim();
     }
 
     Object.keys(payload).forEach(key => {

@@ -12,7 +12,7 @@
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
         <a-typography-text class="flex items-center">
-          {{ trlang.branch_office }}
+          {{ nextRoleLabel }}
         </a-typography-text>
       </a-layout-content>
     </a-layout>
@@ -25,7 +25,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 flex-wrap">
-          <a-input v-model:value="partnerId" class="w-100" :disabled="isEdit" />
+          <a-input v-model:value="partnerId" class="w-100" />
           <a-button :loading="checkingPartnerId" @click="testPartnerId">{{ trlang.test }}</a-button>
           <a-typography-text class="flex items-center text-dark-brown">
             {{
@@ -33,19 +33,19 @@
             }}
           </a-typography-text>
         </a-layout>
-        <a-checkbox v-model:checked="serialNumber" class="mt-2">{{
+        <a-checkbox v-model:checked="serialNumber" class="mt-2" v-if="!isEdit">{{
           trlang.serial_number_multi_registration
         }}</a-checkbox>
-        <a-layout class="flex flex-row gap-2 mt-2 flex-wrap">
+        <a-layout class="flex flex-row gap-2 mt-2 flex-wrap" v-if="!isEdit">
           <a-typography-text class="flex items-center">
             {{ trlang.start }}:
           </a-typography-text>
-          <a-input-number v-model:value="startTime" class="input-sm" :min="0" />
+          <a-input-number v-model:value="startTime" class="input-sm" :min="0" v-if="!isEdit" />
           <a-typography-text class="flex items-center">~</a-typography-text>
           <a-typography-text class="flex items-center">
             {{ trlang.end }}:
           </a-typography-text>
-          <a-input-number v-model:value="endTime" class="input-sm" :min="0" />
+          <a-input-number v-model:value="endTime" class="input-sm" :min="0" v-if="!isEdit" />
           <a-typography-text class="flex items-center text-dark-brown">
             {{
               trlang.multiple_ids_and_nicknames_can_be_registered_with_numbers_added_to_the_end
@@ -170,6 +170,7 @@ import { message } from "ant-design-vue";
 import { testStartEnglish, testEnglishNumberDashUnderscore } from "@/helpers/Common.js";
 import { getData, postData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
+import { getNextPartnerRole, getPartnerRoleTranslationKey } from "@/utils/partner-utils";
 
 /* Translations */
 const langState = inject("langState");
@@ -185,6 +186,10 @@ const props = defineProps({
   },
   partnerData: {
     type: Object,
+    default: null,
+  },
+  parentRole: {
+    type: String,
     default: null,
   },
 });
@@ -207,7 +212,21 @@ const bankOption = ref([]);
 const checkingPartnerId = ref(false);
 const checkingNickname = ref(false);
 
-/* Init select options */
+const nextRole = computed(() => {
+  if (props.isEdit && props.partnerData?.role) {
+    return props.partnerData.role;
+  }
+  if (props.parentRole) {
+    return getNextPartnerRole(props.parentRole);
+  }
+  return 'branch_office';
+});
+
+const nextRoleLabel = computed(() => {
+  const roleKey = getPartnerRoleTranslationKey(nextRole.value);
+  return trlang.value[roleKey] || trlang.value.branch_office;
+});
+
 const initOptions = async () => {
   try {
     const res = await getData(apiLink.site_setting);
@@ -249,7 +268,11 @@ const checkAvailability = async (type) => {
 
   try {
     loadingRef.value = true;
-    const result = await postData(apiLink.check_partner_availability, { type, value });
+    const payload = { type, value };
+    if (props.isEdit && props.partnerData?._id) {
+      payload.excludeId = props.partnerData._id;
+    }
+    const result = await postData(apiLink.check_partner_availability, payload);
     if (result.status && result.data?.available) {
       message.success(trlang.value[isPartnerId ? "partner_id_available" : "nickname_available"]);
     } else {
@@ -330,6 +353,7 @@ defineExpose({
     account: account.value,
     name: name.value,
     exchangePassword: exchangePassword.value,
+    role: nextRole.value,
   }),
   reset,
 });

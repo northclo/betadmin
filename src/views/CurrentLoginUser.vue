@@ -79,7 +79,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
 
           <template v-if="column.key === 'disconnect'">
@@ -93,33 +93,15 @@
             />
           </template>
 
-          <template v-if="column.key === 'id_nickname'">
-            <div class="flex flex-column">
-              <div>
-                <a-typography-text class="me-2">{{
-                  record.user_nickname
-                }}</a-typography-text>
-                <a-typography-text>({{ record.user_id }})</a-typography-text>
-              </div>
-              <a-typography-text class="bg-gray text-white px-2 w-fit radius-2">
-                {{
-                  trlang[record.partner?.role] || ''
-                }}
-              </a-typography-text>
-            </div>
+          <template v-if="column.key === 'id'">
+            <a-typography-text class="me-2">{{
+              record.user_nickname
+            }}</a-typography-text>
           </template>
 
           <template v-if="column.key === 'partner'">
-            <a-typography-text
-              :class="
-                record.partner
-                  ? 'bg-yellow border radius-2 px-2'
-                  : ''
-              "
-            >
-              {{
-                record.partner?.nickname || '-'
-              }}
+            <a-typography-text>
+              {{ record.partner?.nickname || '-' }}
             </a-typography-text>
           </template>
 
@@ -152,7 +134,7 @@
           <template v-if="column.key === 'money_point'">
             <div class="flex flex-column">
               <a-typography-text class="text-red"
-                >{{ record.own_money.toLocaleString() }}{{ trlang.usd_currency }}</a-typography-text
+                >{{ record.own_money.toLocaleString() }}{{ trlang.usd }}</a-typography-text
               >
               <a-typography-text
                 >{{ record.point.toLocaleString() }}{{ trlang.points_unit }}</a-typography-text
@@ -161,15 +143,15 @@
           </template>
 
           <template v-if="column.key === 'import_money'">
-            {{ record.total_import_amount || 0 }}{{ trlang.usd_currency }}
+            {{ record.total_import_amount || 0 }}{{ trlang.usd }}
           </template>
 
           <template v-if="column.key === 'exchange_money'">
-            {{ record.total_exchange_amount || 0 }}{{ trlang.usd_currency }}
+            {{ record.total_exchange_amount || 0 }}{{ trlang.usd }}
           </template>
 
           <template v-if="column.key === 'user_import'">
-            {{ record.user_import_amount || 0 }}{{ trlang.usd_currency }}
+            {{ record.user_import_amount || 0 }}{{ trlang.usd }}
           </template>
 
           <template v-if="column.key === 'final_import_date'">
@@ -257,7 +239,7 @@ const currentLoginUserColumn = computed(() => {
   const titleMap = {
     "No": trlang.value.no_column,
     "Disconnect": trlang.value.disconnect,
-    "ID(Nickname)": trlang.value.id_nickname,
+    "ID": trlang.value.id,
     "Partner": trlang.value.partner_column,
     "IP": trlang.value.ip,
     "Location": trlang.value.location,
@@ -282,7 +264,7 @@ const rowKey = (record) => record.key || record.user_id;
 const initOptions = () => {
   filters.value.searchField = '';
   searchFieldOptions.value = [
-    { value: '', label: trlang.value.search_term },
+    { value: '', label: trlang.value.all },
     { value: 'user_nickname', label: trlang.value.user_nickname_label },
     { value: 'user_id', label: trlang.value.user_id_label },
     { value: 'partner', label: trlang.value.partner },

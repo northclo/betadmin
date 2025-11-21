@@ -338,16 +338,26 @@ const convertPartnerToTree = (partner, level = 0) => {
 
 const fetchPartnerList = async () => {
   try {
-    const res = await getData(apiLink.get_game_partner);
-    if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-      partnerTreeOptions.value = res.data
-        .map(partner => convertPartnerToTree(partner))
-        .filter(Boolean);
-    } else if (res.data && res.data.id) {
-      const tree = convertPartnerToTree(res.data);
-      partnerTreeOptions.value = tree ? [tree] : [];
+    if (props.dataSource && props.dataSource.id) {
+      const res = await getData(`${apiLink.get_partner_tree_by_id}?id=${props.dataSource.id}`);
+      if (res.status && res.data) {
+        const tree = convertPartnerToTree(res.data);
+        partnerTreeOptions.value = tree ? [tree] : [];
+      } else {
+        partnerTreeOptions.value = [];
+      }
     } else {
-      partnerTreeOptions.value = [];
+      const res = await getData(apiLink.get_game_partner);
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        partnerTreeOptions.value = res.data
+          .map(partner => convertPartnerToTree(partner))
+          .filter(Boolean);
+      } else if (res.data && res.data.id) {
+        const tree = convertPartnerToTree(res.data);
+        partnerTreeOptions.value = tree ? [tree] : [];
+      } else {
+        partnerTreeOptions.value = [];
+      }
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
@@ -406,12 +416,24 @@ onMounted(() => {
 });
 
 const register = async () => {
+  if (!partner.value || !partner.value.trim()) {
+    return message.error(trlang.value.please_select_partner);
+  }
+
   if (!testEnglishNumberWithoutSpecialCharacter(4, 12, userName.value)) {
     return message.error(trlang.value.invalid_username);
   }
 
   if (!testEnglishNumberWithoutSpecialCharacter(2, 10, nickname.value)) {
     return message.error(trlang.value.invalid_nickname);
+  }
+
+  if (!password.value || !password.value.trim()) {
+    return message.error(trlang.value.please_input_password);
+  }
+
+  if (password.value.trim().length < 6) {
+    return message.error(trlang.value.password_min_length_6);
   }
 
   if (!password.value || password.value !== verifyPassword.value) {
@@ -446,6 +468,18 @@ const register = async () => {
     return message.error(trlang.value.please_input_bank_owner_name);
   }
 
+  if (checked.value) {
+    if (startTime.value === null || startTime.value === undefined) {
+      return message.error(trlang.value.start_number_required);
+    }
+    if (endTime.value === null || endTime.value === undefined) {
+      return message.error(trlang.value.end_number_required);
+    }
+    if (endTime.value <= startTime.value) {
+      return message.error(trlang.value.end_number_must_be_greater);
+    }
+  }
+
   try {
     loading.value = true;
     const payload = {
@@ -471,7 +505,23 @@ const register = async () => {
     const result = await postData(apiLink.register_user, payload);
 
     if (result.status) {
-      message.success(trlang.value.registered_successful);
+      if (checked.value && result.data) {
+        const created = result.data.created || 0;
+        const total = result.data.total || 0;
+        if (result.data.errors && result.data.errors.length > 0) {
+          const usersCreatedText = trlang.value.users_created_with_total?.replace('{0}', created).replace('{1}', total) || `${created}/${total} users created`;
+          message.warning(
+            `${trlang.value.registered_successful}: ${usersCreatedText}. ${trlang.value.some_errors_occurred}.`
+          );
+        } else {
+          const usersCreatedText = trlang.value.users_created?.replace('{0}', created) || `${created} user(s) created`;
+          message.success(
+            `${trlang.value.registered_successful}: ${usersCreatedText}.`
+          );
+        }
+      } else {
+        message.success(trlang.value.registered_successful);
+      }
       props.fetchData();
       emit("update:open", false);
     } else {

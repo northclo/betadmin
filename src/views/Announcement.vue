@@ -4,9 +4,6 @@
       <a-typography-title :level="3">
         {{ trlang.announcement }}
       </a-typography-title>
-      <a-typography-text type="secondary">
-        {{ trlang.announcement_description }}
-      </a-typography-text>
     </div>
 
     <a-card class="filters-card">
@@ -79,7 +76,7 @@
         </template>
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'category'">
             <a-tag :color="categoryColor(record.category)">
@@ -91,8 +88,8 @@
               {{ trlang[record.status] || record.status }}
             </a-tag>
           </template>
-          <template v-else-if="column.dataIndex === 'published_at'">
-            {{ record.published_at ? formatDate(record.published_at) : '-' }}
+          <template v-else-if="column.dataIndex === 'date'">
+            {{ record.date ? formatDate(record.date) : '-' }}
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
             <a-space>
@@ -203,13 +200,19 @@ const columns = computed(() => [
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
   { title: trlang.value.category, dataIndex: "category", key: "category", width: 140 },
   { title: trlang.value.author, dataIndex: "author", key: "author", width: 160 },
-  { title: trlang.value.published_at, dataIndex: "published_at", key: "published_at", width: 200 },
+  { title: trlang.value.date, dataIndex: "date", key: "date", width: 180 },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
   { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
 ]);
 
 const tableData = ref([]);
-const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { paginationConfig, setTotal } = usePagination(10);
+
+const handleTableChange = (pagination) => {
+  paginationConfig.value.current = pagination.current;
+  paginationConfig.value.pageSize = pagination.pageSize;
+  fetchData();
+};
 
 const categoryColor = (value) => {
   switch (value) {
@@ -241,7 +244,7 @@ const statusColor = (value) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
-  return dayjs(dateString).format("YYYY-MM-DD HH:mm");
+  return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
 };
 
 const buildQuery = () => {

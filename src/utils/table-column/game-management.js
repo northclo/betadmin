@@ -20,12 +20,6 @@ export const gameManagementColumn = [
         width: '200px'
     },
     {
-        titleKey: "result_list",
-        dataIndex: "result_list",
-        key: "result_list",
-        align: 'center',
-    },
-    {
         titleKey: "odd_even",
         dataIndex: "odd_even",
         key: "odd_even",

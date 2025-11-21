@@ -75,7 +75,7 @@ export const partnerManagementColumns = (trlang) => {
         {
             key: "function",
             dataIndex: "function",
-            title: trlang.value.function,
+            title: trlang.value.actions,
             width: "auto",
         },
     ]

@@ -92,10 +92,10 @@ function createGraph() {
     if (item.role === "headquater") {
       headquaterIndex = index;
       target = 0;
-    } else if (item.role === "branchOffice") {
+    } else if (item.role === "branch_office") {
       branchOfficeIndex = index;
       target = headquaterIndex;
-    } else if (item.role === "regionalOffice") {
+    } else if (item.role === "regional_office") {
       regionalOfficeIndex = index;
       target = branchOfficeIndex;
     } else if (item.role === "agency") {

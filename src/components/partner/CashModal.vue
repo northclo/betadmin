@@ -18,7 +18,7 @@
         <a-layout-content class="p-2 flex items-center justify-end gap-2">
           <a-typography-text> {{ dataSource?.id || '' }} </a-typography-text>
           <a-typography-text class="text-white px-2">
-            {{ dataSource?.role || '' }}
+            ({{ dataSource?.role || '' }})
           </a-typography-text>
         </a-layout-content>
       </a-layout>
@@ -30,7 +30,8 @@
           }}</a-typography-text>
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center justify-end gap-2">
-          <a-typography-text>{{ dataSource?.money || 0 }}</a-typography-text>
+          <a-spin v-if="loadingBalance" size="small" />
+          <a-typography-text v-else>{{ currentBalance }}</a-typography-text>
           <a-typography-text>USD</a-typography-text>
         </a-layout-content>
       </a-layout>
@@ -54,7 +55,7 @@
 <script setup>
 import { message } from "ant-design-vue";
 import { computed, defineProps, inject, ref, watch } from "vue";
-import { postData } from "@/helpers/Axios.js";
+import { postData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
 
 /* Translations */
@@ -76,10 +77,40 @@ const amountRangeOption = computed(() => [
 ]);
 const amount = ref(null);
 const loading = ref(false);
+const currentBalance = ref(0);
+const loadingBalance = ref(false);
 
 const resetForm = () => {
   amountRange.value = "+";
   amount.value = null;
+  currentBalance.value = 0;
+};
+
+const fetchCurrentBalance = async () => {
+  if (!props.dataSource || !props.dataSource.id) {
+    currentBalance.value = 0;
+    return;
+  }
+
+  if (props.dataSource.role === 'user') {
+    currentBalance.value = props.dataSource.money || 0;
+    return;
+  }
+
+  try {
+    loadingBalance.value = true;
+    const res = await getData(`${apiLink.get_partner_by_id}?id=${props.dataSource.id}`);
+    if (res.status && res.data) {
+      currentBalance.value = res.data.deposit_approved_amount || 0;
+    } else {
+      currentBalance.value = props.dataSource.money || 0;
+    }
+  } catch (error) {
+    console.error("Error fetching partner balance:", error);
+    currentBalance.value = props.dataSource.money || 0;
+  } finally {
+    loadingBalance.value = false;
+  }
 };
 
 const handleCancel = () => {
@@ -89,6 +120,7 @@ const handleCancel = () => {
 watch(() => props.open, (newValue) => {
   if (newValue) {
     resetForm();
+    fetchCurrentBalance();
   }
 });
 
@@ -133,11 +165,11 @@ const process = async () => {
         props.fetchData();
       }
     } else {
-      message.error(result.message || trlang.value.operation_failed || trlang.value.registration_failed);
+      message.error(result.message || trlang.value.operation_failed);
     }
   } catch (error) {
     console.error("Error processing cash change:", error);
-    message.error(error.message || trlang.value.operation_failed || trlang.value.registration_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loading.value = false;
   }

@@ -12,12 +12,6 @@ export const loginInformationColumn = [
         key: "user_id",
     },
     {
-        title: "distributor",
-        dataIndex: "distributor",
-        key: "distributor",
-        align: 'center',
-    },
-    {
         title: "IP",
         dataIndex: "ip_address",
         key: "ip_address",
@@ -46,12 +40,5 @@ export const loginInformationColumn = [
         dataIndex: "login_time",
         key: "login_time",
         align: 'center',
-    },
-    {
-        title: "actions",
-        dataIndex: "actions",
-        key: "actions",
-        align: 'center',
-        width: 100,
     },
 ];

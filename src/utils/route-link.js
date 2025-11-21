@@ -33,7 +33,7 @@ export const routeLink = {
   },
   betting_settlement: {
     name: "BettingSettlementPage",
-    link: "/bet-settle"
+    link: "/bet-settlement"
   },
   betting_list: {
     name: "BettingListPage",
@@ -82,9 +82,5 @@ export const routeLink = {
   notice_management: {
     name: "NoticeManagementPage",
     link: "/notice-manage"
-  },
-  real_time_betting: {
-    name: "RealTimeBettingPage",
-    link: "/real-time-betting"
   },
 };

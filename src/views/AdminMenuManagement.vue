@@ -4,9 +4,6 @@
       <a-typography-title :level="3">
         {{ trlang.administrator_menu_management }}
       </a-typography-title>
-      <a-typography-text type="secondary">
-        {{ trlang.admin_menu_description }}
-      </a-typography-text>
     </div>
 
     <a-table

@@ -5,7 +5,7 @@
         <span class="left-rail__eyebrow">{{ trlang.betting_settlement_profit }}</span>
         <div class="left-rail__hero-value">
           <span class="num">{{ formatNumber(summaryData.bettingSettlementProfit) }}</span>
-          <span class="unit">{{ trlang.usd_currency }}</span>
+          <span class="unit">{{ trlang.usd }}</span>
         </div>
         <p class="left-rail__meta">
           {{ trlang.user_points }} <strong>{{ formatNumber(summaryData.userPoints) }}</strong> {{ trlang.points_unit }}

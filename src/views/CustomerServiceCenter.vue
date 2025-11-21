@@ -23,9 +23,9 @@
             <a-form-item class="mb-0" :label="trlang.status">
               <a-select v-model:value="filters.status" allow-clear style="width: 100%">
                 <a-select-option value="all">{{ trlang.all }}</a-select-option>
-                <a-select-option value="pending">{{ trlang.pending }}</a-select-option>
-                <a-select-option value="resolved">{{ trlang.resolved }}</a-select-option>
-                <a-select-option value="rejected">{{ trlang.rejected }}</a-select-option>
+                <a-select-option value="PENDING">{{ trlang.pending }}</a-select-option>
+                <a-select-option value="RESOLVED">{{ trlang.resolved }}</a-select-option>
+                <a-select-option value="REJECTED">{{ trlang.rejected }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -40,7 +40,7 @@
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.keyword_filter">
+            <a-form-item class="mb-0" :label="trlang.keyword">
               <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" />
             </a-form-item>
           </a-col>
@@ -81,19 +81,14 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'title'">
-            <div>
-              <div>{{ record.title }}</div>
-              <a-tag :color="record.status === 'resolved' ? 'blue' : record.status === 'rejected' ? 'orange' : 'red'" style="margin-top: 4px;">
-                {{ record.status === 'resolved' ? trlang.resolved : record.status === 'rejected' ? trlang.rejected : trlang.pending }}
-              </a-tag>
-            </div>
+            <div>{{ record.title }}</div>
           </template>
           <template v-else-if="column.dataIndex === 'userId'">
             <div>
-              <div>{{ record.userNickname }}{{ record.userId && record.userId.length >= 8 ? `(${record.userId.slice(-8)})` : (record.userId ? `(${record.userId})` : '') }}</div>
+              <div>{{ record.userNickname }}</div>
               <div style="color: #999; font-size: 12px;">
                 <ArrowLeftOutlined style="margin-right: 4px;" />
                 {{ record.userRole === 'partner' ? trlang.partner : trlang.user }}
@@ -104,7 +99,7 @@
             <a-tag v-if="record.parentPartnerName" color="gold">
               {{ record.parentPartnerName }}
             </a-tag>
-            <span v-else>{{ trlang.no_data }}</span>
+            <span v-else>-</span>
           </template>
           <template v-else-if="column.dataIndex === 'firstMessageDate'">
             {{ formatDate(record.firstMessageDate) }}
@@ -117,6 +112,11 @@
           </template>
           <template v-else-if="column.dataIndex === 'answerDate'">
             {{ formatDate(record.answerDate) }}
+          </template>
+          <template v-else-if="column.dataIndex === 'status'">
+            <a-tag :color="record.status === 'RESOLVED' ? 'blue' : record.status === 'REJECTED' ? 'orange' : 'red'">
+              {{ record.status === 'RESOLVED' ? trlang.resolved : record.status === 'REJECTED' ? trlang.rejected : trlang.pending }}
+            </a-tag>
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
             <a-button type="link" @click="handleView(record)">{{ trlang.view }}</a-button>
@@ -137,15 +137,15 @@
             <a-input v-model:value="viewingRecord.title" readonly />
           </a-form-item>
           <a-form-item :label="trlang.id">
-            <a-input-group>
-              <a-input v-model:value="viewingRecord.userNickname" readonly />
+            <div class="flex items-center">
+              <div>{{ viewingRecord.userNickname }}</div>
               <a-tag v-if="viewingRecord.userRole === 'partner'" color="blue" style="margin-left: 8px;">
                 {{ trlang.partner }}
               </a-tag>
               <a-tag v-else color="default" style="margin-left: 8px;">
                 {{ trlang.user }}
               </a-tag>
-            </a-input-group>
+            </div>
           </a-form-item>
           <a-form-item :label="trlang.question">
             <a-textarea v-model:value="viewingRecord.question" :rows="4" readonly />
@@ -231,21 +231,28 @@ const filters = ref({
 
 const columns = computed(() => [
   { title: trlang.value.no, key: "no", width: 80 },
-  { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
+  { title: trlang.value.title, dataIndex: "title", key: "title", width: 200 },
   { title: trlang.value.id, dataIndex: "userId", key: "userId", width: 200 },
   { title: trlang.value.parent_partner, dataIndex: "parentPartner", key: "parentPartner", width: 150 },
   { title: trlang.value.first_message_date, dataIndex: "firstMessageDate", key: "firstMessageDate", width: 180 },
   { title: trlang.value.message_send_date, dataIndex: "messageSendDate", key: "messageSendDate", width: 180 },
   { title: trlang.value.ip, dataIndex: "ipAddress", key: "ipAddress", width: 150 },
   { title: trlang.value.answer_date, dataIndex: "answerDate", key: "answerDate", width: 180 },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 120 },
   { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 100 },
 ]);
 
 const tableData = ref([]);
-const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { paginationConfig, setTotal } = usePagination(10);
+
+const handleTableChange = (pagination) => {
+  paginationConfig.value.current = pagination.current;
+  paginationConfig.value.pageSize = pagination.pageSize;
+  fetchData();
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return trlang.value.no_data;
+  if (!dateString) return "-";
   return dayjs(dateString).format("YYYY-MM-DD HH:mm");
 };
 
@@ -298,10 +305,16 @@ const fetchData = async () => {
       if (payload.pageSize || payload.limit) {
         paginationConfig.value.pageSize = payload.pageSize || payload.limit || 10;
       }
+    } else {
+      message.error(res.message || trlang.value.failed_to_fetch_support_tickets);
+      tableData.value = [];
+      setTotal(0);
     }
   } catch (error) {
     console.error("Error fetching support tickets:", error);
     message.error(trlang.value.failed_to_fetch_support_tickets);
+    tableData.value = [];
+    setTotal(0);
   } finally {
     loading.value = false;
   }
@@ -333,12 +346,19 @@ const onSelectChange = (keys) => {
 };
 
 const handleView = async (record) => {
+  if (!record || !record.id) {
+    message.error(trlang.value.invalid_ticket_id);
+    return;
+  }
+  
   try {
     const res = await getData(`${apiLink.get_support_ticket}/${record.id}`);
     if (res.status) {
       viewingRecord.value = { ...res.data };
       answerForm.value.answer = res.data.answer || "";
       viewModalVisible.value = true;
+    } else {
+      message.error(res.message || trlang.value.failed_to_fetch_ticket_details);
     }
   } catch (error) {
     console.error("Error fetching ticket details:", error);
@@ -359,7 +379,7 @@ const handleResolve = async () => {
     const updateRes = await putData(
       `${apiLink.update_support_ticket}/${viewingRecord.value.id}`,
       { 
-        status: "resolved",
+        status: "RESOLVED",
         answer: answerForm.value.answer.trim()
       }
     );
@@ -388,7 +408,7 @@ const handleReject = async () => {
   try {
     const updateRes = await putData(
       `${apiLink.update_support_ticket}/${viewingRecord.value.id}`,
-      { status: "rejected" }
+      { status: "REJECTED" }
     );
 
     if (updateRes.status) {

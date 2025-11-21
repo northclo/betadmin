@@ -10,9 +10,9 @@ export const memberListColumn = [
     key: "login",
   },
   {
-    title: "Nickname(Id)",
-    dataIndex: "nickname",
-    key: "nickname",
+    title: "Id",
+    dataIndex: "user_id",
+    key: "user_id",
   },
   {
     title: "Partner",

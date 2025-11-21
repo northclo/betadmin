@@ -59,7 +59,7 @@
                   {{ trlang.start }}
                 </a-typography-text>
                 <a-input v-model:value="chargeStartTime" style="width: 80px" />
-                <a-typography-text class="flex items-center">{{ trlang.range_separator }}</a-typography-text>
+                <a-typography-text class="flex items-center">~</a-typography-text>
                 <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
@@ -125,7 +125,7 @@ const chargeCompleteMessage = ref('');
 const initOptions = () => {
   chargeMaxOption.value = [1000, 10000, 100000].map((amt, idx) => ({
     key: idx,
-    amount: `${amt} ${trlang.value.usd_currency}`,
+    amount: `${amt} ${trlang.value.usd}`,
   }));
 };
 
@@ -143,7 +143,7 @@ const loadData = (data) => {
       ? data.charge_min.toString()
       : '';
   chargeMax.value = data.charge_max
-    ? `${data.charge_max} ${trlang.value.usd_currency}`
+    ? `${data.charge_max} ${trlang.value.usd}`
     : chargeMaxOption.value[0]?.amount ?? '';
   chargeTimezone.value = data.charge_timezone !== undefined ? Boolean(data.charge_timezone) : false;
   chargeStartTime.value = formatTime(data.charge_start_time);

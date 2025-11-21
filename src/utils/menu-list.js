@@ -6,7 +6,6 @@ import {
   SettingOutlined,
   TeamOutlined,
   SwapOutlined,
-  PrinterOutlined,
 } from "@ant-design/icons-vue";
 import { routeLink } from "@/utils/route-link";
 
@@ -14,7 +13,7 @@ export const menuList = () => {
   return [
     {
       key: "main",
-      label: "main_page",
+      label: "dashboard",
       icon: HomeOutlined,
       to: routeLink.dashboard.link,
     },
@@ -63,6 +62,11 @@ export const menuList = () => {
       icon: BarChartOutlined,
       children: [
         {
+          key: "bet_list",
+          label: "betting_list",
+          to: routeLink.betting_list.link,
+        },
+        {
           key: "bet_settle",
           label: "betting_settlement_profit",
           to: routeLink.betting_settlement.link,
@@ -96,12 +100,6 @@ export const menuList = () => {
       label: "game_management",
       icon: SettingOutlined,
       to: routeLink.game_management.link
-    },
-    {
-      key: "bet_list",
-      label: "betting_list",
-      icon: WalletOutlined,
-      to: routeLink.betting_list.link,
     },
     {
       key: "charge_exchange",
@@ -156,12 +154,6 @@ export const menuList = () => {
           to: routeLink.notice_management.link,
         },
       ],
-    },
-    {
-      key: "real_time_bet",
-      label: "real_time_betting",
-      icon: PrinterOutlined,
-      to: routeLink.real_time_betting.link,
     },
   ];
 };

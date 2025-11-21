@@ -73,7 +73,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
 
           <template v-else-if="column.key === 'round_id'">
@@ -92,12 +92,6 @@
                 {{ loadRemainedTime(record.remainedTime) }}
               </a-typography-text>
             </a-layout>
-          </template>
-
-          <template v-else-if="column.key === 'result_list'">
-            <a-typography-text>
-              {{ JSON.stringify(record.list).slice(1, -1) }}
-            </a-typography-text>
           </template>
 
           <template v-else-if="['odd_even', 'under_over'].includes(column.key)">
@@ -141,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, inject, watch } from 'vue';
+import { ref, onMounted, computed, inject } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { gameManagementColumn as baseGameManagementColumn } from '@/utils/table-column/game-management';
@@ -167,7 +161,13 @@ const gameProcessOptions = ref([]);
 const dataSource = ref([]);
 const loading = ref(false);
 
-const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
+const { paginationConfig, setTotal } = usePagination(10);
+
+const handleTableChange = (pagination) => {
+  paginationConfig.value.current = pagination.current;
+  paginationConfig.value.pageSize = pagination.pageSize;
+  fetchData();
+};
 
 const statusLegend = computed(() => [
   {
@@ -234,7 +234,7 @@ const gameManagementColumn = computed(() => baseGameManagementColumn.map(col => 
 const initOptions = () => {
   filters.value.searchField = 'total_no';
   gameProcessOptions.value = [
-    { value: '', label: `:: ${trlang.value.all_process} ::` },
+    { value: '', label: `${trlang.value.all}` },
     { value: 'register', label: trlang.value.register_game },
     { value: 'under', label: trlang.value.under_betting },
     { value: 'end', label: trlang.value.end_betting },
@@ -249,7 +249,7 @@ const initOptions = () => {
 
 const fetchData = async () => {
   const searchValue = filters.value.search?.toString().trim() ?? '';
-  if (searchValue && Number.isNaN(Number(searchValue))) {
+  if (searchValue && !Number.isFinite(Number(searchValue))) {
     message.error(trlang.value.invalid_data);
     return;
   }
@@ -276,9 +276,12 @@ const fetchData = async () => {
         dataSource.value = res.data.items || [];
         if (res.data.pagination && res.data.pagination.total !== undefined) {
           setTotal(res.data.pagination.total);
+        } else {
+          setTotal(res.data.items.length);
         }
       } else {
-        dataSource.value = res.data || [];
+        dataSource.value = Array.isArray(res.data) ? res.data : [];
+        setTotal(Array.isArray(res.data) ? res.data.length : 0);
       }
     } else {
       dataSource.value = [];
@@ -312,10 +315,6 @@ const resetFilters = () => {
   fetchData();
 };
 
-watch(
-  () => [paginationConfig.value.current, paginationConfig.value.pageSize],
-  fetchData
-);
 
 const loadRemainedTime = (time) => {
   if (time < 0) return '';

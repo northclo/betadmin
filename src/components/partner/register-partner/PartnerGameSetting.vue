@@ -10,7 +10,7 @@
       </a-typography-text>
       <a-tree-select v-model:value="activeSetting" class="input-xl" :tree-data="partnerOptions" :field-names="{
         label: 'nickname',
-        value: 'partner_id',
+        value: 'id',
         children: 'subs',
       }" tree-default-expand-all show-search />
       <a-button class="text-white" @click="changeActivePartner">{{ trlang.get_settings }}</a-button>
@@ -374,8 +374,19 @@ const slotMatch16 = ref(null);
 const slotMatch16Public = ref(false);
 
 const fetchData = async () => {
-  const result = await getData(apiLink.get_game_partner);
-  partnerOptions.value = result.data;
+  let result;
+  
+  if (props.partnerData && props.partnerData.partner_id) {
+    result = await getData(`${apiLink.get_partner_tree_by_id}?id=${props.partnerData.partner_id}`);
+    if (result.data) {
+      partnerOptions.value = [result.data];
+    } else {
+      partnerOptions.value = [];
+    }
+  } else {
+    result = await getData(apiLink.get_game_partner);
+    partnerOptions.value = result.data;
+  }
 
   dividendTypeOptions.value = [
     {
@@ -406,45 +417,71 @@ onMounted(() => {
   fetchData();
 });
 
-const findPartnerById = (node) => {
-  if (node.partner_id === activeSetting.value) return node;
-  if (!node.subs) return null;
-
-  for (const sub of node.subs) {
-    const found = findPartnerById(sub);
-    if (found) return found;
-  }
-
-  return null;
-};
-
 const setCancelBet = (value) => {
   cancelBet.value = value;
 };
 
-const changeActivePartner = () => {
-  const partner = findPartnerById(partnerOptions.value[0]);
+const changeActivePartner = async () => {
+  if (!activeSetting.value) {
+    return;
+  }
 
-  dividendType.value = partner.bet_rate_type || "A";
-  cancelBet.value = partner.cancel_bet || false;
-  cancelBetEndTime.value = partner.cancel_bet_range
-    ? partner.cancel_bet_range.end_time
-    : 0 || 0;
-  cancelBetMaxTime.value = partner.cancel_bet_range
-    ? partner.cancel_bet_range.max_time
-    : 0 || 0;
-  cancelBetPerday.value = partner.cancel_bet_range
-    ? partner.cancel_bet_range.perday_time
-    : 0 || 0;
-  betUnit.value = partner.bet_money_unit;
-  oneTimeBetMin.value = partner.onetime_bet_min;
-  oneTimeBetMax.value = partner.onetime_bet_max;
-  oneTimeEarningMax.value = partner.onetime_earning_max;
-  oneRoundBetMax.value = partner.oneround_bet_max;
-  oneRoundEarningMax.value = partner.oneround_earning_max;
-  oneRoundBetMaxPerSlot.value = partner.oneround_bet_max_slot;
-  oneRoundEarningMaxPerSlot.value = partner.oneround_earning_max_slot;
-  allRoundsBetMax.value = partner.all_rounds_bet_max;
+  try {
+    const res = await getData(`${apiLink.get_partner_by_id}?id=${activeSetting.value}`);
+    if (!res.status || !res.data) {
+      return;
+    }
+
+    const partner = res.data;
+
+    dividendType.value = partner.bet_rate_type || "A";
+    cancelBet.value = partner.cancel_bet || false;
+    cancelBetEndTime.value = partner.cancel_bet_range
+      ? partner.cancel_bet_range.end_time
+      : 0 || 0;
+    cancelBetMaxTime.value = partner.cancel_bet_range
+      ? partner.cancel_bet_range.max_time
+      : 0 || 0;
+    cancelBetPerday.value = partner.cancel_bet_range
+      ? partner.cancel_bet_range.perday_time
+      : 0 || 0;
+    betUnit.value = partner.bet_money_unit || "";
+    oneTimeBetMin.value = partner.onetime_bet_min ?? null;
+    oneTimeBetMax.value = partner.onetime_bet_max ?? null;
+    oneTimeEarningMin.value = partner.onetime_earning_min ?? null;
+    oneTimeEarningMax.value = partner.onetime_earning_max ?? null;
+    oneRoundBetMax.value = partner.oneround_bet_max ?? null;
+    oneRoundEarningMax.value = partner.oneround_earning_max ?? null;
+    oneRoundBetMaxPerSlot.value = partner.oneround_bet_max_slot ?? null;
+    oneRoundEarningMaxPerSlot.value = partner.oneround_earning_max_slot ?? null;
+    allRoundsBetMax.value = partner.all_rounds_bet_max ?? null;
+
+    if (partner.all_rounds_bet_max_by_slots && Array.isArray(partner.all_rounds_bet_max_by_slots)) {
+      partner.all_rounds_bet_max_by_slots.forEach(slot => {
+        if (slot.bet_type === 'oedv') {
+          slotOedv.value = slot.slot_bet_max ?? null;
+          slotOedvPublic.value = slot.public ?? false;
+        } else if (slot.bet_type === 'unov') {
+          slotUnov.value = slot.slot_bet_max ?? null;
+          slotUnovPublic.value = slot.public ?? false;
+        } else if (slot.bet_type === 'oeuo') {
+          slotOeuo.value = slot.slot_bet_max ?? null;
+          slotOeuoPublic.value = slot.public ?? false;
+        } else if (slot.bet_type === 'match_1_3') {
+          slotMatch13.value = slot.slot_bet_max ?? null;
+          slotMatch13Public.value = slot.public ?? false;
+        } else if (slot.bet_type === 'match_1_4') {
+          slotMatch14.value = slot.slot_bet_max ?? null;
+          slotMatch14Public.value = slot.public ?? false;
+        } else if (slot.bet_type === 'match_1_6') {
+          slotMatch16.value = slot.slot_bet_max ?? null;
+          slotMatch16Public.value = slot.public ?? false;
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching partner settings:", error);
+  }
 };
 
 const loadData = () => {
@@ -495,6 +532,7 @@ const loadData = () => {
 watch(() => props.partnerData, (newData) => {
   if (newData) {
     loadData();
+    fetchData();
   }
 }, { immediate: true });
 

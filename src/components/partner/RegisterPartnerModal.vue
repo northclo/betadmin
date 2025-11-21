@@ -1,7 +1,7 @@
 <template>
   <a-modal :open="open" :title="trlang.partner_registration" :ok-text="trlang.register" :cancel-text="trlang.cancel"
     @ok="register" @cancel="handleCancel" :confirm-loading="loading">
-    <PartnerMemberInformation ref="memberInfoRef" />
+    <PartnerMemberInformation ref="memberInfoRef" :parent-role="parentRole" />
     <CurrencyRollingSetting ref="currencyRollingRef" />
     <PartnerRateSetting ref="rateSettingRef" />
     <PartnerPermissionSetting ref="permissionSettingRef" />
@@ -48,6 +48,10 @@ const rateSettingRef = ref(null);
 const permissionSettingRef = ref(null);
 const gameSettingRef = ref(null);
 const loading = ref(false);
+
+const parentRole = computed(() => {
+  return props.dataSource?.role || null;
+});
 
 const resetForm = () => {
   memberInfoRef.value?.reset?.();
@@ -132,6 +136,21 @@ const register = async () => {
       return;
     }
 
+    if (memberInfo.serialNumber) {
+      if (memberInfo.startTime === null || memberInfo.startTime === undefined) {
+        stopWithError("start_number_required");
+        return;
+      }
+      if (memberInfo.endTime === null || memberInfo.endTime === undefined) {
+        stopWithError("end_number_required");
+        return;
+      }
+      if (memberInfo.endTime <= memberInfo.startTime) {
+        stopWithError("end_number_must_be_greater");
+        return;
+      }
+    }
+
     const payload = {
       partnerId,
       nickname,
@@ -147,6 +166,10 @@ const register = async () => {
       numberMatch: rateSetting.numberMatch,
       permissions: permissionSetting,
       gameSetting,
+      role: memberInfo.role,
+      checked: memberInfo.serialNumber,
+      startTime: memberInfo.startTime,
+      endTime: memberInfo.endTime,
     };
 
     if (props.dataSource && props.dataSource.id) {
@@ -156,7 +179,23 @@ const register = async () => {
     const result = await postData(apiLink.register_partner, payload);
 
     if (result.status) {
-      message.success(trlang.value.registered_successful);
+      if (memberInfo.serialNumber && result.data) {
+        const created = result.data.created || 0;
+        const total = result.data.total || 0;
+        if (result.data.errors && result.data.errors.length > 0) {
+          const partnersCreatedText = trlang.value.partners_created_with_total?.replace('{0}', created).replace('{1}', total) || `${created}/${total} partners created`;
+          message.warning(
+            `${trlang.value.registered_successful}: ${partnersCreatedText}. ${trlang.value.some_errors_occurred}.`
+          );
+        } else {
+          const partnersCreatedText = trlang.value.partners_created?.replace('{0}', created) || `${created} partner(s) created`;
+          message.success(
+            `${trlang.value.registered_successful}: ${partnersCreatedText}.`
+          );
+        }
+      } else {
+        message.success(trlang.value.registered_successful);
+      }
       resetForm();
       emit('update:open', false);
       if (props.fetchData) {

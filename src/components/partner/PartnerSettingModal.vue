@@ -21,6 +21,7 @@ import { putData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
 import {
   testEnglishNumberDashUnderscore,
+  testStartEnglish,
 } from "@/helpers/Common.js";
 
 /* Translations */
@@ -114,36 +115,55 @@ const update = async () => {
       loading.value = false;
     };
 
+    const partnerId = memberInfo.partnerId?.trim();
+    if (!partnerId) {
+      stopWithError("please_input_partner_id");
+      return;
+    }
+    if (!testStartEnglish(3, 10, partnerId)) {
+      stopWithError("invalid_partner_id_format");
+      return;
+    }
+
     const nickname = memberInfo.nickname?.trim();
-    if (nickname) {
-      if (!testEnglishNumberDashUnderscore(3, 10, nickname)) {
-        stopWithError("invalid_nickname_format");
-        return;
-      }
+    if (!nickname) {
+      stopWithError("please_input_nickname");
+      return;
+    }
+    if (!testEnglishNumberDashUnderscore(3, 10, nickname)) {
+      stopWithError("invalid_nickname_format");
+      return;
     }
 
     const bank = typeof memberInfo.bank === "string" ? memberInfo.bank.trim() : memberInfo.bank;
-    if (bank !== undefined && !bank) {
+    if (!bank) {
       stopWithError("please_select_bank");
       return;
     }
 
     const account = memberInfo.account?.trim();
-    if (account !== undefined && !account) {
+    if (!account) {
       stopWithError("please_input_bank_account");
       return;
     }
 
     const bankOwnerName = memberInfo.name?.trim();
-    if (bankOwnerName !== undefined && !bankOwnerName) {
+    if (!bankOwnerName) {
       stopWithError("please_input_bank_owner_name");
+      return;
+    }
+
+    const password = memberInfo.password?.trim();
+    if (password && password.length < 6) {
+      stopWithError("password_min_length_6");
       return;
     }
 
     const payload = {
       id: props.dataSource.id,
-      nickname: nickname || undefined,
-      password: memberInfo.password?.trim() || undefined,
+      partnerId: partnerId,
+      nickname: nickname,
+      password: password || undefined,
       exchangePassword: memberInfo.exchangePassword?.trim() || undefined,
       name: bankOwnerName || undefined,
       phoneNumber: memberInfo.phoneNumber || undefined,

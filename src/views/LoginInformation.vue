@@ -54,10 +54,29 @@
       </a-form>
     </a-card>
 
+    <div class="flex items-center justify-between mb-4">
+      <span class="fs-4 font-semibold">{{ trlang.login_information }}</span>
+      <a-button 
+        danger 
+        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
+        :loading="bulkDeleteLoading"
+        @click="handleBulkDelete"
+      >
+        <template #icon><CloseOutlined /></template>
+        {{ trlang.delete_selected_items }}
+      </a-button>
+    </div>
+
     <a-layout-content>
-      <a-table :columns="loginInformationColumn" :data-source="dataSource" row-key="key" class="w-100"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined" :pagination="paginationConfig"
-        :loading="loading" @change="handleTableChange">
+      <a-table 
+        :columns="loginInformationColumn" 
+        :data-source="dataSource" 
+        row-key="key" 
+        class="w-100"
+        :pagination="paginationConfig"
+        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
+        :loading="loading" 
+        @change="handleTableChange">
         <template #emptyText>
           <a-spin v-if="loading" />
           <span v-else>{{ trlang.no_data }}</span>
@@ -65,14 +84,13 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
 
           <template v-if="column.key === 'user_id'">
             <span>
-              {{ record.partner_nickname || record.user_nickname }}
+              {{ record.user_nickname }}
             </span>
-            <span> ({{ record.user_id }}) </span>
             <span :class="record.partner_nickname
               ? 'bg-gray text-white p-1 radius-1'
               : ''
@@ -84,18 +102,6 @@
               }}
             </span>
           </template>
-
-          <template v-if="column.key === 'distributor'">
-            <a-typography-text :class="record.partner_nickname
-              ? 'bg-yellow border radius-1 flex flex-column'
-              : ''
-              ">
-              {{
-                record.partner_nickname || '-'
-              }}
-            </a-typography-text>
-          </template>
-
           <template v-if="column.key === 'ip_address'">
             <a-typography-text>{{ record.ip_address }}</a-typography-text>
             <a-typography-text
@@ -115,16 +121,6 @@
           <template v-if="column.key === 'mobile'">
             <a-typography-text>{{ record.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>
-
-          <template v-if="column.key === 'actions'">
-            <a-popconfirm
-              :title="trlang.confirm_delete"
-              @confirm="handleDelete(record.history_id || record.key)"
-              :ok-button-props="{ loading: deleting }"
-            >
-              <a-button type="link" danger>{{ trlang.delete }}</a-button>
-            </a-popconfirm>
-          </template>
         </template>
       </a-table>
     </a-layout-content>
@@ -133,11 +129,11 @@
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
-import { SearchOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { loginInformationColumn as baseLoginInformationColumn } from '@/utils/table-column/login-information';
-import { getData, deleteData } from '@/helpers/Axios';
+import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -159,7 +155,8 @@ const searchFieldOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
-const deleting = ref(false);
+const bulkDeleteLoading = ref(false);
+const selectedRowKeys = ref([]);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
@@ -167,13 +164,11 @@ const loginInformationColumn = computed(() => {
   const titleMap = {
     "No": trlang.value.no_column,
     "id": trlang.value.id,
-    "distributor": trlang.value.distributor_label,
     "IP": trlang.value.ip,
     "location": trlang.value.location,
     "organ": trlang.value.organ,
     "mobile": trlang.value.mobile,
     "login_time": trlang.value.login_time,
-    "actions": trlang.value.actions,
   };
   return baseLoginInformationColumn.map(col => ({
     ...col,
@@ -184,7 +179,6 @@ const loginInformationColumn = computed(() => {
 const initOptions = () => {
   filters.value.searchField = '';
   searchFieldOptions.value = [
-    { value: '', label: trlang.value.search_term },
     { value: 'user_nickname', label: trlang.value.user_nickname_label },
     { value: 'user_id', label: trlang.value.user_id_label },
     { value: 'distributor', label: trlang.value.distributor_label },
@@ -263,26 +257,34 @@ const resetFilters = () => {
   fetchData();
 };
 
-const handleDelete = async (id) => {
-  if (!id) {
-    message.error(trlang.value.invalid_id);
+const onSelectChange = (keys) => {
+  selectedRowKeys.value = keys;
+};
+
+const handleBulkDelete = async () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_items_to_delete);
     return;
   }
 
-  deleting.value = true;
+  bulkDeleteLoading.value = true;
   try {
-    const res = await deleteData(`${apiLink.delete_login_information}/${id}`);
+    const res = await postData(`${apiLink.bulk_delete_login_information}`, {
+      ids: selectedRowKeys.value,
+    });
+
     if (res.status) {
-      message.success(res.message || trlang.value.login_information_deleted_successfully);
-      fetchData();
+      message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
+      selectedRowKeys.value = [];
+      await fetchData();
     } else {
-      message.error(res.message || trlang.value.failed_to_delete_login_information);
+      message.error(res.message || trlang.value.failed_to_delete_selected_items);
     }
   } catch (error) {
-    console.error('Error deleting login information:', error);
-    message.error(trlang.value.failed_to_delete_login_information);
+    console.error('Error bulk deleting login information:', error);
+    message.error(trlang.value.failed_to_delete_selected_items);
   } finally {
-    deleting.value = false;
+    bulkDeleteLoading.value = false;
   }
 };
 
