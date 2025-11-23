@@ -61,12 +61,11 @@ const loadPartnerData = async () => {
     if (res.status && res.data) {
       partnerData.value = res.data;
     } else {
-      message.error(trlang.value.error_loading_data);
       partnerData.value = null;
     }
   } catch (error) {
     console.error("Error loading partner data:", error);
-    message.error(trlang.value.error_loading_data);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerData.value = null;
   } finally {
     loading.value = false;
@@ -158,7 +157,6 @@ const update = async () => {
       stopWithError("password_min_length_6");
       return;
     }
-
     const payload = {
       id: props.dataSource.id,
       partnerId: partnerId,
@@ -192,13 +190,10 @@ const update = async () => {
       if (props.fetchData) {
         props.fetchData();
       }
-    } else {
-      console.error("Error updating partner:", result.message);
-      message.error(result.message || trlang.value.update_failed);
     }
   } catch (error) {
     console.error("Error updating partner:", error);
-    message.error(error.message || trlang.value.update_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loading.value = false;
   }

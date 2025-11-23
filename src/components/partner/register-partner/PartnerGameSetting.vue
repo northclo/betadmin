@@ -52,7 +52,7 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="p-2 flex flex-column">
-        <a-layout class="flex flex-row">
+        <a-layout class="flex flex-row gap-2">
           <a-button
             v-for="item in cancelBetOption"
             :key="item.key"
@@ -320,6 +320,7 @@ import { ref, computed, inject, defineExpose, onMounted, watch } from "vue";
 import { CheckOutlined } from "@ant-design/icons-vue";
 import { getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
+import { message } from "ant-design-vue";
 
 /* Inject language translations */
 const langState = inject("langState");
@@ -481,6 +482,7 @@ const changeActivePartner = async () => {
     }
   } catch (error) {
     console.error("Error fetching partner settings:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   }
 };
 

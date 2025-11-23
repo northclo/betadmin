@@ -25,10 +25,6 @@
         </a-layout-content>
       </a-layout>
     </div>
-
-    <p class="text-dark-brown text-helper mt-1">
-      * {{ trlang.the_applicability_of_this_item_may_vary_depending_on_the_design }}
-    </p>
   </a-collapse-panel>
 </template>
 
@@ -56,7 +52,7 @@ const loadData = (data) => {
   titleBar.value = data.title_bar || '';
   copywriter.value = data.copywriter || '';
   topNotifyMessage.value = data.top_notify_message || '';
-  depositAccount.value = data.deposit_account || '';
+  depositAccount.value = data.deposit_account_information || '';
 };
 
 watch(() => props.dataSource, loadData, { immediate: true });
@@ -78,7 +74,6 @@ const fields = computed(() => [
     label: trlang.value.notification_message_at_the_top_of_the_site,
     model: topNotifyMessage,
     isTextarea: true,
-    helperText: `* ${trlang.value.seperated_by_enter}`,
   },
   {
     key: 'depositAccount',

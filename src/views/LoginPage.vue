@@ -137,7 +137,7 @@ let retryTimer = null;
 /* Helpers */
 const getCaptcha = async () => {
   const response = await getData(apiLink.get_captcha);
-  if (response.status && response.data) {
+  if (response && response.status && response.data) {
     captchaText.value = response.data.text;
     captcha.value = response.data.data;
     captchaShow.value = true;
@@ -233,7 +233,7 @@ const login = async () => {
     password: password.value,
   });
 
-  if (res.status) {
+  if (res && res.status) {
     localStorage.setItem('token', res.data.token);
     
     if (res.data.permissions) {

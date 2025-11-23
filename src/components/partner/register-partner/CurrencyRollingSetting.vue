@@ -46,7 +46,7 @@ const amount = ref("");
 const loadData = () => {
   if (props.partnerData) {
     check.value = props.partnerData.currency_rolling ?? false;
-    amount.value = props.partnerData.deposit_approved_amount ?? "";
+    amount.value = props.partnerData.rollover_percentage ?? "";
   }
 };
 

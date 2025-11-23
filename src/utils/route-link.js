@@ -33,7 +33,7 @@ export const routeLink = {
   },
   betting_settlement: {
     name: "BettingSettlementPage",
-    link: "/bet-settlement"
+    link: "/betting-settlement"
   },
   betting_list: {
     name: "BettingListPage",
@@ -41,11 +41,11 @@ export const routeLink = {
   },
   login_information: {
     name: "LoginInformationPage",
-    link: "/member/login"
+    link: "/member/login-information"
   },
   game_management: {
     name: "GameManagementPage",
-    link: "/game"
+    link: "/game-management"
   },
   current_login_user: {
     name: "CurrentLoginUserPage",
@@ -53,19 +53,19 @@ export const routeLink = {
   },
   charging_management: {
     name: "ChargingManagementPage",
-    link: "/charge-manage"
+    link: "/charge-management"
   },
   exchange_management: {
     name: "ExchangeManagementPage",
-    link: "/exchange-manage"
+    link: "/exchange-management"
   },
   money_usage_log: {
     name: "MoneyUsageLogPage",
-    link: "/money-log"
+    link: "/money-usage-log"
   },
   point_usage_log: {
     name: "PointUsageLogPage",
-    link: "/point-log"
+    link: "/point-usage-log"
   },
   announcement: {
     name: "AnnouncementPage",
@@ -77,10 +77,10 @@ export const routeLink = {
   },
   popup_management: {
     name: "PopupManagementPage",
-    link: "/popup-manage"
+    link: "/popup-management"
   },
   notice_management: {
     name: "NoticeManagementPage",
-    link: "/notice-manage"
+    link: "/notice-management"
   },
 };

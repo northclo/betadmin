@@ -269,6 +269,7 @@ const fetchPartnerList = async () => {
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerList.value = [];
   }
 };
@@ -297,7 +298,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching notices:", error);
-    message.error(error.message || trlang.value.failed_to_fetch_notices);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     tableData.value = [];
     setTotal(0);
   } finally {
@@ -368,6 +369,7 @@ const handleEdit = async (record) => {
         .filter(id => id !== null);
     } catch (error) {
       console.error("Error converting partner IDs:", error);
+      message.error(error.message || trlang.value.operation_failed);
       partnerIdStrings = [];
     }
   }
@@ -403,15 +405,13 @@ const handleSave = async () => {
       message.success(res.message || (editingRecord.value ? trlang.value.notice_updated_successfully : trlang.value.notice_created_successfully));
       modalVisible.value = false;
       fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_save_notice);
     }
   } catch (error) {
     if (error.errorFields) {
       return;
     }
     console.error("Error saving notice:", error);
-    message.error(error.message || trlang.value.failed_to_save_notice);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     saving.value = false;
   }
@@ -434,12 +434,10 @@ const handleDelete = async (noticeId) => {
     if (res.status) {
       message.success(res.message || trlang.value.notice_deleted_successfully);
       fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_notice);
     }
   } catch (error) {
     console.error("Error deleting notice:", error);
-    message.error(error.message || trlang.value.failed_to_delete_notice);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     deleting.value = false;
   }

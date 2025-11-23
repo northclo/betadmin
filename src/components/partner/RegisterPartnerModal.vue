@@ -1,7 +1,7 @@
 <template>
   <a-modal :open="open" :title="trlang.partner_registration" :ok-text="trlang.register" :cancel-text="trlang.cancel"
     @ok="register" @cancel="handleCancel" :confirm-loading="loading">
-    <PartnerMemberInformation ref="memberInfoRef" :parent-role="parentRole" />
+    <PartnerMemberInformation ref="memberInfoRef" :parent-role="parentRole" :current-partner-data="currentPartnerData" />
     <CurrencyRollingSetting ref="currencyRollingRef" />
     <PartnerRateSetting ref="rateSettingRef" />
     <PartnerPermissionSetting ref="permissionSettingRef" />
@@ -51,6 +51,14 @@ const loading = ref(false);
 
 const parentRole = computed(() => {
   return props.dataSource?.role || null;
+});
+
+const currentPartnerData = computed(() => {
+  if (props.dataSource?.nickname) {
+    return props.dataSource.nickname;
+  }
+  
+  return null;
 });
 
 const resetForm = () => {
@@ -184,7 +192,7 @@ const register = async () => {
         const total = result.data.total || 0;
         if (result.data.errors && result.data.errors.length > 0) {
           const partnersCreatedText = trlang.value.partners_created_with_total?.replace('{0}', created).replace('{1}', total) || `${created}/${total} partners created`;
-          message.warning(
+          message.error(
             `${trlang.value.registered_successful}: ${partnersCreatedText}. ${trlang.value.some_errors_occurred}.`
           );
         } else {
@@ -201,13 +209,10 @@ const register = async () => {
       if (props.fetchData) {
         props.fetchData();
       }
-    } else {
-      console.error("Error registering partner:", result.message);
-      message.error(result.message || trlang.value.registration_failed);
     }
   } catch (error) {
     console.error("Error registering partner:", error);
-    message.error(error.message || trlang.value.registration_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loading.value = false;
   }

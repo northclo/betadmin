@@ -235,6 +235,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error('Error fetching login information:', error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     dataSource.value = [];
     setTotal(0);
   } finally {
@@ -263,7 +264,7 @@ const onSelectChange = (keys) => {
 
 const handleBulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_items_to_delete);
+    message.error(trlang.value.please_select_items_to_delete);
     return;
   }
 
@@ -277,12 +278,10 @@ const handleBulkDelete = async () => {
       message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
       selectedRowKeys.value = [];
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_selected_items);
     }
   } catch (error) {
     console.error('Error bulk deleting login information:', error);
-    message.error(trlang.value.failed_to_delete_selected_items);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     bulkDeleteLoading.value = false;
   }

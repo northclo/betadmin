@@ -306,13 +306,12 @@ const fetchData = async () => {
         paginationConfig.value.pageSize = payload.pageSize || payload.limit || 10;
       }
     } else {
-      message.error(res.message || trlang.value.failed_to_fetch_support_tickets);
       tableData.value = [];
       setTotal(0);
     }
   } catch (error) {
     console.error("Error fetching support tickets:", error);
-    message.error(trlang.value.failed_to_fetch_support_tickets);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     tableData.value = [];
     setTotal(0);
   } finally {
@@ -357,12 +356,10 @@ const handleView = async (record) => {
       viewingRecord.value = { ...res.data };
       answerForm.value.answer = res.data.answer || "";
       viewModalVisible.value = true;
-    } else {
-      message.error(res.message || trlang.value.failed_to_fetch_ticket_details);
     }
   } catch (error) {
     console.error("Error fetching ticket details:", error);
-    message.error(trlang.value.failed_to_fetch_ticket_details);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   }
 };
 
@@ -370,7 +367,7 @@ const handleResolve = async () => {
   if (!viewingRecord.value) return;
 
   if (!answerForm.value.answer || !answerForm.value.answer.trim()) {
-    message.warning(trlang.value.please_enter_answer_before_resolving);
+    message.error(trlang.value.please_enter_answer_before_resolving);
     return;
   }
 
@@ -390,12 +387,10 @@ const handleResolve = async () => {
       viewingRecord.value = null;
       answerForm.value.answer = "";
       await fetchData();
-    } else {
-      message.error(updateRes.message || trlang.value.failed_to_update_ticket_status);
     }
   } catch (error) {
     console.error("Error resolving ticket:", error);
-    message.error(trlang.value.failed_to_resolve_ticket);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     resolveLoading.value = false;
   }
@@ -417,12 +412,10 @@ const handleReject = async () => {
       viewingRecord.value = null;
       answerForm.value.answer = "";
       await fetchData();
-    } else {
-      message.error(updateRes.message || trlang.value.failed_to_reject_ticket);
     }
   } catch (error) {
     console.error("Error rejecting ticket:", error);
-    message.error(trlang.value.failed_to_reject_ticket);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     rejectLoading.value = false;
   }
@@ -446,12 +439,10 @@ const handleDelete = async (ticketId) => {
       viewingRecord.value = null;
       answerForm.value.answer = "";
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_ticket);
     }
   } catch (error) {
     console.error("Error deleting ticket:", error);
-    message.error(trlang.value.failed_to_delete_ticket);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     deleteLoading.value = false;
   }
@@ -459,7 +450,7 @@ const handleDelete = async (ticketId) => {
 
 const handleBulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_items_to_delete);
+    message.error(trlang.value.please_select_items_to_delete);
     return;
   }
 
@@ -473,12 +464,10 @@ const handleBulkDelete = async () => {
       message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
       selectedRowKeys.value = [];
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_selected_items);
     }
   } catch (error) {
     console.error("Error bulk deleting tickets:", error);
-    message.error(trlang.value.failed_to_delete_selected_items);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     bulkDeleteLoading.value = false;
   }

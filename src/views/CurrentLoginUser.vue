@@ -211,6 +211,7 @@ import { getData, postData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
+import { message } from "ant-design-vue";
 
 defineOptions({
   name: routeLink.current_login_user.name,
@@ -333,6 +334,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error('Error fetching current login users:', error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     dataSource.value = [];
     setTotal(0);
   } finally {
@@ -376,6 +378,7 @@ const logoutUser = async (user_nickname) => {
     }
   } catch (error) {
     console.error('Error logging out user:', error);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     logoutLoading.value[user_nickname] = false;
   }

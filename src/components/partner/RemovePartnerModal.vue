@@ -143,12 +143,10 @@ const remove = async () => {
       message.success(trlang.value.deleted_successful);
       props.fetchData();
       emit('update:open', false);
-    } else {
-      message.error(result.message || trlang.value.delete_failed);
     }
   } catch (error) {
     console.error(`Error removing ${isUser.value ? 'user' : 'partner'}:`, error);
-    message.error(error.message || trlang.value.delete_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loading.value = false;
   }

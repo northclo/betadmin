@@ -341,9 +341,6 @@ const fetchData = async () => {
     const result = await getData(`${apiLink.betting_settlement_profit}?${query}`);
 
     if (!result.status) {
-      message.error(
-        result.message || trlang.value.failed_to_load_settlement
-      );
       tableData.value = [];
       setTotal(0);
       return;
@@ -354,7 +351,7 @@ const fetchData = async () => {
     const items = Array.isArray(settlementData.items) ? settlementData.items : [];
 
     if (!data || !settlementData) {
-      message.warning(trlang.value.no_settlement_data);
+      message.error(trlang.value.no_settlement_data);
     }
 
     setTotal(settlementData.total || 0);
@@ -422,7 +419,7 @@ const fetchData = async () => {
     tableData.value = dailyData;
   } catch (error) {
     console.error("Error fetching settlement data:", error);
-    message.error(trlang.value.failed_to_load_settlement);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     tableData.value = [];
     setTotal(0);
   } finally {
@@ -457,7 +454,6 @@ const convertPartnerToTree = (partner) => {
 const fetchPartnerList = async () => {
   try {
     const res = await getData(apiLink.get_game_partner);
-    console.log('res', res)
     if (res.status && res.data) {
       if (Array.isArray(res.data)) {
         partnerTreeOptions.value = res.data
@@ -474,6 +470,7 @@ const fetchPartnerList = async () => {
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerTreeOptions.value = [];
   }
 };

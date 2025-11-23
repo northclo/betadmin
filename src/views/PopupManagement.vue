@@ -235,7 +235,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching popups:", error);
-    message.error(trlang.value.failed_to_fetch_popups);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -306,12 +306,8 @@ const handleSave = async () => {
       fetchData();
     }
   } catch (error) {
-    if (error.errorFields) {
-      // Form validation error
-      return;
-    }
     console.error("Error saving popup:", error);
-    message.error(trlang.value.failed_to_save_popup);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     saving.value = false;
   }
@@ -337,7 +333,7 @@ const handleDelete = async (popupId) => {
     }
   } catch (error) {
     console.error("Error deleting popup:", error);
-    message.error(trlang.value.failed_to_delete_popup);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     deleting.value = false;
   }

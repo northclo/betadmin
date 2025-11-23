@@ -201,12 +201,10 @@ const fetchData = async () => {
           valueB: toNumber(optionB[mapping.field]),
         };
       });
-    } else {
-      message.error(trlang.value.load_failed);
     }
   } catch (error) {
     console.error('[PowerballGame] Error fetching data:', error);
-    message.error(trlang.value.load_failed);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
     emit('update:loading', false);
@@ -272,12 +270,10 @@ const saveData = async () => {
     if (res.status) {
       message.success(trlang.value.settings_saved_successfully);
       await fetchData();
-    } else {
-      message.error(trlang.value.save_failed);
     }
   } catch (error) {
     console.error('[PowerballGame] Error saving data:', error);
-    message.error(trlang.value.save_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     saving.value = false;
     emit('update:saving', false);

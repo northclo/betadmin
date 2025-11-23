@@ -23,7 +23,7 @@
       <ChargeSetting v-if="dataSource" ref="chargeRef" :data-source="dataSource" />
       <CurrencyExchangeSetting v-if="dataSource" ref="exchangeRef" :data-source="dataSource" />
       <CustomerCenterSetting v-if="dataSource" ref="customerCenterRef" :data-source="dataSource" />
-      <DepositBankSetting v-if="dataSource" ref="depositBankRef" :data-source="dataSource" />
+      <BankAccountSetting v-if="dataSource" ref="bankAccountRef" :data-source="dataSource" />
     </a-collapse>
   </a-spin>
 </template>
@@ -44,7 +44,7 @@ import MembershipSetting from '@/components/basic/setting/MembershipSetting.vue'
 import ChargeSetting from '@/components/basic/setting/ChargeSetting.vue';
 import CurrencyExchangeSetting from '@/components/basic/setting/CurrencyExchange.vue';
 import CustomerCenterSetting from '@/components/basic/setting/CustomerCenter.vue';
-import DepositBankSetting from '@/components/basic/setting/DepositBankSetting.vue';
+import BankAccountSetting from '@/components/basic/setting/BankAccountSetting.vue';
 
 defineOptions({ name: routeLink.site_setting.name });
 
@@ -65,7 +65,7 @@ const membershipRef = ref(null);
 const chargeRef = ref(null);
 const exchangeRef = ref(null);
 const customerCenterRef = ref(null);
-const depositBankRef = ref(null);
+const bankAccountRef = ref(null);
 
 const fetchData = async () => {
   const isHeadquater = store.getters.isHeadquater;
@@ -80,12 +80,10 @@ const fetchData = async () => {
     const res = await getData(apiLink.site_setting);
     if (res.status && res.data) {
       dataSource.value = res.data;
-    } else {
-      message.error(trlang.value.failed_to_load_settings || 'Failed to load settings');
     }
   } catch (error) {
     console.error('Error fetching site settings:', error);
-    message.error(trlang.value.failed_to_load_settings || 'Failed to load settings');
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -114,10 +112,10 @@ const saveData = async () => {
     const siteTextState = siteTextRef.value?.getState?.();
     const membershipState = membershipRef.value?.getState?.();
     const customerCenterState = customerCenterRef.value?.getState?.();
-    const depositBankState = depositBankRef.value?.getState?.();
+    const bankAccountState = bankAccountRef.value?.getState?.();
 
-    if (!siteActivationState || !siteSecurityState || !siteTextState || !membershipState || !customerCenterState || !depositBankState) {
-      message.error(trlang.value.failed_to_load_settings || 'Failed to load settings');
+    if (!siteActivationState || !siteSecurityState || !siteTextState || !membershipState || !customerCenterState) {
+      message.error(trlang.value.failed_to_fetch_data);
       return;
     }
 
@@ -131,19 +129,17 @@ const saveData = async () => {
       exchange:
         validationResults.exchange?.data ?? exchangeRef.value?.getState?.() ?? {},
       customerCenter: customerCenterState.customerCenter ?? true,
-      depositBanks: depositBankState || { depositBanks: [] },
+      bankAccounts: bankAccountState?.bankAccounts || [],
     };
 
     const res = await postData(apiLink.site_setting, payload);
     if (res.status) {
-      message.success(trlang.value.saved_successful || 'Settings saved successfully');
+      message.success(trlang.value.saved_successful);
       await fetchData();
-    } else {
-      message.error(trlang.value.failed_to_save_settings || 'Failed to save settings');
     }
   } catch (error) {
     console.error('Error saving site settings:', error);
-    message.error(trlang.value.failed_to_save_settings || 'Failed to save settings');
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     saving.value = false;
   }

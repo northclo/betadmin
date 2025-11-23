@@ -55,7 +55,7 @@
 <script setup>
 import { message } from "ant-design-vue";
 import { computed, defineProps, inject, ref, watch } from "vue";
-import { postData, getData } from "@/helpers/Axios.js";
+import { postData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
 
 /* Translations */
@@ -92,25 +92,7 @@ const fetchCurrentBalance = async () => {
     return;
   }
 
-  if (props.dataSource.role === 'user') {
-    currentBalance.value = props.dataSource.money || 0;
-    return;
-  }
-
-  try {
-    loadingBalance.value = true;
-    const res = await getData(`${apiLink.get_partner_by_id}?id=${props.dataSource.id}`);
-    if (res.status && res.data) {
-      currentBalance.value = res.data.deposit_approved_amount || 0;
-    } else {
-      currentBalance.value = props.dataSource.money || 0;
-    }
-  } catch (error) {
-    console.error("Error fetching partner balance:", error);
-    currentBalance.value = props.dataSource.money || 0;
-  } finally {
-    loadingBalance.value = false;
-  }
+  currentBalance.value = props.dataSource.money || 0;
 };
 
 const handleCancel = () => {
@@ -164,8 +146,6 @@ const process = async () => {
       if (props.fetchData) {
         props.fetchData();
       }
-    } else {
-      message.error(result.message || trlang.value.operation_failed);
     }
   } catch (error) {
     console.error("Error processing cash change:", error);

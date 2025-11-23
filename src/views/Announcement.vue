@@ -299,7 +299,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching announcements:", error);
-    message.error(trlang.value.failed_to_fetch_announcements);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -374,7 +374,7 @@ const handleSave = async () => {
     }
   } catch (error) {
     console.error("Error saving announcement:", error);
-    message.error(trlang.value.failed_to_save_announcement);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     saving.value = false;
   }
@@ -400,7 +400,7 @@ const handleDelete = async (announcementId) => {
     }
   } catch (error) {
     console.error("Error deleting announcement:", error);
-    message.error(trlang.value.failed_to_delete_announcement);
+    message.error(error.message || trlang.value.operation_failed);
   }
 };
 

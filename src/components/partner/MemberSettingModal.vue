@@ -80,9 +80,23 @@
               :options="uniqueCodes"
             />
             <a-typography-text class="text-center"> - </a-typography-text>
-            <a-input-number v-model:value="phoneNumber1" class="input-sm" :min="0" />
+            <a-input 
+              v-model:value="phoneNumber1" 
+              class="input-sm" 
+              type="text"
+              @input="handlePhoneNumber1Input"
+              @keypress="handlePhoneNumberKeypress"
+              placeholder=""
+            />
             <a-typography-text class="text-center"> - </a-typography-text>
-            <a-input-number v-model:value="phoneNumber2" class="input-sm" :min="0" />
+            <a-input 
+              v-model:value="phoneNumber2" 
+              class="input-sm" 
+              type="text"
+              @input="handlePhoneNumber2Input"
+              @keypress="handlePhoneNumberKeypress"
+              placeholder=""
+            />
           </a-layout>
         </a-layout-content>
       </a-layout>
@@ -148,17 +162,17 @@
         <a-layout-content class="p-2 flex flex-column gap-2">
           <a-layout class="flex flex-row items-center gap-2">
             <a-typography-text>{{ trlang.dapol }}: </a-typography-text>
-            <a-input-number v-model:value="simpleBetRate" class="input-sm" :min="0" :max="100" :precision="2" />
+            <a-input-number v-model:value="simpleBetRate" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
             <a-typography-text>%</a-typography-text>
           </a-layout>
           <a-layout class="flex flex-row items-center gap-2">
             <a-typography-text>{{ trlang.danpol }}: </a-typography-text>
-            <a-input-number v-model:value="combinedBetRate" class="input-sm" :min="0" :max="100" :precision="2" />
+            <a-input-number v-model:value="combinedBetRate" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
             <a-typography-text>%</a-typography-text>
           </a-layout>
           <a-layout class="flex flex-row items-center gap-2">
             <a-typography-text>{{ trlang.number_match }}: </a-typography-text>
-            <a-input-number v-model:value="matchNumberBetRate" class="input-sm" :min="0" :max="100" :precision="2" />
+            <a-input-number v-model:value="matchNumberBetRate" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
             <a-typography-text>%</a-typography-text>
           </a-layout>
         </a-layout-content>
@@ -174,6 +188,7 @@ import { checkValidEmail, testEnglishNumberWithoutSpecialCharacter } from "@/hel
 import { message } from "ant-design-vue";
 import { postData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
+import { usePermissions } from "@/composables/usePermissions.js";
 
 /* Translations */
 const langState = inject("langState");
@@ -186,6 +201,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:open"]);
+
+const { canChangeSettlementRate } = usePermissions();
+const canEditRates = computed(() => canChangeSettlementRate.value);
 
 const codes = getCountries().map((country) => `+${getCountryCallingCode(country)}`);
 const uniqueCodes = ref([...new Set(codes)].map((code) => ({ value: code })));
@@ -200,8 +218,29 @@ const email = ref("");
 const password = ref("");
 const exchangePassword = ref("");
 const activeCode = ref(getDefaultCountryCode());
-const phoneNumber1 = ref(null);
-const phoneNumber2 = ref(null);
+const phoneNumber1 = ref("");
+const phoneNumber2 = ref("");
+
+const handlePhoneNumber1Input = (e) => {
+  const value = e.target ? e.target.value : (typeof e === 'string' ? e : '');
+  const numericOnly = value.toString().replace(/[^\d]/g, '');
+  phoneNumber1.value = numericOnly;
+};
+
+const handlePhoneNumber2Input = (e) => {
+  const value = e.target ? e.target.value : (typeof e === 'string' ? e : '');
+  const numericOnly = value.toString().replace(/[^\d]/g, '');
+  phoneNumber2.value = numericOnly;
+};
+
+const handlePhoneNumberKeypress = (e) => {
+  if (e.ctrlKey || e.metaKey || ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'].includes(e.key)) {
+    return;
+  }
+  if (!/[0-9]/.test(e.key)) {
+    e.preventDefault();
+  }
+};
 const bankName = ref("");
 const bankNameOptions = ref([]);
 const bankNumber = ref("");
@@ -216,19 +255,20 @@ const userId = ref(null);
 
 const fetchBankList = async () => {
   try {
-    const res = await getData(apiLink.site_setting);
-    if (res.status && res.data && res.data.deposit_banks && Array.isArray(res.data.deposit_banks)) {
-      bankNameOptions.value = res.data.deposit_banks
-        .filter(bank => bank && bank.trim() !== '')
-        .map((bankName) => ({
-          value: bankName,
-          label: bankName,
+    const res = await getData(apiLink.bank_account);
+    if (res.status && res.data && Array.isArray(res.data)) {
+      bankNameOptions.value = res.data
+        .filter(bank => bank && bank._id && bank.bank_name)
+        .map((bank) => ({
+          value: bank._id.toString(),
+          label: bank.bank_name,
         }));
     } else {
       bankNameOptions.value = [];
     }
   } catch (error) {
     console.error("Error fetching bank list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     bankNameOptions.value = [];
   }
 };
@@ -263,34 +303,22 @@ const fetchUserData = async () => {
       combinedBetRate.value = user.combined_bet_rate || null;
       matchNumberBetRate.value = user.match_num_bet_rate || null;
 
-      // Parse phone number
-      if (user.phone_number) {
-        const phone = user.phone_number;
-        // Try to extract country code (assuming format like +81-123-4567)
-        const match = phone.match(/^(\+\d+)[-]?(\d+)[-]?(\d+)$/);
-        if (match) {
-          activeCode.value = match[1];
-          phoneNumber1.value = parseInt(match[2]) || null;
-          phoneNumber2.value = parseInt(match[3]) || null;
-        } else {
-          activeCode.value = getDefaultCountryCode();
-          phoneNumber1.value = null;
-          phoneNumber2.value = null;
-        }
+      if (user.phone_number && typeof user.phone_number === 'object') {
+        activeCode.value = user.phone_number.active_code || getDefaultCountryCode();
+        phoneNumber1.value = user.phone_number.phone_number_1 || "";
+        phoneNumber2.value = user.phone_number.phone_number_2 || "";
       } else {
         activeCode.value = getDefaultCountryCode();
-        phoneNumber1.value = null;
-        phoneNumber2.value = null;
+        phoneNumber1.value = "";
+        phoneNumber2.value = "";
       }
 
       password.value = "";
       exchangePassword.value = "";
-    } else {
-      message.error(trlang.value.user_not_found);
     }
   } catch (error) {
     console.error("Error fetching user data:", error);
-    message.error(trlang.value.error_loading_data);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loadingData.value = false;
   }
@@ -310,8 +338,8 @@ watch(() => props.open, (newVal) => {
     password.value = "";
     exchangePassword.value = "";
     activeCode.value = getDefaultCountryCode();
-    phoneNumber1.value = null;
-    phoneNumber2.value = null;
+    phoneNumber1.value = "";
+    phoneNumber2.value = "";
     bankName.value = "";
     bankNumber.value = "";
     bankOwner.value = "";
@@ -383,7 +411,11 @@ const update = async () => {
       user_nickname: nickname.value.trim(),
       user_email: email.value.trim(),
       user_name: userName.value.trim() || undefined,
-      phone_number: activeCode.value + (phoneNumber1.value || '') + (phoneNumber2.value || ''),
+      phone_number: (activeCode.value || phoneNumber1.value || phoneNumber2.value) ? {
+        active_code: activeCode.value || '',
+        phone_number_1: phoneNumber1.value || '',
+        phone_number_2: phoneNumber2.value || ''
+      } : undefined,
       bank_id: bankName.value.trim(),
       bank_number: bankNumber.value.trim(),
       bank_owner_name: bankOwner.value.trim(),
@@ -415,12 +447,10 @@ const update = async () => {
         props.fetchData();
       }
       emit("update:open", false);
-    } else {
-      message.error(result.message || trlang.value.update_failed);
     }
   } catch (error) {
     console.error("Error updating user:", error);
-    message.error(error.message || trlang.value.update_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loading.value = false;
   }

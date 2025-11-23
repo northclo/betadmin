@@ -13,17 +13,17 @@
       <a-layout-content class="p-2 flex flex-column gap-2">
         <a-layout class="flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.dapol }}: </a-typography-text>
-          <a-input-number v-model:value="dapol" class="input-sm" :min="0" :max="100" :precision="2" />
+          <a-input-number v-model:value="dapol" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
         <a-layout class="flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.danpol }}: </a-typography-text>
-          <a-input-number v-model:value="danpol" class="input-sm" :min="0" :max="100" :precision="2" />
+          <a-input-number v-model:value="danpol" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
         <a-layout class="flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.number_match }}: </a-typography-text>
-          <a-input-number v-model:value="numberMatch" class="input-sm" :min="0" :max="100" :precision="2" />
+          <a-input-number v-model:value="numberMatch" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
       </a-layout-content>
@@ -33,6 +33,7 @@
 
 <script setup>
 import { ref, computed, inject, defineExpose, watch } from "vue";
+import { usePermissions } from "@/composables/usePermissions.js";
 
 /* Inject language translations */
 const langState = inject("langState");
@@ -43,6 +44,12 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+});
+
+const { canChangeSettlementRate } = usePermissions();
+
+const canEditRates = computed(() => {
+  return canChangeSettlementRate.value;
 });
 
 /* Reactive toggle state */

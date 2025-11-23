@@ -141,12 +141,10 @@ export default {
               revenue: 0,
             },
           };
-        } else {
-          message.warning(trlang.value.failed_to_load_data);
         }
       } catch (error) {
         console.error("Error fetching sidebar summary:", error);
-        message.error(trlang.value.error_loading_data);
+        message.error(error.message || trlang.value.failed_to_fetch_data);
       } finally {
         loading.value = false;
       }

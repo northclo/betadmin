@@ -286,15 +286,12 @@ const fetchData = async () => {
     } else {
       dataSource.value = [];
       setTotal(0);
-      if (res.message) {
-        message.error(res.message);
-      }
     }
   } catch (error) {
     console.error('Error fetching game management data:', error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     dataSource.value = [];
     setTotal(0);
-    message.error(trlang.value.error_occurred || 'An error occurred while fetching data');
   } finally {
     loading.value = false;
   }

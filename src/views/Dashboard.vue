@@ -89,6 +89,7 @@ import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick, watchEffec
 import * as echarts from "echarts";
 import { getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link.js";
+import { message } from "ant-design-vue";
 
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
@@ -151,6 +152,7 @@ const fetchDashboardSummary = async () => {
     }
   } catch (error) {
     console.error("Error fetching dashboard summary:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -174,6 +176,7 @@ const fetchLoggedInUsersData = async () => {
     }
   } catch (error) {
     console.error("Error fetching logged in users data:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     chartInitStatus.value.loggedIn = true;
   } finally {
     if (chartInitStatus.value.loggedIn && chartInitStatus.value.chargeExchange) {
@@ -200,6 +203,7 @@ const fetchChargeExchangeData = async () => {
     }
   } catch (error) {
     console.error("Error fetching charge exchange data:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     chartInitStatus.value.chargeExchange = true;
   } finally {
     if (chartInitStatus.value.loggedIn && chartInitStatus.value.chargeExchange) {
@@ -410,6 +414,7 @@ onMounted(async () => {
     ]);
   } catch (error) {
     console.error("Error fetching chart data:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     chartLoading.value = false;
   }
 });

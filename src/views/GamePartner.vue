@@ -6,7 +6,7 @@
       </a-typography-title>
     </a-layout>
     <a-layout class="px-2">
-      <PartnerChart :data-source="dataSource" :loading="loading" />
+      <PartnerChart />
 
       <a-layout class="mt-5">
         <a-layout class="pt-5 pb-5 flex flex-row justify-between items-center">
@@ -139,7 +139,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error('Error fetching partner data:', error);
-    message.error(trlang.value.error_loading_data);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     dataSource.value = [];
   } finally {
     loading.value = false;

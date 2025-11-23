@@ -1,8 +1,11 @@
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
+import { message } from "ant-design-vue";
 
 export function usePermissions() {
   const store = useStore();
+  const langState = inject('langState');
+  const trlang = computed(() => langState?.translations || {});
 
   const permissions = computed(() => store.getters.getPermissions);
 
@@ -43,6 +46,7 @@ export function usePermissions() {
       return false;
     } catch (error) {
       console.error('Error refreshing permissions:', error);
+      message.error(error.message || trlang.value.operation_failed);
       return false;
     }
   };

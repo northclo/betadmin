@@ -30,6 +30,7 @@ export const apiLink = {
   betting_settlement_profit: "admin/settlement/betting-profit",
   bulk_delete_settlement: "admin/settlement/betting-profit/bulk-delete",
   get_betting_list: "admin/betting/list",
+  bulk_delete_betting_list: "admin/betting/bulk-delete",
   get_charging_list: "admin/charging/list",
   get_charging_summary: "admin/charging/summary",
   update_charging_status: "admin/charging/action",
@@ -76,4 +77,5 @@ export const apiLink = {
   get_monthly_loggedin_users: "admin/dashboard/loggedin-users",
   get_monthly_charge_exchange: "admin/dashboard/charge-exchange",
   get_sidebar_summary: "admin/dashboard/sidebar-summary",
+  bank_account: "admin/bank-account",
 };

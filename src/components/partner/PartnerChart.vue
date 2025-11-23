@@ -4,23 +4,21 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onBeforeUnmount } from "vue";
+import { ref, watch, nextTick, onBeforeUnmount, onMounted, inject, computed } from "vue";
 import { Graph, register, Rect, Label, ExtensionCategory } from "@antv/g6";
+import { getData } from "@/helpers/Axios.js";
+import { apiLink } from "@/utils/api-link";
+import { message } from "ant-design-vue";
 
 const graphContainer = ref(null);
 
 const DEFAULT_LEVEL = "detailed";
 
-const props = defineProps({
-  dataSource: {
-    type: Array,
-    required: true,
-  },
-  loading: {
-    type: Boolean,
-    required: true,
-  },
-});
+const dataSource = ref([]);
+const loading = ref(true);
+
+const langState = inject('langState');
+const trlang = computed(() => langState?.translations || {});
 
 let graph = null;
 
@@ -73,43 +71,88 @@ class ChartNode extends Rect {
   }
 }
 
+const fetchData = async () => {
+  try {
+    loading.value = true;
+    const partners = await getData(apiLink.game_partner);
+    dataSource.value = partners.data || [];
+  } catch (error) {
+    console.error('Error fetching partner data for chart:', error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
+    dataSource.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
 function createGraph() {
-  if (!props.dataSource || props.dataSource.length === 0) return;
+  if (!dataSource.value || dataSource.value.length === 0) return;
 
   const nodes = [];
   const edges = [];
 
-  let headquaterIndex = 0;
-  let branchOfficeIndex = 0;
-  let regionalOfficeIndex = 0;
-  let agencyIndex = 0;
-  let distributorIndex = 0;
+  const roleHierarchy = {
+    headquater: 0,
+    branch_office: 1,
+    regional_office: 2,
+    agency: 3,
+    distributor: 4,
+    store: 5,
+    user: 6,
+  };
 
-  props.dataSource.forEach((item, index) => {
-    if (item.role !== "user") nodes.push({ id: String(index), data: item });
-
-    let target = 0;
-    if (item.role === "headquater") {
-      headquaterIndex = index;
-      target = 0;
-    } else if (item.role === "branch_office") {
-      branchOfficeIndex = index;
-      target = headquaterIndex;
-    } else if (item.role === "regional_office") {
-      regionalOfficeIndex = index;
-      target = branchOfficeIndex;
-    } else if (item.role === "agency") {
-      agencyIndex = index;
-      target = regionalOfficeIndex;
-    } else if (item.role === "distributor") {
-      distributorIndex = index;
-      target = agencyIndex;
-    } else if (item.role === "store") {
-      target = distributorIndex;
+  let topPartnerIndex = -1;
+  let topPartnerLevel = Infinity;
+  
+  dataSource.value.forEach((item, index) => {
+    if (item.role !== "user") {
+      const level = roleHierarchy[item.role] ?? Infinity;
+      if (level < topPartnerLevel) {
+        topPartnerLevel = level;
+        topPartnerIndex = index;
+      }
     }
+  });
 
-    if (item.role !== "headquater" && item.role !== "user")
-      edges.push({ target: String(index), source: String(target) });
+  const latestIndexByRole = {};
+  
+  dataSource.value.forEach((item, index) => {
+    if (item.role !== "user") {
+      nodes.push({ id: String(index), data: item });
+      latestIndexByRole[item.role] = index;
+    }
+  });
+  
+  dataSource.value.forEach((item, index) => {
+    if (item.role !== "user") {
+      if (index === topPartnerIndex) {
+        return;
+      }
+      
+      const currentLevel = roleHierarchy[item.role] ?? Infinity;
+      let targetIndex = null;
+      
+      for (let parentLevel = currentLevel - 1; parentLevel >= 0; parentLevel--) {
+        for (const [role, level] of Object.entries(roleHierarchy)) {
+          if (level === parentLevel && latestIndexByRole[role] !== undefined) {
+            targetIndex = latestIndexByRole[role];
+            break;
+          }
+        }
+        if (targetIndex !== null) break;
+      }
+      
+      if (targetIndex === null && topPartnerIndex >= 0) {
+        targetIndex = topPartnerIndex;
+      }
+      
+      if (targetIndex !== null && targetIndex !== index) {
+        edges.push({ 
+          source: String(targetIndex), 
+          target: String(index) 
+        });
+      }
+    }
   });
 
   if (!graph) {
@@ -140,13 +183,11 @@ function createGraph() {
       behaviors: [],
     });
     graph.render();
-  } else {
-    graph.changeData({ nodes, edges });
   }
 }
 
 watch(
-  () => props.loading,
+  () => loading.value,
   async (newVal) => {
     if (newVal === false) {
       await nextTick();
@@ -159,6 +200,25 @@ watch(
   { immediate: true }
 );
 
+watch(
+  () => dataSource.value,
+  async () => {
+    if (!loading.value) {
+      await nextTick();
+      if (graph) {
+        graph.destroy();
+        graph = null;
+      }
+      createGraph();
+    }
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  fetchData();
+});
+
 onBeforeUnmount(() => {
   if (graph) {
     graph.destroy();
@@ -166,3 +226,9 @@ onBeforeUnmount(() => {
   }
 });
 </script>
+
+<style scoped>
+.partner-chart {
+  padding: 28px;
+}
+</style>

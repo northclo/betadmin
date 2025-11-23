@@ -4,7 +4,20 @@
       {{ trlang.partner_member_information }}
     </a-typography-text>
 
-    <a-layout class="mt-2 border-b border-t">
+    <a-layout class="mt-2 border-b border-t" v-if="currentPartnerDisplay && !isEdit">
+      <a-layout-sider class="border p-2 setting-sider">
+        <a-typography-text class="text-white text-center">
+          {{ trlang.current_partner }}
+        </a-typography-text>
+      </a-layout-sider>
+      <a-layout-content class="flex gap-2 p-2 flex-wrap">
+        <a-typography-text class="flex items-center">
+          {{ currentPartnerDisplay }}
+        </a-typography-text>
+      </a-layout-content>
+    </a-layout>
+
+    <a-layout :class="(currentPartnerDisplay && !isEdit) ? 'border-b' : 'border-b border-t mt-2'">
       <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
           {{ trlang.partner_distiction }}
@@ -40,12 +53,12 @@
           <a-typography-text class="flex items-center">
             {{ trlang.start }}:
           </a-typography-text>
-          <a-input-number v-model:value="startTime" class="input-sm" :min="0" v-if="!isEdit" />
+          <a-input-number v-model:value="startTime" :disabled="!serialNumber" class="input-sm" :min="0" v-if="!isEdit" />
           <a-typography-text class="flex items-center">~</a-typography-text>
           <a-typography-text class="flex items-center">
             {{ trlang.end }}:
           </a-typography-text>
-          <a-input-number v-model:value="endTime" class="input-sm" :min="0" v-if="!isEdit" />
+          <a-input-number v-model:value="endTime" :disabled="!serialNumber" class="input-sm" :min="0" v-if="!isEdit" />
           <a-typography-text class="flex items-center text-dark-brown">
             {{
               trlang.multiple_ids_and_nicknames_can_be_registered_with_numbers_added_to_the_end
@@ -102,9 +115,23 @@
             :options="uniqueCodes"
           />
           <a-typography-text class="text-center"> - </a-typography-text>
-          <a-input-number v-model:value="phoneNumber1" class="input-sm" :min="0" />
+          <a-input 
+            v-model:value="phoneNumber1" 
+            class="input-sm" 
+            type="text"
+            @input="handlePhoneNumber1Input"
+            @keypress="handlePhoneNumberKeypress"
+            placeholder=""
+          />
           <a-typography-text class="text-center"> - </a-typography-text>
-          <a-input-number v-model:value="phoneNumber2" class="input-sm" :min="0" />
+          <a-input 
+            v-model:value="phoneNumber2" 
+            class="input-sm" 
+            type="text"
+            @input="handlePhoneNumber2Input"
+            @keypress="handlePhoneNumberKeypress"
+            placeholder=""
+          />
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -112,7 +139,7 @@
     <a-layout class="border-b">
       <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
-          {{ trlang.deposit_bank }}
+          {{ trlang.bank_account }}
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="p-2">
@@ -125,7 +152,7 @@
     <a-layout class="border-b">
       <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
-          {{ trlang.deposit_account }}
+          {{ trlang.bank_number }}
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="p-2">
@@ -138,7 +165,7 @@
     <a-layout class="border-b">
       <a-layout-sider class="border p-2 setting-sider">
         <a-typography-text class="text-white text-center">
-          {{ trlang.depositors_name }}
+          {{ trlang.bank_owner }}
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="p-2">
@@ -192,6 +219,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  currentPartnerData: {
+    type: String,
+    default: null,
+  },
 });
 
 /* State */
@@ -202,8 +233,8 @@ const endTime = ref(null);
 const nickname = ref("");
 const password = ref("");
 const activeCode = ref("+81");
-const phoneNumber1 = ref(null);
-const phoneNumber2 = ref(null);
+const phoneNumber1 = ref("");
+const phoneNumber2 = ref("");
 const bank = ref("");
 const account = ref("");
 const name = ref("");
@@ -222,6 +253,16 @@ const nextRole = computed(() => {
   return 'branch_office';
 });
 
+const currentPartnerDisplay = computed(() => {
+  if (props.isEdit && props.partnerData?.nickname) {
+    return props.partnerData.nickname;
+  }
+  if (props.currentPartnerData) {
+    return props.currentPartnerData;
+  }
+  return null;
+});
+
 const nextRoleLabel = computed(() => {
   const roleKey = getPartnerRoleTranslationKey(nextRole.value);
   return trlang.value[roleKey] || trlang.value.branch_office;
@@ -229,20 +270,21 @@ const nextRoleLabel = computed(() => {
 
 const initOptions = async () => {
   try {
-    const res = await getData(apiLink.site_setting);
-    if (res.status && res.data && res.data.deposit_banks && Array.isArray(res.data.deposit_banks)) {
-      bankOption.value = res.data.deposit_banks
-        .filter(bank => bank && bank.trim() !== '')
-        .map((bankName, idx) => ({
-          key: idx,
-          value: bankName,
-          label: bankName,
+    const res = await getData(apiLink.bank_account);
+    if (res.status && res.data && Array.isArray(res.data)) {
+      bankOption.value = res.data
+        .filter(bank => bank && bank._id && bank.bank_name)
+        .map((bank) => ({
+          key: bank._id.toString(),
+          value: bank._id.toString(),
+          label: bank.bank_name,
         }));
     } else {
       bankOption.value = [];
     }
   } catch (error) {
     console.error("Error fetching bank list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     bankOption.value = [];
   }
 };
@@ -275,12 +317,10 @@ const checkAvailability = async (type) => {
     const result = await postData(apiLink.check_partner_availability, payload);
     if (result.status && result.data?.available) {
       message.success(trlang.value[isPartnerId ? "partner_id_available" : "nickname_available"]);
-    } else {
-      message.error(result.message || trlang.value[isPartnerId ? "partner_id_unavailable" : "nickname_unavailable"]);
     }
   } catch (error) {
     console.error("Error checking availability:", error);
-    message.error(error?.message || trlang.value.registration_failed);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loadingRef.value = false;
   }
@@ -289,6 +329,27 @@ const checkAvailability = async (type) => {
 const testPartnerId = () => checkAvailability("partnerId");
 
 const testNickname = () => checkAvailability("nickname");
+
+const handlePhoneNumber1Input = (e) => {
+  const value = e.target ? e.target.value : (typeof e === 'string' ? e : '');
+  const numericOnly = value.toString().replace(/[^\d]/g, '');
+  phoneNumber1.value = numericOnly;
+};
+
+const handlePhoneNumber2Input = (e) => {
+  const value = e.target ? e.target.value : (typeof e === 'string' ? e : '');
+  const numericOnly = value.toString().replace(/[^\d]/g, '');
+  phoneNumber2.value = numericOnly;
+};
+
+const handlePhoneNumberKeypress = (e) => {
+  if (e.ctrlKey || e.metaKey || ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'].includes(e.key)) {
+    return;
+  }
+  if (!/[0-9]/.test(e.key)) {
+    e.preventDefault();
+  }
+};
 
 onMounted(initOptions);
 
@@ -300,17 +361,14 @@ const loadData = () => {
     account.value = props.partnerData.bank_number || "";
     name.value = props.partnerData.bank_owner_name || "";
     
-    if (props.partnerData.phone_number) {
-      const phone = props.partnerData.phone_number;
-      const codeMatch = phone.match(/^(\+\d+)/);
-      if (codeMatch) {
-        activeCode.value = codeMatch[1];
-        const rest = phone.substring(codeMatch[1].length);
-        if (rest.length > 0) {
-          phoneNumber1.value = parseInt(rest.substring(0, rest.length / 2)) || null;
-          phoneNumber2.value = parseInt(rest.substring(rest.length / 2)) || null;
-        }
-      }
+    if (props.partnerData.phone_number && typeof props.partnerData.phone_number === 'object') {
+      activeCode.value = props.partnerData.phone_number.active_code || "+81";
+      phoneNumber1.value = props.partnerData.phone_number.phone_number_1 || "";
+      phoneNumber2.value = props.partnerData.phone_number.phone_number_2 || "";
+    } else {
+      activeCode.value = "+81";
+      phoneNumber1.value = "";
+      phoneNumber2.value = "";
     }
     
     password.value = "";
@@ -332,8 +390,8 @@ const reset = () => {
   nickname.value = "";
   password.value = "";
   activeCode.value = "+81";
-  phoneNumber1.value = null;
-  phoneNumber2.value = null;
+  phoneNumber1.value = "";
+  phoneNumber2.value = "";
   bank.value = "";
   account.value = "";
   name.value = "";
@@ -348,7 +406,11 @@ defineExpose({
     endTime: endTime.value,
     nickname: nickname.value,
     password: password.value,
-    phoneNumber: activeCode.value + (phoneNumber1.value || '') + (phoneNumber2.value || ''),
+    phoneNumber: (activeCode.value || phoneNumber1.value || phoneNumber2.value) ? {
+      active_code: activeCode.value || '',
+      phone_number_1: phoneNumber1.value || '',
+      phone_number_2: phoneNumber2.value || ''
+    } : undefined,
     bank: bank.value,
     account: account.value,
     name: name.value,

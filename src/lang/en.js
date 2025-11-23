@@ -1,5 +1,4 @@
 export default {
-  // Common Setting
   usd: "USD",
   save: "Save",
   cancel: "Cancel",
@@ -25,7 +24,6 @@ export default {
   saved_successful: "Saved successful",
   registered_successful: "Registered successful",
   updated_successful: "Updated successfully",
-  update_failed: "Update failed",
   cash_increased_successful: "Cash increased successful",
   cash_decreased_successful: "Cash decreased successful",
   sent_successful: "Sent successful",
@@ -50,8 +48,6 @@ export default {
   blocked_ip_list: "Blocked IP List",
   ip_blocked_successfully: "IP blocked successfully",
   ip_removed_successfully: "IP removed successfully",
-  error_blocking_ip: "Error blocking IP",
-  error_removing_ip: "Error removing IP",
   invalid_ip_address: "Invalid IP address format",
   invalid_data: "Invalid data",
   correct: "Correct",
@@ -60,8 +56,6 @@ export default {
   remove: "Remove",
   points: "Points",
   available: "Available",
-
-  // Left Layout
   user_points: "User Points",
   current_site_users: "Current site users",
   deposit: "Deposit",
@@ -75,8 +69,6 @@ export default {
   betting_p: "Betting P",
   revenue: "Revenue",
   total: "Total",
-
-  // Menu items
   dashboard: "Dashboard",
   basic_management: "Basic Management",
   site_setting: "Site Setting",
@@ -125,7 +117,6 @@ export default {
   user_id: "User ID",
   submit: "Submit",
   comment_updated_successfully: "Comment updated successfully",
-  failed_to_update_comment: "Failed to update comment",
   member: "Member",
   amount: "Amount",
   status: "Status",
@@ -136,11 +127,7 @@ export default {
   transaction_approved_successfully: "Transaction approved successfully",
   transaction_rejected_successfully: "Transaction rejected successfully",
   transaction_id_not_found: "Transaction ID not found",
-  failed_to_fetch_charging_list: "Failed to fetch charging list",
-  failed_to_fetch_betting_list: "Failed to fetch betting list",
-  failed_to_update_transaction: "Failed to update transaction",
-  failed_to_fetch_exchange_data: "Failed to fetch exchange data",
-  failed_to_update_exchange_transaction: "Failed to update exchange transaction",
+  failed_to_fetch_data: "Failed to fetch data",
   exchange_transaction_approved_successfully: "Exchange transaction approved successfully",
   exchange_transaction_rejected_successfully: "Exchange transaction rejected successfully",
   currency: "Currency",
@@ -151,9 +138,7 @@ export default {
   transaction_id: "Transaction ID",
   description: "Description",
   processed_at: "Processed At",
-  failed_to_fetch_money_usage_log: "Failed to fetch money usage log",
   points_unit: "P",
-  failed_to_fetch_point_usage_log: "Failed to fetch point usage log",
   post_range: "Post Range",
   category: "Category",
   system_notice: "System Notice",
@@ -171,7 +156,6 @@ export default {
   reset: "Reset",
   bet_amount: "Bet Amount",
   profit: "Profit",
-  failed_to_load_settlement: "Failed to load settlement data",
   no_settlement_data: "No settlement data available for the selected criteria",
   win_betting_amount: "Win Betting Amount",
   losing_amount: "Losing Amount",
@@ -183,8 +167,6 @@ export default {
   exchange_total_amount: "Total Amount",
   withdraw: "Withdraw",
   partner_decrease: "Partner Decrease",
-
-  // Auth names
   login: "Login",
   welcome_back: "Welcome Back",
   enter_detail: "Please enter details",
@@ -200,8 +182,6 @@ export default {
   captcha_is_wrong: 'Captcha is wrong',
   your_login_attempt_has_failed_3_times_or_more: "Your login attempt has failed 3 times or more",
   please_try_again_later: "Please try again later",
-
-  // Member List Page
   duration: "Duration",
   import_exchange_betting: "Import Exchange Betting",
   created_date: "Created Date",
@@ -254,8 +234,6 @@ export default {
   choose_betting_type: "Choose Betting type",
   real_getting_amount: "Real Getting Amount",
   branch: "Branch",
-
-  // Site Setting Page
   site_activation_setting: "Site Activation Setting",
   set_site_text: "Set Site Text",
   site_security_setting: "Site Security Setting",
@@ -274,13 +252,10 @@ export default {
   title_bar_display_text: "Title bar display text",
   bottom_copywriter_text: "Bottom copywriter text",
   notification_message_at_the_top_of_the_site: "Notification message at the top of the site",
-  seperated_by_enter: "Seperated by Enter",
   deposit_account_information: "Deposit account information",
   deposit_bank_setting: "Deposit Bank Setting",
   deposit_bank_list: "Deposit Bank List",
   add_bank: "Add Bank",
-  deposit_bank_list_helper: "Add bank names that will be available for selection during user registration. Only headquarters can manage this list.",
-  the_applicability_of_this_item_may_vary_depending_on_the_design: "The applicability of this item may vary depending on the design",
   use_membership_registration: "Use membership registration",
   use: "Use",
   no_use: "No use",
@@ -289,10 +264,6 @@ export default {
   do_not_use_referrer: "do not use referrer",
   not_in_use: "not in use",
   whether_membership_registration_is_approved: "Whether membership registration is approved",
-  if_you_set_approval_for_membership_registration_the_pending_message_will_appear_at_the_top_of_the_screen_when_registering:
-    'If you set *Approval for Membership Registration, the "Pending" message will appear at the top of the screen when registering.',
-  if_you_change_your_mind_please_edit_the_notification_message_for_membership_registration_text_below:
-    'If you change your mind, please edit the "Notification Message for Membership Registration" text below.',
   notification_message_when_signing_up_for_membership: "Notification message when signing up for membership",
   exchange_amount: "Exchange amount",
   minimum: "Minimum",
@@ -340,8 +311,6 @@ export default {
   charge_maximum_must_be_number: "Maximum charge amount must be a number.",
   exchange_minimum_must_be_number: "Minimum exchange amount must be a number.",
   exchange_maximum_must_be_number: "Maximum exchange amount must be a number.",
-
-  // Admin Account
   change_administrator_information: "Change Administrator Information",
   change_administrator_password: "Change administrator password",
   you_are_the_administrator: "You are the administrator.",
@@ -365,8 +334,6 @@ export default {
   view_manager_password_required: "View manager password is required.",
   please_confirm_view_manager_password: "Please confirm the view manager password.",
   please_fill_at_least_one_field: "Please fill in at least one field to update.",
-
-  // Game Setting
   game_settings_powerball_game: "Game Settings (Powerball Game)",
   notification_message_when_inactive: "Notification message when inactive",
   prevent_duplicate_betting: "Prevent duplicate betting",
@@ -389,9 +356,6 @@ export default {
   match_number_1_3: " (1 - 3)",
   match_number_1_4: " (1 - 4)",
   match_number_1_6: " (1 - 6)",
-  load_failed: "Failed to load game settings",
-  save_failed: "Failed to save settings",
-  failed_to_load_settings: "Failed to load settings. Please refresh the page.",
   settings_saved_successfully: "Settings saved successfully",
   inactive_message_required: "Inactive message is required when game is disabled",
   must_be_non_negative_number: "must be a non-negative number",
@@ -399,8 +363,6 @@ export default {
   option_label: "Option",
   option_a: "(A)",
   option_b: "(B)",
-
-  // Game Partner
   headquater: "Headquater",
   id_or_nickname: "ID or nickname",
   add_a_branch_office: "Add a branch office",
@@ -438,9 +400,6 @@ export default {
   partner_nickname: "Partner nickname",
   number_3_to_10_characters_including_English_numbers: '3 to 10 characters including English, numbers, -, _',
   partner_password: "Partner password",
-  deposit_bank: "Deposit bank",
-  deposit_account: "Deposit account",
-  depositors_name: "Depositor's name",
   the_last_deposit_approved_amount: "The last deposit approved amount",
   withdrawal_request_is_not_possible_when_betting_less_than_percent: "Withdrawal request is not possible when betting less than %",
   check_if_the_ongoing_betting_amount_is_included: "Check if the ongoing betting amount is included",
@@ -488,11 +447,12 @@ export default {
   bank_name: "Bank name",
   bank_number: "Bank number",
   bank_owner: "Bank owner",
+  please_input_bank_name: "Please input bank name",
+  bank_name_already_exists: "Bank name already exists",
+  at_least_one_bank_required: "At least one bank is required",
   email_format_required: "Valid email format required",
   please_input_email: "Please input email",
   invalid_email_format: "Invalid email format",
-  email_already_exists: "Email already exists",
-  error_checking_email: "Error checking email",
   exchange_password: "Exchange password",
   management_memo: "Management memo",
   bet_type: "Bet type",
@@ -531,9 +491,7 @@ export default {
   please_input_bank_account: "Please input bank account",
   please_input_bank_owner_name: "Please input bank owner name",
   partner_id_available: "Partner ID is available",
-  partner_id_unavailable: "Partner ID already exists",
   nickname_available: "Nickname is available",
-  nickname_unavailable: "Nickname already exists",
   please_input_title: "Please input title",
   please_input_message: "Please input message",
   num_2_10_characters_in_combination_of_english_and_numbers: "(2 - 10 characters in combination of English, and numbers)",
@@ -548,8 +506,6 @@ export default {
   it_is_not_possible_to_delete: "It is not possible to delete",
   start_date: "Start date",
   end_date: "End date",
-
-  // Game Management
   game_process: "Game Process",
   keyword: "Keyword",
   total_round_id: "Total Round ID",
@@ -574,17 +530,12 @@ export default {
   odd_under_over: "Odd+Under/Over",
   even_under_over: "Even+Under/Over",
   game_status: "Game Status",
-
-  // Current Login User Page
   current_loggedin_users: "Current Loggedin Users",
   user_status: "User Status",
   block_ip: "Block IP",
   edit_user: "Edit User",
   invalid_user_id: "Invalid user ID",
   user_updated_successfully: "User updated successfully",
-  error_updating_user: "Error updating user",
-
-  // Announcement Page
   view: "View",
   edit_announcement: "Edit Announcement",
   title_required: "Title is required",
@@ -596,14 +547,9 @@ export default {
   published: "Published",
   archived: "Archived",
   hidden: "Hidden",
-  failed_to_fetch_announcements: "Failed to fetch announcements",
   announcement_updated_successfully: "Announcement updated successfully",
   announcement_created_successfully: "Announcement created successfully",
   announcement_deleted_successfully: "Announcement deleted successfully",
-  failed_to_save_announcement: "Failed to save announcement",
-  failed_to_delete_announcement: "Failed to delete announcement",
-
-  // Popup Management
   inactive: "Inactive",
   popup_list: "Popup List",
   create_popup: "Create Popup",
@@ -625,15 +571,10 @@ export default {
   no: "No",
   content: "Content",
   order: "Order",
-  failed_to_fetch_popups: "Failed to fetch popups",
   popup_updated_successfully: "Popup updated successfully",
   popup_created_successfully: "Popup created successfully",
   popup_deleted_successfully: "Popup deleted successfully",
-  failed_to_save_popup: "Failed to save popup",
-  failed_to_delete_popup: "Failed to delete popup",
   unknown: "Unknown",
-
-  // Notice Management
   notice_list: "Notice List",
   add_notice_message: "Add Notice Message",
   edit_notice_message: "Edit Notice Message",
@@ -644,34 +585,21 @@ export default {
   content_required: "Content is required",
   choose_partner: "Choose Partner",
   if_not_choose_partner_then_all_partners: "If not choose partner, then It will be All partners",
-  failed_to_fetch_notices: "Failed to fetch notices",
   notice_updated_successfully: "Notice updated successfully",
   notice_created_successfully: "Notice created successfully",
   notice_deleted_successfully: "Notice deleted successfully",
-  failed_to_save_notice: "Failed to save notice",
-  failed_to_delete_notice: "Failed to delete notice",
-
   loading: "Loading...",
-  failed_to_load_data: "Failed to load data",
-  error_loading_data: "Error loading data. Please try again.",
   permission_denied: "Permission denied",
   ip: "IP",
   registration_date: "Registration Date",
   view_ticket: "View Ticket",
   enter_answer: "Enter your answer...",
-  failed_to_fetch_support_tickets: "Failed to fetch support tickets",
-  failed_to_fetch_ticket_details: "Failed to fetch ticket details",
   please_enter_answer_before_resolving: "Please enter an answer before resolving the ticket",
   ticket_resolved: "Ticket resolved successfully",
-  failed_to_update_ticket_status: "Failed to update ticket status",
-  failed_to_resolve_ticket: "Failed to resolve ticket",
   ticket_rejected: "Ticket rejected successfully",
-  failed_to_reject_ticket: "Failed to reject ticket",
   ticket_deleted_successfully: "Ticket deleted successfully",
-  failed_to_delete_ticket: "Failed to delete ticket",
   please_select_items_to_delete: "Please select items to delete",
   successfully_deleted_items: "Successfully deleted {count} item(s)",
-  failed_to_delete_selected_items: "Failed to delete selected items",
   select_partner: "Select Partner",
   user_name: "User Name",
   question: "Question",
@@ -699,7 +627,6 @@ export default {
   total_win_number: "Total Win Number",
   total_earning_money: "Total Earning Money",
   betting_provide_point: "Betting Provide Point",
-  registration_failed: "Registration failed",
   no_column: "No",
   login_column: "Login",
   nickname_id: "Nickname(Id)",
@@ -725,13 +652,10 @@ export default {
   five_minutes: "5 minutes",
   mult: "mult",
   login_time: "Login Time",
-  
-  // Money Usage Log
   fund_type: "Fund Type",
   fund_status: "Fund Status",
   approved: "Approved",
   transaction_deleted_successfully: "Transaction deleted successfully",
-  failed_to_delete_transaction: "Failed to delete transaction",
   operation_failed: "Operation failed",
   start_number_required: "Start number is required",
   end_number_required: "End number is required",
@@ -740,5 +664,7 @@ export default {
   users_created_with_total: "{0}/{1} users created",
   some_errors_occurred: "Some errors occurred",
   partners_created: "{0} partner(s) created",
-  partners_created_with_total: "{0}/{1} partners created"
+  partners_created_with_total: "{0}/{1} partners created",
+  error_occurred: "An error occurred",
+  no_response_from_server: "No response from server. Please check your network."
 };

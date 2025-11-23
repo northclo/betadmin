@@ -162,7 +162,7 @@
             @click="$emit('openMemberSettingModal', record)">
             <CheckCircleOutlined /> {{ trlang.member_settings }}
           </a-button>
-          <a-button v-if="record.role !== 'headquater'" class="bg-gray text-white"
+          <a-button v-if="canChangeMoney && record.role !== 'headquater'" class="bg-gray text-white"
             @click="$emit('openCashModal', record)">
             <CheckCircleOutlined /> {{ trlang.cash_increase_decrease }}
           </a-button>
@@ -207,7 +207,7 @@ import { usePermissions } from '@/composables/usePermissions';
 const langState = inject('langState');
 const trlang = computed(() => langState?.translations || {});
 
-const { canCreateSubPartner, canCreateUser, } = usePermissions();
+const { canCreateSubPartner, canCreateUser, canChangeMoney } = usePermissions();
 
 const props = defineProps({
   columns: Array,

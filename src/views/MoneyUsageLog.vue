@@ -198,7 +198,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching money usage log:", error);
-    message.error(trlang.value.failed_to_fetch_money_usage_log);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -242,12 +242,10 @@ const handleDelete = async (record) => {
     if (res.status) {
       message.success(trlang.value.transaction_deleted_successfully || res.message);
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_transaction);
     }
   } catch (error) {
     console.error("Error deleting transaction:", error);
-    message.error(trlang.value.failed_to_delete_transaction);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     deletingIds.value = deletingIds.value.filter(id => id !== record._id);
   }

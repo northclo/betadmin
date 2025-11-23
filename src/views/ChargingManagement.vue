@@ -301,6 +301,7 @@ const fetchPartnerList = async () => {
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerTreeOptions.value = [];
   }
 };
@@ -353,7 +354,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching charging list:", error);
-    message.error(trlang.value.failed_to_fetch_charging_list);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -380,12 +381,10 @@ const handleAction = async (record, action) => {
       const successMessage = res.message || (action === "approve" ? trlang.value.transaction_approved_successfully : trlang.value.transaction_rejected_successfully);
       message.success(successMessage);
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_update_transaction);
     }
   } catch (error) {
     console.error("Error updating transaction:", error);
-    message.error(trlang.value.failed_to_update_transaction);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     delete actionLoading.value[recordId];
   }
@@ -421,7 +420,7 @@ const onSelectChange = (keys) => {
 
 const handleBulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_items_to_delete);
+    message.error(trlang.value.please_select_items_to_delete);
     return;
   }
 
@@ -435,12 +434,10 @@ const handleBulkDelete = async () => {
       message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
       selectedRowKeys.value = [];
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_selected_items);
     }
   } catch (error) {
     console.error("Error bulk deleting charging transactions:", error);
-    message.error(trlang.value.failed_to_delete_selected_items);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     bulkDeleteLoading.value = false;
   }
@@ -477,12 +474,10 @@ const handleCommentSubmit = async (record) => {
       record.comment = editingCommentValue.value || null;
       editingCommentId.value = null;
       editingCommentValue.value = "";
-    } else {
-      message.error(res.message || trlang.value.failed_to_update_comment);
     }
   } catch (error) {
     console.error("Error updating comment:", error);
-    message.error(trlang.value.failed_to_update_comment);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     delete commentLoading.value[record._id];
   }

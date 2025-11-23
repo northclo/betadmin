@@ -655,6 +655,7 @@ const fetchPartnerList = async () => {
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerTreeOptions.value = [];
   }
 };
@@ -763,10 +764,9 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error('Error fetching member list:', error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     dataSource.value = [];
     setTotal(0);
-    const errorMessage = error?.response?.data?.message || error?.message || trlang.value.error_loading_data;
-    message.error(errorMessage || trlang.value.error_loading_data);
   } finally {
     loading.value = false;
   }
@@ -780,7 +780,7 @@ const validateDateRange = () => {
       const startDate = dayjs.isDayjs(start) ? start : dayjs(start);
       const endDate = dayjs.isDayjs(end) ? end : dayjs(end);
       if (startDate.isAfter(endDate)) {
-        message.warning(trlang.value.end_date_must_be_after_start_date);
+        message.error(trlang.value.end_date_must_be_after_start_date);
         return false;
       }
     }
@@ -846,9 +846,9 @@ const fetchBlockedIps = async () => {
     }
   } catch (error) {
     console.error('Error fetching blocked IPs:', error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     blockedIpListFull.value = [];
     setBlockedIpTotal(0);
-    message.error(trlang.value.error_loading_data);
   } finally {
     loadingBlockedIps.value = false;
   }
@@ -863,7 +863,7 @@ const paginatedBlockedIpList = computed(() => {
 
 const handleRegisterIp = async () => {
   if (!newBlockedIp.value || !newBlockedIp.value.trim()) {
-    message.warning(trlang.value.enter_ip_address);
+    message.error(trlang.value.enter_ip_address);
     return;
   }
 
@@ -871,7 +871,7 @@ const handleRegisterIp = async () => {
   
   const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
   if (!ipRegex.test(ipAddress)) {
-    message.warning(trlang.value.invalid_ip_address);
+    message.error(trlang.value.invalid_ip_address);
     return;
   }
 
@@ -886,13 +886,10 @@ const handleRegisterIp = async () => {
       message.success(res.message || trlang.value.ip_blocked_successfully);
       newBlockedIp.value = '';
       await fetchBlockedIps();
-    } else {
-      message.error(res.message || trlang.value.error_blocking_ip);
     }
   } catch (error) {
     console.error('Error blocking IP:', error);
-    const errorMessage = error?.response?.data?.message || trlang.value.error_blocking_ip;
-    message.error(errorMessage || trlang.value.error_blocking_ip);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loadingRegisterIp.value = false;
   }
@@ -905,13 +902,10 @@ const handleRemoveIp = async (id) => {
     if (res && res.status) {
       message.success(res.message || trlang.value.ip_removed_successfully);
       await fetchBlockedIps();
-    } else {
-      message.error(res.message || trlang.value.error_removing_ip);
     }
   } catch (error) {
     console.error('Error removing IP:', error);
-    const errorMessage = error?.response?.data?.message || trlang.value.error_removing_ip;
-    message.error(errorMessage || trlang.value.error_removing_ip);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loadingRemoveIp.value[id] = false;
   }
@@ -957,13 +951,10 @@ const handleSaveEdit = async () => {
       message.success(res.message || trlang.value.user_updated_successfully);
       editModalVisible.value = false;
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.error_updating_user);
     }
   } catch (error) {
     console.error('Error updating user:', error);
-    const errorMessage = error?.response?.data?.message || trlang.value.error_updating_user;
-    message.error(errorMessage);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     loadingEdit.value = false;
   }

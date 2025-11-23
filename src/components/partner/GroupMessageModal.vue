@@ -154,8 +154,6 @@ const sendNote = async () => {
       message.success(trlang.value.sent_successful);
       resetForm();
       emit('update:open', false);
-    } else {
-      message.error(result.message || trlang.value.operation_failed);
     }
   } catch (error) {
     console.error("Error sending message:", error);

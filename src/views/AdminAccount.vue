@@ -55,7 +55,7 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching admin account:', error);
-        message.error(trlang.value.error_loading_data || 'Failed to load administrator information');
+        message.error(error.message || trlang.value.failed_to_fetch_data);
       } finally {
         loading.value = false;
       }
@@ -108,13 +108,10 @@ export default {
           message.success(trlang.value.saved_successful);
           adminPasswordRef.value?.reset?.();
           await fetchAccount();
-        } else {
-          message.error(res.message || trlang.value.error_saving_data || 'Failed to save administrator information');
         }
       } catch (error) {
         console.error('Error saving admin account:', error);
-        const errorMessage = error?.response?.data?.message || error?.message || trlang.value.error_saving_data || 'Failed to save administrator information';
-        message.error(errorMessage);
+        message.error(error.message || trlang.value.operation_failed);
       } finally {
         saving.value = false;
       }

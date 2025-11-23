@@ -4,6 +4,7 @@ import httpStatusCodes from 'http-status-codes';
 import router from '@/Router'
 import { config } from "@/config/index.js";
 import { routeLink } from '@/utils/route-link.js';
+import translations from "@/lang/en.js";
 
 const clearAuthData = () => {
   localStorage.removeItem('token');
@@ -31,32 +32,26 @@ const handleError =
         return await fn(...params);
       } catch (error) {
         if (error.response) {
-          // in the case of unautherized user
+          const errorMessage = error.response.data?.message || translations.error_occurred;
           if (error.response.status == httpStatusCodes.UNAUTHORIZED) {
             clearAuthData();
             router.push(routeLink.login.link);
-            message.error(`${error.response.data.message}`);
           }
-          // clearAuthData();
-          // router.push(routeLink.login.link);
-          // message.error(`${error.response.data.message}`);
-          return {
-            status: false,
-          };
+          message.error(errorMessage);
         } else {
-          // clearAuthData();
-          // router.push(routeLink.login.link);
-          // message.error(enLang.no_response_from_server);
-          return {
-            status: false,
-          };
+          const networkErrorMessage = error.message || translations.no_response_from_server;
+          message.error(networkErrorMessage);
         }
+        return {
+          status: false,
+          message: error.response?.data?.message || error.message || translations.error_occurred,
+          data: null
+        };
       }
     };
 
 export const getData = handleError(async (url) => {
   let token = localStorage.getItem('token');
-  console.log(`${config.baseURL}${url}`)
 
   const res = await axios.get(`${config.baseURL}${url}`, {
     headers: {

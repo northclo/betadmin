@@ -311,6 +311,7 @@ const fetchPartnerList = async () => {
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerTreeOptions.value = [];
   }
 };
@@ -392,7 +393,7 @@ const fetchData = async () => {
     }
   } catch (error) {
     console.error("Error fetching betting list:", error);
-    message.error(trlang.value.failed_to_fetch_betting_list);
+    message.error(error.message || trlang.value.failed_to_fetch_data);
   } finally {
     loading.value = false;
   }
@@ -404,7 +405,7 @@ const validateDateRange = () => {
     const start = dayjs.isDayjs(range[0]) ? range[0] : dayjs(range[0]);
     const end = dayjs.isDayjs(range[1]) ? range[1] : dayjs(range[1]);
     if (start.isAfter(end)) {
-      message.warning(trlang.value.end_date_must_be_after_start_date);
+      message.error(trlang.value.end_date_must_be_after_start_date);
       return false;
     }
   }
@@ -491,7 +492,7 @@ const getResultColor = (record) => {
 
 const handleBulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_items_to_delete);
+    message.error(trlang.value.please_select_items_to_delete);
     return;
   }
 
@@ -505,12 +506,10 @@ const handleBulkDelete = async () => {
       message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
       selectedRowKeys.value = [];
       await fetchData();
-    } else {
-      message.error(res.message || trlang.value.failed_to_delete_selected_items);
     }
   } catch (error) {
     console.error("Error bulk deleting betting records:", error);
-    message.error(trlang.value.failed_to_delete_selected_items);
+    message.error(error.message || trlang.value.operation_failed);
   } finally {
     bulkDeleteLoading.value = false;
   }
