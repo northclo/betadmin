@@ -18,7 +18,7 @@
         </p>
         <a-input v-model:value="chargeMin" type="number" :min="0" style="width: 80px" />
         <a-typography-text class="flex items-center">
-          {{ trlang.one_use_or_more }}
+          {{ trlang.global_currency }} {{ trlang.one_use_or_more }}
         </a-typography-text>
         <a-select v-model:value="chargeMax" style="width: 120px">
           <a-select-option
@@ -30,7 +30,7 @@
           </a-select-option>
         </a-select>
         <p class="flex items-center">
-          {{ trlang.rechargeable_with }}
+          {{ trlang.global_currency }} {{ trlang.rechargeable_with }}
         </p>
       </a-layout-content>
     </a-layout>

@@ -121,10 +121,10 @@
           {{ record.partner_id || '-' }}
         </template>
         <template v-else-if="column.dataIndex === 'amount'">
-          {{ formatCurrency(record.amount) }}
+          {{ record.amount }}{{ trlang.global_currency }}
         </template>
         <template v-else-if="column.dataIndex === 'account_amount'">
-          {{ record.account_amount ? formatCurrency(record.account_amount) : '-' }}
+          {{ record.account_amount ? record.account_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
         </template>
         <template v-else-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(record.status)">{{ trlang[record.status] || record.status }}</a-tag>
@@ -253,15 +253,6 @@ const statusColor = (status) => {
     default:
       return "blue";
   }
-};
-
-const formatCurrency = (value) => {
-  const numeric = typeof value === "number" ? value : 0;
-  return Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(numeric);
 };
 
 const convertPartnerToTree = (partner) => {

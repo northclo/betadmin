@@ -63,7 +63,7 @@
             <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'amount'">
-            {{ formatCurrency(record[column.dataIndex]) }}
+            {{ record[column.dataIndex] }}{{ trlang.global_currency }}
           </template>
           <template v-else-if="column.dataIndex === 'member_nickname'">
             {{ record.member_nickname || '-' }}
@@ -133,15 +133,6 @@ const columns = computed(() => [
 
 const tableData = ref([]);
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
-
-const formatCurrency = (value) => {
-  if (!value && value !== 0) return "$0";
-  return Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-};
 
 const getStatusColor = (status) => {
   const colorMap = {

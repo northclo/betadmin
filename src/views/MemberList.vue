@@ -230,21 +230,21 @@
               record.totalImportAmount
                 ? record.totalImportAmount.toLocaleString()
                 : 0
-            }}{{ trlang.usd }}
+            }}{{ trlang.global_currency }}
           </template>
           <template v-if="column.key === 'all_exchange_money'">
             {{
               record.totalExchangeAmount
                 ? record.totalExchangeAmount.toLocaleString()
                 : 0
-            }}{{ trlang.usd }}
+            }}{{ trlang.global_currency }}
           </template>
           <template v-if="column.key === 'partner_earning'">
             {{
               record.totalPartnerEarning
                 ? record.totalPartnerEarning.toLocaleString()
                 : 0
-            }}{{ trlang.usd }}
+            }}{{ trlang.global_currency }}
           </template>
           <template v-if="column.key === 'total_betting_amount'">
             <a-typography-text class="text-main">
@@ -252,7 +252,7 @@
                 record.totalBettingAmount
                   ? record.totalBettingAmount.toLocaleString()
                   : 0
-              }}{{ trlang.usd }}
+              }}{{ trlang.global_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'total_win_number'">
@@ -266,7 +266,7 @@
                 record.totalEarningAmount
                   ? record.totalEarningAmount.toLocaleString()
                   : 0
-              }}{{ trlang.usd }}
+              }}{{ trlang.global_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_provide_point'">

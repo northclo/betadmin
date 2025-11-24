@@ -134,7 +134,7 @@
           <template v-if="column.key === 'money_point'">
             <div class="flex flex-column">
               <a-typography-text class="text-red"
-                >{{ record.own_money.toLocaleString() }}{{ trlang.usd }}</a-typography-text
+                >{{ record.own_money.toLocaleString() }}{{ trlang.global_currency }}</a-typography-text
               >
               <a-typography-text
                 >{{ record.point.toLocaleString() }}{{ trlang.points_unit }}</a-typography-text
@@ -143,15 +143,15 @@
           </template>
 
           <template v-if="column.key === 'import_money'">
-            {{ record.total_import_amount || 0 }}{{ trlang.usd }}
+            {{ record.total_import_amount || 0 }}{{ trlang.global_currency }}
           </template>
 
           <template v-if="column.key === 'exchange_money'">
-            {{ record.total_exchange_amount || 0 }}{{ trlang.usd }}
+            {{ record.total_exchange_amount || 0 }}{{ trlang.global_currency }}
           </template>
 
           <template v-if="column.key === 'user_import'">
-            {{ record.user_import_amount || 0 }}{{ trlang.usd }}
+            {{ record.user_import_amount || 0 }}{{ trlang.global_currency }}
           </template>
 
           <template v-if="column.key === 'final_import_date'">

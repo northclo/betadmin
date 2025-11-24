@@ -151,17 +151,12 @@
           </template>
           <template v-if="column.key === 'bet_amount'">
             <a-typography-text class="text-main">
-              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}
+              {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'win_amount'">
             <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
-              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}
-            </a-typography-text>
-          </template>
-          <template v-if="column.key === 'final_amount'">
-            <a-typography-text>
-              {{ record.final_amount ? record.final_amount.toLocaleString() : 0 }}
+              {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_time'">

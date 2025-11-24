@@ -51,13 +51,6 @@ export const bettingListColumn = [
     width: 110,
   },
   {
-    titleKey: "final_amount",
-    dataIndex: "final_amount",
-    key: "final_amount",
-    align: 'end',
-    width: 110,
-  },
-  {
     titleKey: "betting_time",
     dataIndex: "betting_time",
     key: "betting_time",

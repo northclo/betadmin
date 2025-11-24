@@ -16,12 +16,12 @@
         <P class="flex items-center mb-0">
           {{ trlang.minimum }}
         </P>
-        <a-input v-model:value="exchangeMin" type="number" :min="0" style="width: 80px" />
         <P class="flex items-center mb-0">
           {{ trlang.from }}
         </P>
+        <a-input v-model:value="exchangeMin" type="number" :min="0" style="width: 80px" />
         <a-typography-text class="flex items-center">
-          {{ trlang.one_use_or_more }}
+          {{ trlang.global_currency }} {{ trlang.one_use_or_more }}
         </a-typography-text>
         <a-select
           v-model:value="exchangeMax"
@@ -37,7 +37,7 @@
           </a-select-option>
         </a-select>
         <P class="flex items-center">
-          {{ trlang.can_be_exchanged_for }}
+          {{ trlang.global_currency }} {{ trlang.can_be_exchanged_for }}
         </P>
       </a-layout-content>
     </a-layout>

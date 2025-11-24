@@ -126,7 +126,7 @@
       <template v-if="column.key === 'money'">
         <a-layout class="bg-none text-end">
           <a-typography-text class="text-dark-brown text-end">
-            {{ record.money }}$
+            {{ record.money }}{{ trlang.global_currency }}
           </a-typography-text>
           <a-typography-text>{{ record.point }}{{ trlang.points_unit }}</a-typography-text>
         </a-layout>

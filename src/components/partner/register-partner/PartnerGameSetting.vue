@@ -106,7 +106,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneTimeBetMin" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -120,7 +120,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneTimeBetMax" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
 
@@ -132,7 +132,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneTimeEarningMax" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -146,7 +146,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneRoundBetMax" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
 
@@ -158,7 +158,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneRoundEarningMax" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -172,7 +172,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneRoundBetMaxPerSlot" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
 
@@ -184,7 +184,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center gap-2">
           <a-input-number v-model:value="oneRoundEarningMaxPerSlot" class="input-sm" :min="0" />
-          <a-typography-text>{{ trlang.usd }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -197,7 +197,7 @@
       </a-layout-sider>
       <a-layout-content class="p-2 flex items-center gap-2">
         <a-input-number v-model:value="allRoundsBetMax" class="input-sm" :min="0" />
-        <a-typography-text>{{ trlang.usd }}</a-typography-text>
+        <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
       </a-layout-content>
     </a-layout>
 
@@ -234,7 +234,7 @@
           </a-layout-sider>
           <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input-number v-model:value="slotOedv" class="input-sm" :min="0" />
-            <a-typography-text>{{ trlang.usd }}</a-typography-text>
+            <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
           </a-layout-content>
           <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="slotOedvPublic" />
@@ -248,7 +248,7 @@
           </a-layout-sider>
           <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input-number v-model:value="slotUnov" class="input-sm" :min="0" />
-            <a-typography-text>{{ trlang.usd }}</a-typography-text>
+            <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
           </a-layout-content>
           <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="slotUnovPublic" />
@@ -262,7 +262,7 @@
           </a-layout-sider>
           <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input-number v-model:value="slotOeuo" class="input-sm" :min="0" />
-            <a-typography-text>{{ trlang.usd }}</a-typography-text>
+            <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
           </a-layout-content>
           <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="slotOeuoPublic" />
@@ -276,7 +276,7 @@
           </a-layout-sider>
           <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input-number v-model:value="slotMatch13" class="input-sm" :min="0" />
-            <a-typography-text>{{ trlang.usd }}</a-typography-text>
+            <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
           </a-layout-content>
           <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="slotMatch13Public" />
@@ -290,7 +290,7 @@
           </a-layout-sider>
           <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input-number v-model:value="slotMatch14" class="input-sm" :min="0" />
-            <a-typography-text>{{ trlang.usd }}</a-typography-text>
+            <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
           </a-layout-content>
           <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="slotMatch14Public" />
@@ -304,7 +304,7 @@
           </a-layout-sider>
           <a-layout-content class="border p-2 flex items-center justify-end gap-2">
             <a-input-number v-model:value="slotMatch16" class="input-sm" :min="0" />
-            <a-typography-text>{{ trlang.usd }}</a-typography-text>
+            <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
           </a-layout-content>
           <a-layout-content class="p-2 border flex justify-center items-center">
             <a-checkbox v-model:checked="slotMatch16Public" />
