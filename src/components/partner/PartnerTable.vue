@@ -154,23 +154,23 @@
       </template>
       <template v-if="column.key === 'function'">
         <a-layout class="bg-none flex flex-row justify-center items-center flex-wrap gap-2">
-          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="bg-gray text-white"
+          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="actions-button bg-gray text-white"
             @click="$emit('openSettingModal', record)">
             <CheckCircleOutlined /> {{ trlang.setting }}
           </a-button>
-          <a-button v-if="record.role === 'user'" class="bg-gray text-white"
+          <a-button v-if="record.role === 'user'" class="actions-button bg-gray text-white"
             @click="$emit('openMemberSettingModal', record)">
             <CheckCircleOutlined /> {{ trlang.member_settings }}
           </a-button>
-          <a-button v-if="canChangeMoney && record.role !== 'headquater'" class="bg-gray text-white"
-            @click="$emit('openCashModal', record)">
-            <CheckCircleOutlined /> {{ trlang.cash_increase_decrease }}
-          </a-button>
-          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="bg-gray text-white"
+          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="actions-button bg-gray text-white"
             @click="$emit('openGroupMessageModal', record)">
             <CheckCircleOutlined /> {{ trlang.group_message }}
           </a-button>
-          <a-button v-if="record.role !== 'headquater'" class="bg-gray text-white"
+          <a-button v-if="canChangeMoney && record.role !== 'headquater'" class="actions-button bg-gray text-white"
+            @click="$emit('openCashModal', record)">
+            <CheckCircleOutlined /> {{ trlang.cash_increase_decrease }}
+          </a-button>
+          <a-button v-if="record.role !== 'headquater'" class="actions-button bg-gray text-white"
             @click="$emit('openRemoveModal', record)">
             <CheckCircleOutlined /> {{ trlang.delete }}
           </a-button>
@@ -181,14 +181,14 @@
               record.role !== 'store' &&
               record.role !== 'user'
             " 
-            class="bg-gray text-white" 
+            class="actions-button bg-gray text-white" 
             @click="$emit('openAddSubModal', record)"
           >
             <CheckCircleOutlined /> {{ trlang.add_sub }}
           </a-button>
           <a-button 
             v-if="canCreateUser && record.role !== 'user'" 
-            class="bg-green text-white" 
+            class="actions-button bg-green text-white" 
             @click="$emit('openRegisterUser', record)"
           >
             <UserAddOutlined /> {{ trlang.member_registration }}
@@ -322,3 +322,9 @@ defineExpose({
   collapseAll,
 });
 </script>
+<style scoped>
+.actions-button {
+  padding: 2px 4px;
+  border-radius: 6px !important;
+}
+</style>

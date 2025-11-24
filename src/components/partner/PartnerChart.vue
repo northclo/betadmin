@@ -178,11 +178,32 @@ function createGraph() {
         type: "polyline",
         style: { router: { type: "orth" }, stroke: "#C0C0C0" },
       },
-      layout: { type: "dagre" },
-      autoFit: "view",
+      layout: { 
+        type: "dagre",
+        rankdir: "TB",
+        nodesep: 50,
+        ranksep: 50,
+      },
+      autoFit: nodes.length === 1 ? { type: "view", padding: 50 } : "view",
+      zoom: {
+        min: 0.1,
+        max: nodes.length === 1 ? 1.0 : 3.0,
+      },
       behaviors: [],
     });
     graph.render();
+    
+    if (nodes.length === 1) {
+      setTimeout(() => {
+        if (graph) {
+          const currentZoom = graph.getZoom();
+          if (currentZoom > 1.0) {
+            graph.zoomTo(1.0);
+          }
+          graph.fitCenter();
+        }
+      }, 100);
+    }
   }
 }
 
@@ -230,5 +251,18 @@ onBeforeUnmount(() => {
 <style scoped>
 .partner-chart {
   padding: 28px;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.partner-chart :deep(canvas),
+.partner-chart :deep(svg) {
+  max-width: 100%;
+}
+
+.partner-chart :deep(.g6-node) {
+  max-width: 150px !important;
 }
 </style>

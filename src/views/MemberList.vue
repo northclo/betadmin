@@ -566,7 +566,6 @@ const initOptions = () => {
     },
   ];
   userStatusOptions.value = [
-    { value: '', label: trlang.value.all },
     { value: 'wait', label: trlang.value.wait },
     { value: 'normal', label: trlang.value.normal },
     { value: 'stop', label: trlang.value.stop },

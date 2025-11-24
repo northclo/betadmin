@@ -136,7 +136,7 @@
           </template>
           <template v-if="column.key === 'round'">
             <a-typography-text>
-              {{ record.total_no ? `#${record.total_no}` : record.game_id ? `#${record.game_id}` : '-' }}
+              {{ formatRound(record.total_no, record.today_no) }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'betting_history'">
@@ -456,6 +456,16 @@ const formatBettingHistory = (record) => {
 const formatBettingTime = (dateString) => {
   if (!dateString) return '-';
   return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss');
+};
+
+const formatRound = (totalNo, todayNo) => {
+  if (totalNo === null && todayNo === null) return '-';
+  if (totalNo !== null && todayNo !== null) {
+    return `${totalNo} / ${todayNo}`;
+  }
+  if (totalNo !== null) return `${totalNo}`;
+  if (todayNo !== null) return `${todayNo}`;
+  return '-';
 };
 
 const handleExpand = (expanded, record) => {

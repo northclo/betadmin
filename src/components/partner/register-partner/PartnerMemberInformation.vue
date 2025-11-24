@@ -157,7 +157,14 @@
       </a-layout-sider>
       <a-layout-content class="p-2">
         <a-layout class="flex flex-row gap-2 bg-none">
-          <a-input v-model:value="account" class="w-100" />
+          <a-input 
+            v-model:value="account" 
+            class="w-100" 
+            type="number" 
+            :step="1" 
+            @input="handleBankNumberInput"
+            @keypress="handleBankNumberKeypress"
+          />
         </a-layout>
       </a-layout-content>
     </a-layout>
@@ -347,6 +354,21 @@ const handlePhoneNumberKeypress = (e) => {
     return;
   }
   if (!/[0-9]/.test(e.key)) {
+    e.preventDefault();
+  }
+};
+
+const handleBankNumberInput = (e) => {
+  const value = e.target ? e.target.value : (typeof e === 'string' ? e : '');
+  const numericOnly = value.toString().replace(/[^\d]/g, '');
+  account.value = numericOnly;
+};
+
+const handleBankNumberKeypress = (e) => {
+  if (e.ctrlKey || e.metaKey || ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'].includes(e.key)) {
+    return;
+  }
+  if (!/[0-9]/.test(e.key) || e.key === '.' || e.key === ',') {
     e.preventDefault();
   }
 };

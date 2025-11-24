@@ -277,8 +277,6 @@ const login = async () => {
   max-width: 480px;
   width: 100%;
   background: var(--glass-bg) !important;
-  backdrop-filter: var(--blur-lg);
-  -webkit-backdrop-filter: var(--blur-lg);
   border: 1px solid var(--glass-border-light) !important;
   box-shadow: var(--glass-shadow-strong) !important;
   border-radius: 24px !important;

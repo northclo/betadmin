@@ -58,9 +58,8 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="p-2">
-          <a-typography-text>{{ trlang.betting }}</a-typography-text>
-          <a-typography-text class="ms-5">
-            {{ dataSource.money }}
+          <a-typography-text class="text-dark-brown">
+            {{ dataSource.money }}$
           </a-typography-text>
         </a-layout-content>
       </a-layout>

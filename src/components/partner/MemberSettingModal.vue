@@ -127,7 +127,14 @@
           </a-typography-text>
         </a-layout-sider>
         <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="bankNumber" class="w-100" />
+          <a-input 
+            v-model:value="bankNumber" 
+            class="w-100" 
+            type="number" 
+            :step="1" 
+            @input="handleBankNumberInput"
+            @keypress="handleBankNumberKeypress"
+          />
         </a-layout-content>
       </a-layout>
 
@@ -241,6 +248,22 @@ const handlePhoneNumberKeypress = (e) => {
     e.preventDefault();
   }
 };
+
+const handleBankNumberInput = (e) => {
+  const value = e.target ? e.target.value : (typeof e === 'string' ? e : '');
+  const numericOnly = value.toString().replace(/[^\d]/g, '');
+  bankNumber.value = numericOnly;
+};
+
+const handleBankNumberKeypress = (e) => {
+  if (e.ctrlKey || e.metaKey || ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'].includes(e.key)) {
+    return;
+  }
+  if (!/[0-9]/.test(e.key) || e.key === '.' || e.key === ',') {
+    e.preventDefault();
+  }
+};
+
 const bankName = ref("");
 const bankNameOptions = ref([]);
 const bankNumber = ref("");

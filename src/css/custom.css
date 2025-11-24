@@ -329,6 +329,13 @@
   padding: 18px 16px !important;
 }
 
+.ant-table-measure-row {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
 .table-transparent :deep(.ant-typography) {
   color: var(--text-primary-color) !important;
 }
@@ -946,6 +953,10 @@
   padding: 12px 8px !important;
 }
 
+.ant-table-wrapper .ant-table-tbody >tr >td {
+  padding: 8px !important;
+}
+
 .partner-table tbody > tr > td {
   border: 1px solid var(--border-color);
   border-top: 1px solid var(--border-color) !important;
@@ -968,6 +979,14 @@
   margin-top: 20px;
   border-radius: 16px;
   box-shadow: var(--shadow-sm);
+}
+
+.ant-input-password input {
+  border-radius: 0 !important;
+}
+
+.search-input input {
+  border-radius: 0 !important;
 }
 
 .prefix-badge {
@@ -1149,18 +1168,18 @@
 
 /* Button Styling */
 .ant-btn {
-  border-radius: 12px !important;
+  border-radius: 6px !important;
   font-weight: 600 !important;
   border-color: transparent !important;
   color: var(--main-color) !important;
   background: var(--accent-soft-color) !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  box-shadow: none !important;
 }
 
 .ant-btn:hover,
 .ant-btn:focus {
   color: var(--main-color-strong) !important;
-  box-shadow: var(--shadow-xs) !important;
 }
 
 .ant-btn-primary {
