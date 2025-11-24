@@ -13,13 +13,10 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex items-center gap-2 p-2 flex-wrap">
-        <p class="flex items-center text-helper mb-0">
-          {{ trlang.minimum }}
+        <p class="flex items-center mb-0">
+          {{ trlang.minimum }} {{ trlang.from }}
         </p>
         <a-input v-model:value="chargeMin" type="number" :min="0" style="width: 80px" />
-        <p class="flex items-center text-helper mb-0">
-          {{ trlang.from }}
-        </p>
         <a-typography-text class="flex items-center">
           {{ trlang.one_use_or_more }}
         </a-typography-text>
@@ -32,7 +29,7 @@
             {{ item.amount }}
           </a-select-option>
         </a-select>
-        <p class="flex items-center text-helper">
+        <p class="flex items-center">
           {{ trlang.rechargeable_with }}
         </p>
       </a-layout-content>
@@ -58,17 +55,23 @@
                 <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
-                <a-input v-model:value="chargeStartTime" style="width: 80px" />
+                <a-time-picker 
+                  v-model:value="chargeStartTime" 
+                  format="HH:mm"
+                  value-format="HH:mm"
+                  style="width: 100px"
+                />
                 <a-typography-text class="flex items-center">~</a-typography-text>
                 <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
-                <a-input v-model:value="chargeEndTime" style="width: 80px" />
+                <a-time-picker 
+                  v-model:value="chargeEndTime" 
+                  format="HH:mm"
+                  value-format="HH:mm"
+                  style="width: 100px"
+                />
               </a-layout>
-              <p class="flex items-center text-helper">
-                {{ trlang.please_enter_the_charging_time_zone }}
-                {{ trlang.enter_in_24hour_format }}
-              </p>
             </a-layout-content>
           </a-layout>
           <a-layout class="w-100">
@@ -118,14 +121,14 @@ const chargeMax = ref('');
 const chargeMaxOption = ref([]);
 const chargeTimezone = ref(false);
 const chargeImpossibleTimezoneMessage = ref('');
-const chargeStartTime = ref('');
-const chargeEndTime = ref('');
+const chargeStartTime = ref(null);
+const chargeEndTime = ref(null);
 const chargeCompleteMessage = ref('');
 
 const initOptions = () => {
-  chargeMaxOption.value = [1000, 10000, 100000].map((amt, idx) => ({
+  chargeMaxOption.value = [100000, 1000000, 10000000].map((amt, idx) => ({
     key: idx,
-    amount: `${amt} ${trlang.value.usd}`,
+    amount: `${amt}`,
   }));
 };
 
@@ -143,11 +146,13 @@ const loadData = (data) => {
       ? data.charge_min.toString()
       : '';
   chargeMax.value = data.charge_max
-    ? `${data.charge_max} ${trlang.value.usd}`
+    ? `${data.charge_max}`
     : chargeMaxOption.value[0]?.amount ?? '';
   chargeTimezone.value = data.charge_timezone !== undefined ? Boolean(data.charge_timezone) : false;
-  chargeStartTime.value = formatTime(data.charge_start_time);
-  chargeEndTime.value = formatTime(data.charge_end_time);
+  const startTimeFormatted = formatTime(data.charge_start_time);
+  chargeStartTime.value = startTimeFormatted && startTimeFormatted !== '' ? startTimeFormatted : null;
+  const endTimeFormatted = formatTime(data.charge_end_time);
+  chargeEndTime.value = endTimeFormatted && endTimeFormatted !== '' ? endTimeFormatted : null;
   chargeImpossibleTimezoneMessage.value =
     data.charge_impossible_timezone_message ?? '';
   chargeCompleteMessage.value = data.charge_complete_message ?? '';
@@ -175,33 +180,26 @@ const toNumber = (value) => {
   return Number.isFinite(numericValue) ? numericValue : null;
 };
 
-const toTimeNumber = (value) => {
-  if (value === null || value === undefined || value === '') return null;
-  const trimmed = value.toString().trim();
-  let digits = trimmed;
-  if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
-    digits = trimmed.replace(':', '');
-  }
-  if (!/^\d{3,4}$/.test(digits)) {
-    return null;
-  }
-  if (digits.length === 3) {
-    digits = `0${digits}`;
-  }
-  const hours = Number(digits.slice(0, 2));
-  const minutes = Number(digits.slice(2, 4));
-  if (hours > 23 || minutes > 59) {
-    return null;
-  }
-  return hours * 100 + minutes;
+const compareTimeStrings = (time1, time2) => {
+  if (!time1 || !time2) return null;
+  
+  const [hours1, minutes1] = time1.split(':').map(Number);
+  const [hours2, minutes2] = time2.split(':').map(Number);
+  
+  const totalMinutes1 = hours1 * 60 + minutes1;
+  const totalMinutes2 = hours2 * 60 + minutes2;
+  
+  if (totalMinutes1 < totalMinutes2) return -1;
+  if (totalMinutes1 > totalMinutes2) return 1;
+  return 0;
 };
 
 const buildState = () => ({
   chargeMin: toNumber(chargeMin.value),
   chargeMax: toNumber(chargeMax.value),
   chargeTimezone: chargeTimezone.value,
-  chargeStartTime: chargeTimezone.value ? toTimeNumber(chargeStartTime.value) : null,
-  chargeEndTime: chargeTimezone.value ? toTimeNumber(chargeEndTime.value) : null,
+  chargeStartTime: chargeStartTime.value || null,
+  chargeEndTime: chargeEndTime.value || null,
   chargeImpossibleTimezoneMessage: chargeImpossibleTimezoneMessage.value,
   chargeCompleteMessage: chargeCompleteMessage.value,
 });
@@ -234,16 +232,16 @@ const validate = () => {
   }
 
   if (state.chargeTimezone) {
-    if (state.chargeStartTime === null) {
+    if (!state.chargeStartTime || state.chargeStartTime === '') {
       errors.push(trlang.value.please_enter_valid_charge_start_time);
     }
-    if (state.chargeEndTime === null) {
+    if (!state.chargeEndTime || state.chargeEndTime === '') {
       errors.push(trlang.value.please_enter_valid_charge_end_time);
     }
     if (
-      state.chargeStartTime !== null &&
-      state.chargeEndTime !== null &&
-      state.chargeStartTime >= state.chargeEndTime
+      state.chargeStartTime &&
+      state.chargeEndTime &&
+      compareTimeStrings(state.chargeStartTime, state.chargeEndTime) >= 0
     ) {
       errors.push(trlang.value.charge_start_time_must_be_before_end_time);
     }

@@ -13,11 +13,11 @@
         </a-typography-text>
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <P class="flex items-center text-helper mb-0">
+        <P class="flex items-center mb-0">
           {{ trlang.minimum }}
         </P>
         <a-input v-model:value="exchangeMin" type="number" :min="0" style="width: 80px" />
-        <P class="flex items-center text-helper mb-0">
+        <P class="flex items-center mb-0">
           {{ trlang.from }}
         </P>
         <a-typography-text class="flex items-center">
@@ -36,7 +36,7 @@
             {{ item.amount }}
           </a-select-option>
         </a-select>
-        <P class="flex items-center text-helper">
+        <P class="flex items-center">
           {{ trlang.can_be_exchanged_for }}
         </P>
       </a-layout-content>
@@ -62,19 +62,23 @@
                 <a-typography-text class="flex items-center">
                   {{ trlang.start }}
                 </a-typography-text>
-                <a-input v-model:value="exchangeStartTime" style="width: 80px" />
+                <a-time-picker 
+                  v-model:value="exchangeStartTime" 
+                  format="HH:mm"
+                  value-format="HH:mm"
+                  style="width: 100px"
+                />
                 <a-typography-text class="flex items-center">~</a-typography-text>
                 <a-typography-text class="flex items-center">
                   {{ trlang.end }}
                 </a-typography-text>
-                <a-input v-model:value="exchangeEndTime" style="width: 80px" />
+                <a-time-picker 
+                  v-model:value="exchangeEndTime" 
+                  format="HH:mm"
+                  value-format="HH:mm"
+                  style="width: 100px"
+                />
               </a-layout>
-              <p class="flex items-center text-helper">
-                {{
-                  trlang.please_enter_the_time_zone_where_currency_exchange_is_available
-                }}
-                {{ trlang.enter_in_24hour_format }}
-              </p>
             </a-layout-content>
           </a-layout>
           <a-layout class="w-100">
@@ -182,8 +186,8 @@ const exchangeMax = ref('');
 const exchangeMaxOption = ref([]);
 const exchangeTimezone = ref(false);
 const exchangeImpossibleTimezoneMessage = ref('');
-const exchangeStartTime = ref('');
-const exchangeEndTime = ref('');
+const exchangeStartTime = ref(null);
+const exchangeEndTime = ref(null);
 const exchangeRestrictionOption = ref([]);
 const exchangeRestriction = ref(0);
 const exchangeRestrictionUse = ref(false);
@@ -193,7 +197,7 @@ const chargeRestrictionLimit = ref('');
 const exchangeCompleteMessage = ref('');
 
 const getComponentData = () => {
-  exchangeMaxOption.value = [1000, 10000, 100000].map((amount, idx) => ({
+  exchangeMaxOption.value = [100000, 1000000, 10000000].map((amount, idx) => ({
     key: idx,
     amount: amount,
   }));
@@ -235,8 +239,10 @@ const loadData = (data) => {
     ? data.exchange_max
     : exchangeMaxOption.value[0]?.amount;
   exchangeTimezone.value = data.exchange_timezone !== undefined ? Boolean(data.exchange_timezone) : false;
-  exchangeStartTime.value = formatTime(data.exchange_start_time);
-  exchangeEndTime.value = formatTime(data.exchange_end_time);
+  const startTimeFormatted = formatTime(data.exchange_start_time);
+  exchangeStartTime.value = startTimeFormatted && startTimeFormatted !== '' ? startTimeFormatted : null;
+  const endTimeFormatted = formatTime(data.exchange_end_time);
+  exchangeEndTime.value = endTimeFormatted && endTimeFormatted !== '' ? endTimeFormatted : null;
   exchangeImpossibleTimezoneMessage.value =
     data.exchange_impossible_timezone_message ?? '';
   exchangeRestriction.value = data.exchange_restriction ?? '';
@@ -280,33 +286,26 @@ const toNumber = (value) => {
   return Number.isFinite(numericValue) ? numericValue : null;
 };
 
-const toTimeNumber = (value) => {
-  if (value === null || value === undefined || value === '') return null;
-  const trimmed = value.toString().trim();
-  let digits = trimmed;
-  if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
-    digits = trimmed.replace(':', '');
-  }
-  if (!/^\d{3,4}$/.test(digits)) {
-    return null;
-  }
-  if (digits.length === 3) {
-    digits = `0${digits}`;
-  }
-  const hours = Number(digits.slice(0, 2));
-  const minutes = Number(digits.slice(2, 4));
-  if (hours > 23 || minutes > 59) {
-    return null;
-  }
-  return hours * 100 + minutes;
+const compareTimeStrings = (time1, time2) => {
+  if (!time1 || !time2) return null;
+  
+  const [hours1, minutes1] = time1.split(':').map(Number);
+  const [hours2, minutes2] = time2.split(':').map(Number);
+  
+  const totalMinutes1 = hours1 * 60 + minutes1;
+  const totalMinutes2 = hours2 * 60 + minutes2;
+  
+  if (totalMinutes1 < totalMinutes2) return -1;
+  if (totalMinutes1 > totalMinutes2) return 1;
+  return 0;
 };
 
 const buildState = () => ({
   exchangeMin: toNumber(exchangeMin.value),
   exchangeMax: toNumber(exchangeMax.value),
   exchangeTimezone: exchangeTimezone.value,
-  exchangeStartTime: exchangeTimezone.value ? toTimeNumber(exchangeStartTime.value) : null,
-  exchangeEndTime: exchangeTimezone.value ? toTimeNumber(exchangeEndTime.value) : null,
+  exchangeStartTime: exchangeStartTime.value || null,
+  exchangeEndTime: exchangeEndTime.value || null,
   exchangeImpossibleTimezoneMessage: exchangeImpossibleTimezoneMessage.value,
   exchangeRestriction: exchangeRestriction.value,
   exchangeRestrictionUse: exchangeRestrictionUse.value,
@@ -348,16 +347,16 @@ const validate = () => {
   }
 
   if (state.exchangeTimezone) {
-    if (state.exchangeStartTime === null) {
+    if (!state.exchangeStartTime || state.exchangeStartTime === '') {
       errors.push(trlang.value.please_enter_valid_exchange_start_time);
     }
-    if (state.exchangeEndTime === null) {
+    if (!state.exchangeEndTime || state.exchangeEndTime === '') {
       errors.push(trlang.value.please_enter_valid_exchange_end_time);
     }
     if (
-      state.exchangeStartTime !== null &&
-      state.exchangeEndTime !== null &&
-      state.exchangeStartTime >= state.exchangeEndTime
+      state.exchangeStartTime &&
+      state.exchangeEndTime &&
+      compareTimeStrings(state.exchangeStartTime, state.exchangeEndTime) >= 0
     ) {
       errors.push(trlang.value.exchange_start_time_must_be_before_end_time);
     }
