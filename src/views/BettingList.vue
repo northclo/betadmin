@@ -170,8 +170,8 @@
             </a-typography-text>
           </template>
           <template v-if="column.key === 'result'">
-            <a-tag :color="record.win ? 'success' : 'error'">
-              {{ record.win ? trlang.win : trlang.lose }}
+            <a-tag :color="getResultColor(record)">
+              {{ record.betting_status === 'CANCEL' ? trlang.cancel : (record.win ? trlang.win : trlang.lose) }}
             </a-tag>
           </template>
         </template>
@@ -211,7 +211,7 @@
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.result" :span="2">
                 <a-tag :color="getResultColor(record)">
-                  {{ record.win ? trlang.win : trlang.no_win }}
+                  {{ record.betting_status === 'CANCEL' ? trlang.cancel : (record.win ? trlang.win : trlang.no_win) }}
                 </a-tag>
               </a-descriptions-item>
             </a-descriptions>
