@@ -118,9 +118,6 @@
             <div>{{ record.user_nickname || '-' }}</div>
           </div>
         </template>
-        <template v-else-if="column.dataIndex === 'partner_id'">
-          {{ record.partner_id || '-' }}
-        </template>
         <template v-else-if="column.dataIndex === 'amount'">
           {{ record.amount }}{{ trlang.global_currency }}
         </template>
@@ -222,16 +219,15 @@ const filters = ref({
 
 const columns = computed(() => [
   { title: trlang.value.no_column, key: "no", width: 80 },
-  { title: trlang.value.user_id, dataIndex: "user_id", key: "user_id", width: 120 },
-  { title: trlang.value.partner_id, dataIndex: "partner_id", key: "partner_id", width: 120 },
-  { title: trlang.value.request_amount, dataIndex: "amount", key: "amount", width: 140 },
-  { title: trlang.value.request_username, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
-  { title: trlang.value.status, dataIndex: "status", key: "status", width: 120 },
-  { title: trlang.value.request_date, dataIndex: "submitted_at", key: "submitted_at", width: 180 },
-  { title: trlang.value.process_date, dataIndex: "processed_at", key: "processed_at", width: 180 },
-  { title: trlang.value.account_amount, dataIndex: "account_amount", key: "account_amount", width: 140 },
-  { title: trlang.value.comment, dataIndex: "comment", key: "comment", width: 200 },
-  { title: trlang.value.action, dataIndex: "action", key: "action", width: 150 },
+  { title: trlang.value.user_id, dataIndex: "user_id", key: "user_id" },
+  { title: trlang.value.request_amount, dataIndex: "amount", key: "amount" },
+  { title: trlang.value.request_username, dataIndex: "member_nickname", key: "member_nickname" },
+  { title: trlang.value.status, dataIndex: "status", key: "status" },
+  { title: trlang.value.request_date, dataIndex: "submitted_at", key: "submitted_at" },
+  { title: trlang.value.process_date, dataIndex: "processed_at", key: "processed_at" },
+  { title: trlang.value.account_amount, dataIndex: "account_amount", key: "account_amount" },
+  { title: trlang.value.comment, dataIndex: "comment", key: "comment" },
+  { title: trlang.value.action, dataIndex: "action", key: "action" },
 ]);
 
 const tableData = ref([]);

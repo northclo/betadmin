@@ -129,9 +129,6 @@
           <template v-if="column.key === 'user_id'">
             <a-typography-text>{{ record.user_nickname || '-' }}</a-typography-text>
           </template>
-          <template v-if="column.key === 'partner'">
-            <a-typography-text>{{ record.partner_nickname || '-' }}</a-typography-text>
-          </template>
           <template v-if="column.key === 'round'">
             <a-typography-text>
               {{ formatRound(record.total_no, record.today_no) }}

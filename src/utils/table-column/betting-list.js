@@ -10,11 +10,6 @@ export const bettingListColumn = [
     key: "user_id",
   },
   {
-    titleKey: "partner",
-    dataIndex: "partner",
-    key: "partner",
-  },
-  {
     titleKey: "round",
     dataIndex: "round",
     key: "round",
