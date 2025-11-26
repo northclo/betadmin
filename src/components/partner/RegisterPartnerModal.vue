@@ -3,7 +3,7 @@
     @ok="register" @cancel="handleCancel" :confirm-loading="loading">
     <PartnerMemberInformation ref="memberInfoRef" :parent-role="parentRole" :current-partner-data="currentPartnerData" />
     <CurrencyRollingSetting ref="currencyRollingRef" />
-    <PartnerRateSetting ref="rateSettingRef" />
+    <PartnerRateSetting ref="rateSettingRef" :parent-rates="parentRates" />
     <PartnerPermissionSetting ref="permissionSettingRef" />
     <PartnerGameSetting ref="gameSettingRef" />
   </a-modal>
@@ -58,6 +58,17 @@ const currentPartnerData = computed(() => {
     return props.dataSource.nickname;
   }
   
+  return null;
+});
+
+const parentRates = computed(() => {
+  if (props.dataSource) {
+    return {
+      simple_bet_rate: props.dataSource.simpleBetRate,
+      combined_bet_rate: props.dataSource.combinedBetRate,
+      match_num_bet_rate: props.dataSource.matchNumberBetRate,
+    };
+  }
   return null;
 });
 
@@ -157,6 +168,13 @@ const register = async () => {
         stopWithError("end_number_must_be_greater");
         return;
       }
+    }
+
+    const rateErrors = rateSettingRef.value?.validate?.() || [];
+    if (rateErrors.length > 0) {
+      message.error(rateErrors[0]);
+      loading.value = false;
+      return;
     }
 
     const payload = {

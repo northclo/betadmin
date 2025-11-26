@@ -113,9 +113,7 @@
         :loading="loading"
         :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
         :expanded-row-keys="expandedRowKeys"
-        @expand="handleExpand"
-        @row-click="handleRowClick"
-        class="w-100 table-transparent"
+        class="w-100 table-transparent betting-list-table"
         :pagination="paginationConfig"
         @change="handleTableChange"
       >
@@ -168,6 +166,15 @@
             <a-tag :color="getResultColor(record)">
               {{ record.betting_status === 'CANCEL' ? trlang.cancel : (record.win ? trlang.win : trlang.lose) }}
             </a-tag>
+          </template>
+          <template v-if="column.key === 'detail'">
+            <a-button 
+              type="primary" 
+              size="small"
+              @click.stop="handleViewDetail(record)"
+            >
+              {{ trlang.detail }}
+            </a-button>
           </template>
         </template>
         <template #expandedRowRender="{ record }">
@@ -450,7 +457,7 @@ const formatBettingHistory = (record) => {
 
 const formatBettingTime = (dateString) => {
   if (!dateString) return '-';
-  return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss');
+  return dayjs(dateString).format('YYYY-MM-DD HH:mm');
 };
 
 const formatRound = (totalNo, todayNo) => {
@@ -463,18 +470,18 @@ const formatRound = (totalNo, todayNo) => {
   return '-';
 };
 
-const handleExpand = (expanded, record) => {
-  const key = record.betting_id || record._id;
-  if (expanded) {
-    if (!expandedRowKeys.value.includes(key)) {
-      expandedRowKeys.value.push(key);
-    }
+const handleViewDetail = (record) => {
+  const key = rowKey(record);
+  const currentKeys = [...expandedRowKeys.value];
+  const index = currentKeys.indexOf(key);
+  
+  if (index > -1) {
+    currentKeys.splice(index, 1);
   } else {
-    const index = expandedRowKeys.value.indexOf(key);
-    if (index > -1) {
-      expandedRowKeys.value.splice(index, 1);
-    }
+    currentKeys.push(key);
   }
+  
+  expandedRowKeys.value = currentKeys;
 };
 
 const formatGameEndTime = (dateString) => {
@@ -553,4 +560,3 @@ onMounted(() => {
   border-radius: 4px;
 }
 </style>
-

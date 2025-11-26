@@ -35,7 +35,7 @@
       </a-layout-sider>
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
         <a-input v-model:value="userName" class="input-md" />
-        <a-button @click="testUserName">{{ trlang.test }}</a-button>
+        <a-button :loading="checkingUserName" @click="testUserName">{{ trlang.test }}</a-button>
         <a-typography-text class="flex items-center text-dark-brown">
           {{ trlang.num_4_12_english_letters_and_numbers_no_special_characters }}
         </a-typography-text>
@@ -61,22 +61,6 @@
       </a-layout-content>
     </a-layout>
 
-    <a-layout class="flex border-b">
-      <a-layout-sider class="bg-gray border p-2 setting-sider">
-        <a-typography-text class="text-white text-center">
-          {{ trlang.email }}
-        </a-typography-text>
-      </a-layout-sider>
-      <a-layout-content class="flex gap-2 p-2 flex-wrap">
-        <a-input v-model:value="email" class="input-lg" />
-        <div class="flex items-center gap-2">
-          <a-button @click="testEmail">{{ trlang.test }}</a-button>
-          <a-typography-text class="text-dark-brown">
-            {{ trlang.email_format_required }}
-          </a-typography-text>
-        </div>
-      </a-layout-content>
-    </a-layout>
 
     <a-layout class="flex border-b">
       <a-layout-sider class="bg-gray border p-2 setting-sider">
@@ -109,7 +93,7 @@
       <a-layout-content class="flex gap-2 p-2 flex-wrap">
         <a-input v-model:value="nickname" class="w-100" />
         <div class="flex items-center gap-2">
-          <a-button @click="testNickname">{{ trlang.test }}</a-button>
+          <a-button :loading="checkingNickname" @click="testNickname">{{ trlang.test }}</a-button>
           <a-typography-text class="text-dark-brown">
             {{ trlang.num_2_10_characters_in_combination_of_english_and_numbers }}
           </a-typography-text>
@@ -253,7 +237,7 @@
 <script setup>
 import { computed, defineProps, inject, ref, onMounted, watch } from "vue";
 import { getCountryCallingCode, getCountries } from "libphonenumber-js";
-import { testEnglishNumberWithoutSpecialCharacter, checkValidEmail } from "@/helpers/Common.js";
+import { testEnglishNumberWithoutSpecialCharacter } from "@/helpers/Common.js";
 import { message } from "ant-design-vue";
 import { postData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
@@ -330,7 +314,6 @@ const bankName = ref("");
 const bankNameOptions = ref([]);
 const bankNumber = ref("");
 const bankOwner = ref("");
-const email = ref("");
 const exchangePassword = ref("");
 const memo = ref("");
 const simpleBetRate = ref(null);
@@ -338,45 +321,67 @@ const combinedBetRate = ref(null);
 const matchNumberBetRate = ref(null);
 const loading = ref(false);
 
-const testUserName = () => {
-  if (testEnglishNumberWithoutSpecialCharacter(4, 12, userName.value)) {
-    message.success(trlang.value.correct);
-  } else {
-    message.error(trlang.value.invalid_username);
-  }
-};
+const checkingUserName = ref(false);
+const checkingNickname = ref(false);
 
-const testNickname = () => {
-  if (testEnglishNumberWithoutSpecialCharacter(2, 10, nickname.value)) {
-    message.success(trlang.value.correct);
-  } else {
-    message.error(trlang.value.invalid_nickname);
-  }
-};
-
-const testEmail = async () => {
-  if (!email.value || !email.value.trim()) {
-    return message.error(trlang.value.please_input_email);
+const testUserName = async () => {
+  const value = userName.value?.trim();
+  
+  if (!value) {
+    return message.error(trlang.value.please_input_user_name);
   }
   
-  if (!checkValidEmail(email.value.trim())) {
-    return message.error(trlang.value.invalid_email_format);
+  if (!testEnglishNumberWithoutSpecialCharacter(4, 12, value)) {
+    return message.error(trlang.value.invalid_username);
   }
 
   try {
+    checkingUserName.value = true;
     const result = await postData(apiLink.check_user_availability, {
-      type: 'email',
-      value: email.value.trim()
+      type: 'userName',
+      value: value
     });
 
-    if (result.data?.available) {
+    if (result.status && result.data?.available) {
       message.success(trlang.value.available);
     }
   } catch (error) {
-    console.error("Error checking email:", error);
+    console.error("Error checking user name availability:", error);
     message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    checkingUserName.value = false;
   }
 };
+
+const testNickname = async () => {
+  const value = nickname.value?.trim();
+  
+  if (!value) {
+    return message.error(trlang.value.please_input_nickname);
+  }
+  
+  if (!testEnglishNumberWithoutSpecialCharacter(2, 10, value)) {
+    return message.error(trlang.value.invalid_nickname);
+  }
+
+  try {
+    checkingNickname.value = true;
+    const result = await postData(apiLink.check_user_availability, {
+      type: 'nickname',
+      value: value
+    });
+
+    if (result.status && result.data?.available) {
+      message.success(trlang.value.available);
+    }
+  } catch (error) {
+    console.error("Error checking nickname availability:", error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    checkingNickname.value = false;
+  }
+};
+
 
 const convertPartnerToTree = (partner, level = 0) => {
   if (!partner || !partner.id) return null;
@@ -463,7 +468,6 @@ watch(() => props.open, (newVal) => {
     bankName.value = "";
     bankNumber.value = "";
     bankOwner.value = "";
-    email.value = "";
     exchangePassword.value = "";
     memo.value = "";
     simpleBetRate.value = null;
@@ -506,14 +510,6 @@ const register = async () => {
     return message.error(trlang.value.please_input_nickname);
   }
 
-  if (!email.value || !email.value.trim()) {
-    return message.error(trlang.value.please_input_email);
-  }
-
-  if (!checkValidEmail(email.value.trim())) {
-    return message.error(trlang.value.invalid_email_format);
-  }
-
   if (!exchangePassword.value || !exchangePassword.value.trim()) {
     return message.error(trlang.value.please_input_exchange_password);
   }
@@ -552,7 +548,6 @@ const register = async () => {
       endTime: endTime.value,
       password: password.value,
       nickname: nickname.value,
-      email: email.value.trim(),
       phoneNumber: (activeCode.value || phoneNumber1.value || phoneNumber2.value) ? {
         active_code: activeCode.value || '',
         phone_number_1: phoneNumber1.value || '',

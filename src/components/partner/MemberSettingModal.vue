@@ -24,17 +24,6 @@
       <a-layout class="flex border-b">
         <a-layout-sider class="bg-gray border p-2 setting-sider">
           <a-typography-text class="text-white text-center">
-            {{ trlang.email }}
-          </a-typography-text>
-        </a-layout-sider>
-        <a-layout-content class="flex gap-2 p-2 flex-wrap">
-          <a-input v-model:value="email" class="w-100" />
-        </a-layout-content>
-      </a-layout>
-
-      <a-layout class="flex border-b">
-        <a-layout-sider class="bg-gray border p-2 setting-sider">
-          <a-typography-text class="text-white text-center">
             {{ trlang.user_name }}
           </a-typography-text>
         </a-layout-sider>
@@ -191,7 +180,7 @@
 <script setup>
 import { computed, defineProps, inject, ref, watch, onMounted } from "vue";
 import { getCountryCallingCode, getCountries } from "libphonenumber-js";
-import { checkValidEmail, testEnglishNumberWithoutSpecialCharacter } from "@/helpers/Common.js";
+import { testEnglishNumberWithoutSpecialCharacter } from "@/helpers/Common.js";
 import { message } from "ant-design-vue";
 import { postData, getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link";
@@ -221,7 +210,6 @@ const getDefaultCountryCode = () => {
 
 const nickname = ref("");
 const userName = ref("");
-const email = ref("");
 const password = ref("");
 const exchangePassword = ref("");
 const activeCode = ref(getDefaultCountryCode());
@@ -317,7 +305,6 @@ const fetchUserData = async () => {
       userId.value = user._id;
       nickname.value = user.user_nickname || "";
       userName.value = user.user_name || "";
-      email.value = user.user_email || "";
       bankName.value = user.bank_id || "";
       bankNumber.value = user.bank_number || "";
       bankOwner.value = user.bank_owner_name || "";
@@ -357,7 +344,6 @@ watch(() => props.open, (newVal) => {
     // Reset form when modal closes
     nickname.value = "";
     userName.value = "";
-    email.value = "";
     password.value = "";
     exchangePassword.value = "";
     activeCode.value = getDefaultCountryCode();
@@ -389,14 +375,6 @@ const update = async () => {
 
   if (!testEnglishNumberWithoutSpecialCharacter(2, 10, nickname.value.trim())) {
     return message.error(trlang.value.invalid_nickname_format);
-  }
-
-  if (!email.value || !email.value.trim()) {
-    return message.error(trlang.value.please_input_email);
-  }
-
-  if (!checkValidEmail(email.value.trim())) {
-    return message.error(trlang.value.invalid_email_format);
   }
 
   if (!userName.value || !userName.value.trim()) {
@@ -432,7 +410,6 @@ const update = async () => {
     const payload = {
       _id: userId.value,
       user_nickname: nickname.value.trim(),
-      user_email: email.value.trim(),
       user_name: userName.value.trim() || undefined,
       phone_number: (activeCode.value || phoneNumber1.value || phoneNumber2.value) ? {
         active_code: activeCode.value || '',

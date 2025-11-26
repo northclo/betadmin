@@ -199,7 +199,7 @@ const handleTableChange = (pagination) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
-  return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
+  return dayjs(dateString).format("YYYY-MM-DD HH:mm");
 };
 
 const buildQuery = () => {

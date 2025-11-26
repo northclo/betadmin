@@ -13,17 +13,17 @@
       <a-layout-content class="p-2 flex flex-column gap-2">
         <a-layout class="flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.dapol }}: </a-typography-text>
-          <a-input-number v-model:value="dapol" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
+          <a-input-number v-model:value="dapol" class="input-sm" :min="0" :max="maxDapol" :precision="2" :disabled="!canEditRates" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
         <a-layout class="flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.danpol }}: </a-typography-text>
-          <a-input-number v-model:value="danpol" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
+          <a-input-number v-model:value="danpol" class="input-sm" :min="0" :max="maxDanpol" :precision="2" :disabled="!canEditRates" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
         <a-layout class="flex flex-row items-center gap-2">
           <a-typography-text>{{ trlang.number_match }}: </a-typography-text>
-          <a-input-number v-model:value="numberMatch" class="input-sm" :min="0" :max="100" :precision="2" :disabled="!canEditRates" />
+          <a-input-number v-model:value="numberMatch" class="input-sm" :min="0" :max="maxNumberMatch" :precision="2" :disabled="!canEditRates" />
           <a-typography-text>%</a-typography-text>
         </a-layout>
       </a-layout-content>
@@ -44,12 +44,37 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  parentRates: {
+    type: Object,
+    default: null,
+  },
 });
 
 const { canChangeSettlementRate } = usePermissions();
 
 const canEditRates = computed(() => {
   return canChangeSettlementRate.value;
+});
+
+const maxDapol = computed(() => {
+  if (props.parentRates?.simple_bet_rate !== undefined && props.parentRates.simple_bet_rate !== null) {
+    return props.parentRates.simple_bet_rate;
+  }
+  return 100;
+});
+
+const maxDanpol = computed(() => {
+  if (props.parentRates?.combined_bet_rate !== undefined && props.parentRates.combined_bet_rate !== null) {
+    return props.parentRates.combined_bet_rate;
+  }
+  return 100;
+});
+
+const maxNumberMatch = computed(() => {
+  if (props.parentRates?.match_num_bet_rate !== undefined && props.parentRates.match_num_bet_rate !== null) {
+    return props.parentRates.match_num_bet_rate;
+  }
+  return 100;
 });
 
 /* Reactive toggle state */
@@ -77,6 +102,24 @@ const reset = () => {
   numberMatch.value = null;
 };
 
+const validate = () => {
+  const errors = [];
+  
+  if (props.parentRates) {
+    if (dapol.value !== null && dapol.value > maxDapol.value) {
+      errors.push(trlang.value.sub_partner_rate_cannot_exceed_parent?.replace('{0}', 'OEUO').replace('{1}', dapol.value).replace('{2}', maxDapol.value) || `OEUO rate cannot exceed ${maxDapol.value}%`);
+    }
+    if (danpol.value !== null && danpol.value > maxDanpol.value) {
+      errors.push(trlang.value.sub_partner_rate_cannot_exceed_parent?.replace('{0}', 'Combined').replace('{1}', danpol.value).replace('{2}', maxDanpol.value) || `Combined rate cannot exceed ${maxDanpol.value}%`);
+    }
+    if (numberMatch.value !== null && numberMatch.value > maxNumberMatch.value) {
+      errors.push(trlang.value.sub_partner_rate_cannot_exceed_parent?.replace('{0}', 'Number').replace('{1}', numberMatch.value).replace('{2}', maxNumberMatch.value) || `Number rate cannot exceed ${maxNumberMatch.value}%`);
+    }
+  }
+  
+  return errors;
+};
+
 defineExpose({
   getState: () => ({
     dapol: dapol.value,
@@ -84,5 +127,6 @@ defineExpose({
     numberMatch: numberMatch.value,
   }),
   reset,
+  validate,
 });
 </script>

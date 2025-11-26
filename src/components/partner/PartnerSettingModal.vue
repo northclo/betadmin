@@ -3,7 +3,7 @@
     @ok="update" @cancel="handleCancel" :confirm-loading="loading">
     <PartnerMemberInformation ref="memberInfoRef" :is-edit="true" :partner-data="partnerData" />
     <CurrencyRollingSetting ref="currencyRollingRef" :partner-data="partnerData" />
-    <PartnerRateSetting ref="rateSettingRef" :partner-data="partnerData" />
+    <PartnerRateSetting ref="rateSettingRef" :partner-data="partnerData" :parent-rates="parentRates" />
     <PartnerPermissionSetting ref="permissionSettingRef" :partner-data="partnerData" />
     <PartnerGameSetting ref="gameSettingRef" :partner-data="partnerData" />
   </a-modal>
@@ -49,6 +49,7 @@ const permissionSettingRef = ref(null);
 const gameSettingRef = ref(null);
 const loading = ref(false);
 const partnerData = ref(null);
+const parentRates = ref(null);
 
 const loadPartnerData = async () => {
   if (!props.dataSource || !props.dataSource.id) {
@@ -60,13 +61,20 @@ const loadPartnerData = async () => {
     const res = await getData(`${apiLink.get_partner_by_id}?id=${props.dataSource.id}`);
     if (res.status && res.data) {
       partnerData.value = res.data;
+      if (res.data.parentRates) {
+        parentRates.value = res.data.parentRates;
+      } else {
+        parentRates.value = null;
+      }
     } else {
       partnerData.value = null;
+      parentRates.value = null;
     }
   } catch (error) {
     console.error("Error loading partner data:", error);
     message.error(error.message || trlang.value.failed_to_fetch_data);
     partnerData.value = null;
+    parentRates.value = null;
   } finally {
     loading.value = false;
   }
@@ -79,6 +87,7 @@ const resetForm = () => {
   permissionSettingRef.value?.reset?.();
   gameSettingRef.value?.reset?.();
   partnerData.value = null;
+  parentRates.value = null;
 };
 
 const handleCancel = () => {
@@ -155,6 +164,13 @@ const update = async () => {
     const password = memberInfo.password?.trim();
     if (password && password.length < 6) {
       stopWithError("password_min_length_6");
+      return;
+    }
+
+    const rateErrors = rateSettingRef.value?.validate?.() || [];
+    if (rateErrors.length > 0) {
+      message.error(rateErrors[0]);
+      loading.value = false;
       return;
     }
     const payload = {

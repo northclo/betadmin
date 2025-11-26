@@ -1,11 +1,6 @@
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-export const checkValidEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
 export const exportExcel = (data, title, fileName) => {
     if (!data.length) return;
 
