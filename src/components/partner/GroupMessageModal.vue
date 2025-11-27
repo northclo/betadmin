@@ -147,7 +147,6 @@ const sendNote = async () => {
       title: title.value,
       content: noteMessage.value,
       expire: expire.value,
-      type: 'groupMessage',
     });
 
     if (result.status) {

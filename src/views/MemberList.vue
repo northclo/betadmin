@@ -170,13 +170,78 @@
       </a-button>
     </div>
 
+    <div class="action-buttons-bar flex items-center gap-2 mb-4 flex-wrap">
+      <a-button
+        size="small"
+        class="bg-gray-200 text-gray-700 border-none text-sm"
+        :disabled="selectedRowKeys.length === 0"
+        @click="handleBulkUpdateStatus('normal')"
+        :loading="bulkUpdateLoading === 'normal'"
+      >
+        {{ trlang.update_selected_user_status_normal }}
+      </a-button>
+      <a-button
+        size="small"
+        class="bg-green-500 text-white border-none"
+        :disabled="selectedRowKeys.length === 0"
+        @click="handleBulkUpdateStatus('stop')"
+        :loading="bulkUpdateLoading === 'stop'"
+      >
+        {{ trlang.update_selected_user_status_normal_stop }}
+      </a-button>
+      <a-button
+        size="small"
+        class="bg-green-500 text-white border-none"
+        :disabled="selectedRowKeys.length === 0"
+        @click="handleBulkUpdateStatus('cancel')"
+        :loading="bulkUpdateLoading === 'cancel'"
+      >
+        {{ trlang.update_selected_user_status_normal_cancel }}
+      </a-button>
+      <a-button
+        size="small"
+        class="bg-gray-200 text-gray-700 border-none"
+        :disabled="selectedRowKeys.length === 0"
+        @click="handleSendNotesToSelected"
+        :loading="sendNotesLoading"
+      >
+        {{ trlang.send_notes_to_selected_users }}
+      </a-button>
+      <a-button
+        size="small"
+        class="bg-gray-200 text-gray-700 border-none"
+        @click="handleSendNotesToAll"
+        :loading="sendNotesLoading"
+      >
+        {{ trlang.send_notes_to_all_users }}
+      </a-button>
+      <a-button
+        size="small"
+        class="bg-gray-200 text-gray-700 border-none"
+        :disabled="selectedRowKeys.length === 0"
+        @click="handleActiveConsiderUser"
+        :loading="considerUserLoading === 'active'"
+      >
+        {{ trlang.active_selected_user_to_consider }}
+      </a-button>
+      <a-button
+        size="small"
+        class="bg-gray-200 text-gray-700 border-none"
+        :disabled="selectedRowKeys.length === 0"
+        @click="handleDeactiveConsiderUser"
+        :loading="considerUserLoading === 'deactive'"
+      >
+        {{ trlang.deactive_selected_consider_user }}
+      </a-button>
+    </div>
+
     <div class="table-wrapper">
       <a-table
         :columns="memberListColumn"
         :data-source="dataSource"
         :row-key="rowKey"
+        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
         class="w-100 table-transparent"
-        :scroll="dataSource.length ? { x: 'max-content' } : undefined"
         :pagination="paginationConfig"
         @change="handleTableChange"
         :loading="loading"
@@ -188,7 +253,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ index + 1 }}</a-typography-text>
+            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
           <template v-if="column.key === 'login'">
             <div
@@ -206,7 +271,7 @@
           <template v-if="column.key === 'user_id'">
             <div class="flex flex-column">
               <a-typography-text>
-                  {{ record.user_nickname || '-' }}
+                  {{ record.user_name || record.partner_id || '-' }}
               </a-typography-text>
             </div>
           </template>
@@ -272,16 +337,6 @@
           <template v-if="column.key === 'betting_provide_point'">
             {{ (record.point || 0).toLocaleString() }}{{ trlang.points_unit }}
           </template>
-          <template v-if="column.key === 'last_import_date'">
-            <div class="flex flex-column justify-center items-center">
-              <a-typography-text class="font-bold">
-                {{ formatDate(record.last_import_time).date }}
-              </a-typography-text>
-              <a-typography-text>
-                {{ formatDate(record.last_import_time).time }}
-              </a-typography-text>
-            </div>
-          </template>
           <template v-if="column.key === 'connect_date'">
             <div class="flex flex-column justify-center items-center">
               <a-typography-text class="font-bold">
@@ -301,16 +356,6 @@
                 {{ formatDate(record.createdAt).time }}
               </a-typography-text>
             </div>
-          </template>
-          <template v-if="column.key === 'actions'">
-            <a-button
-              type="primary"
-              size="small"
-              @click="handleEdit(record)"
-            >
-              <template #icon><EditOutlined /></template>
-              {{ trlang.edit }}
-            </a-button>
           </template>
         </template>
       </a-table>
@@ -416,6 +461,82 @@
       </div>
     </div>
   </a-modal>
+
+  <a-modal
+    v-model:open="sendNotesModalVisible"
+    :title="trlang.send_notes_to_users"
+    :ok-text="trlang.send"
+    :cancel-text="trlang.cancel"
+    @ok="handleSendNotesSubmit"
+    @cancel="handleCancelSendNotes"
+    :confirm-loading="sendNotesLoading"
+  >
+    <a-layout class="mt-5">
+      <a-layout-sider class="border p-2 setting-sider">
+        <a-typography-text class="text-white">
+          {{ trlang.title }}
+        </a-typography-text>
+      </a-layout-sider>
+      <a-layout-content class="p-2">
+        <a-input v-model:value="sendNotesForm.title" />
+      </a-layout-content>
+    </a-layout>
+
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
+        <a-typography-text class="text-white">
+          {{ trlang.author }}
+        </a-typography-text>
+      </a-layout-sider>
+      <a-layout-content class="p-2">
+        <a-typography-text>{{ currentPartner?.partner_id || currentPartner?.id || trlang.administrator }}</a-typography-text>
+      </a-layout-content>
+    </a-layout>
+
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
+        <a-typography-text class="text-white">
+          {{ trlang.recipient }}
+        </a-typography-text>
+      </a-layout-sider>
+      <a-layout-content class="p-2 flex items-center gap-2">
+        <a-typography-text>
+          {{ sendNotesForm.targetUsers === 'selected' 
+            ? `${trlang.send_notes_to_selected_users} (${selectedRowKeys.length} ${trlang.people})`
+            : trlang.send_notes_to_all_users }}
+        </a-typography-text>
+      </a-layout-content>
+    </a-layout>
+
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
+        <a-typography-text class="text-white">
+          {{ trlang.detail }}
+        </a-typography-text>
+      </a-layout-sider>
+      <a-layout-content class="p-2">
+        <a-textarea :rows="5" v-model:value="sendNotesForm.content" allow-clear />
+      </a-layout-content>
+    </a-layout>
+
+    <a-layout class="border-b">
+      <a-layout-sider class="border p-2 setting-sider">
+        <a-typography-text class="text-white">
+          {{ trlang.expiration_period }}
+        </a-typography-text>
+      </a-layout-sider>
+      <a-layout-content class="p-2 flex flex-column">
+        <a-select
+          v-model:value="sendNotesForm.expire"
+          class="w-100"
+          :options="expireOptions"
+        />
+        <p class="text-dark-brown mt-1">
+          *{{ trlang.when_set_messages_will_be_automatically_deleted_after_the_specified_period }}
+        </p>
+      </a-layout-content>
+    </a-layout>
+  </a-modal>
 </template>
 
 <script setup>
@@ -432,7 +553,6 @@ import {
   RightOutlined,
   CheckOutlined,
   CloseOutlined,
-  EditOutlined,
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
@@ -468,6 +588,7 @@ const sortOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
+const selectedRowKeys = ref([]);
 const statusCounts = ref({
   all: 0,
   normal: 0,
@@ -491,6 +612,18 @@ const editForm = ref({
   user_status: '',
 });
 const loadingEdit = ref(false);
+const bulkUpdateLoading = ref('');
+const sendNotesLoading = ref(false);
+const considerUserLoading = ref('');
+const sendNotesModalVisible = ref(false);
+const sendNotesForm = ref({
+  title: '',
+  content: '',
+  targetUsers: 'selected', // 'selected' or 'all'
+  expire: '0',
+});
+const expireOptions = ref([]);
+const currentPartner = ref(null);
 
 const blockedIpColumns = computed(() => [
   {
@@ -528,6 +661,7 @@ const memberListColumn = computed(() => {
   const titleMap = {
     "No": trlang.value.no_column,
     "Login": trlang.value.login_column,
+    "User Id": trlang.value.user_id,
     "Nickname(Id)": trlang.value.nickname_id,
     "Partner": trlang.value.partner_column,
     "Status": trlang.value.status_column,
@@ -539,16 +673,31 @@ const memberListColumn = computed(() => {
     "Total Win Number": trlang.value.total_win_number,
     "Total Earning Money": trlang.value.total_earning_money,
     "Betting Provide Point": trlang.value.betting_provide_point,
-    "Last Import Date": trlang.value.last_import_date,
     "Connect Date": trlang.value.connect_date,
     "Created Date": trlang.value.created_date,
-    "Actions": trlang.value.actions,
   };
   return baseMemberListColumn.map(col => ({
     ...col,
     title: titleMap[col.title] || col.title
   }));
 });
+
+const initExpireOptions = () => {
+  expireOptions.value = [
+    { value: '0', label: trlang.value.no_period_set },
+    { value: '1 day', label: trlang.value.one_day },
+    { value: '3 days', label: trlang.value.three_days },
+    { value: '1 week', label: trlang.value.a_week },
+    { value: 'moon', label: trlang.value.full_moon },
+    { value: '1 month', label: trlang.value.one_month },
+    { value: '1 hour', label: trlang.value.one_hour },
+    { value: '3 hours', label: trlang.value.three_hours },
+    { value: '6 hours', label: trlang.value.six_hours },
+    { value: '12 hours', label: trlang.value.twelve_hours },
+    { value: '30 minutes', label: trlang.value.thirty_minutes },
+    { value: '5 minutes', label: trlang.value.five_minutes },
+  ];
+};
 
 const initOptions = () => {
   duration.value = 'import_exchange_betting';
@@ -596,7 +745,11 @@ const initOptions = () => {
   ];
 };
 
-const rowKey = (record) => record.user_id;
+const rowKey = (record) => record.user_id || record.partner?._id;
+
+const onSelectChange = (keys) => {
+  selectedRowKeys.value = keys;
+};
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -639,22 +792,31 @@ const fetchPartnerList = async () => {
   try {
     const res = await getData(apiLink.get_game_partner);
     if (res.status && res.data) {
+      // Store current partner info (root partner)
       if (Array.isArray(res.data)) {
+        // Find headquater or use first partner as root
+        const rootPartner = res.data.find(p => p.role === 'headquater') || res.data[0] || null;
+        currentPartner.value = rootPartner;
         partnerTreeOptions.value = res.data
           .map(partner => convertPartnerToTree(partner))
           .filter(Boolean);
-      } else if (res.data.id) {
+      } else if (res.data) {
+        // Single partner object (root partner)
+        currentPartner.value = res.data;
         const tree = convertPartnerToTree(res.data);
         partnerTreeOptions.value = tree ? [tree] : [];
       } else {
+        currentPartner.value = null;
         partnerTreeOptions.value = [];
       }
     } else {
+      currentPartner.value = null;
       partnerTreeOptions.value = [];
     }
   } catch (error) {
     console.error("Error fetching partner list:", error);
     message.error(error.message || trlang.value.failed_to_fetch_data);
+    currentPartner.value = null;
     partnerTreeOptions.value = [];
   }
 };
@@ -664,7 +826,9 @@ const formatDate = (dateValue) => {
   const dateStr = typeof dateValue === 'string' ? dateValue : dateValue.toString();
   if (!dateStr.includes('T')) return { date: dateStr, time: '-' };
   const [date, timePart] = dateStr.split('T');
-  const time = timePart ? timePart.split('.')[0] : '-';
+  if (!timePart) return { date, time: '-' };
+  const timeWithoutMs = timePart.split('.')[0];
+  const time = timeWithoutMs ? timeWithoutMs.split(':').slice(0, 2).join(':') : '-';
   return { date, time };
 };
 
@@ -916,15 +1080,6 @@ const handleCloseBlockIpModal = () => {
   blockedIpPaginationConfig.value.current = 1;
 };
 
-const handleEdit = (record) => {
-  const userId = record._id ? String(record._id) : record.user_id;
-  editForm.value = {
-    _id: userId,
-    user_status: record.user_status || '',
-  };
-  editModalVisible.value = true;
-};
-
 const handleCancelEdit = () => {
   editModalVisible.value = false;
   editForm.value = {
@@ -959,9 +1114,185 @@ const handleSaveEdit = async () => {
   }
 };
 
+const handleBulkUpdateStatus = async (status) => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_users);
+    return;
+  }
+
+  bulkUpdateLoading.value = status;
+  try {
+    const updatePromises = selectedRowKeys.value.map(userId => 
+      postData(apiLink.member_list, {
+        _id: userId,
+        user_status: status,
+      })
+    );
+
+    const results = await Promise.allSettled(updatePromises);
+    const successCount = results.filter(r => r.status === 'fulfilled' && r.value?.status).length;
+    const failCount = results.length - successCount;
+
+    if (successCount > 0) {
+      message.success(trlang.value.users_updated_successfully.replace('{count}', successCount.toString()));
+      selectedRowKeys.value = [];
+      await fetchData();
+    }
+    if (failCount > 0) {
+      message.warning(trlang.value.some_users_update_failed.replace('{count}', failCount.toString()));
+    }
+  } catch (error) {
+    console.error('Error bulk updating users:', error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    bulkUpdateLoading.value = '';
+  }
+};
+
+const handleSendNotesToSelected = () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_users);
+    return;
+  }
+  sendNotesForm.value.targetUsers = 'selected';
+  sendNotesForm.value.expire = '0';
+  sendNotesModalVisible.value = true;
+};
+
+const handleSendNotesToAll = () => {
+  sendNotesForm.value.targetUsers = 'all';
+  sendNotesForm.value.expire = '0';
+  sendNotesModalVisible.value = true;
+};
+
+const handleCancelSendNotes = () => {
+  sendNotesModalVisible.value = false;
+  sendNotesForm.value = {
+    title: '',
+    content: '',
+    targetUsers: 'selected',
+    expire: '0',
+  };
+};
+
+const handleActiveConsiderUser = async () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_users);
+    return;
+  }
+
+  considerUserLoading.value = 'active';
+  try {
+    const updatePromises = selectedRowKeys.value.map(userId => 
+      postData(apiLink.member_list, {
+        _id: userId,
+        consider_user: true,
+      })
+    );
+
+    const results = await Promise.allSettled(updatePromises);
+    const successCount = results.filter(r => r.status === 'fulfilled' && r.value?.status).length;
+
+    if (successCount > 0) {
+      message.success(trlang.value.users_activated_successfully.replace('{count}', successCount.toString()));
+      selectedRowKeys.value = [];
+      await fetchData();
+    }
+  } catch (error) {
+    console.error('Error activating consider users:', error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    considerUserLoading.value = '';
+  }
+};
+
+const handleDeactiveConsiderUser = async () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning(trlang.value.please_select_users);
+    return;
+  }
+
+  considerUserLoading.value = 'deactive';
+  try {
+    const updatePromises = selectedRowKeys.value.map(userId => 
+      postData(apiLink.member_list, {
+        _id: userId,
+        consider_user: false,
+      })
+    );
+
+    const results = await Promise.allSettled(updatePromises);
+    const successCount = results.filter(r => r.status === 'fulfilled' && r.value?.status).length;
+
+    if (successCount > 0) {
+      message.success(trlang.value.users_deactivated_successfully.replace('{count}', successCount.toString()));
+      selectedRowKeys.value = [];
+      await fetchData();
+    }
+  } catch (error) {
+    console.error('Error deactivating consider users:', error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    considerUserLoading.value = '';
+  }
+};
+
+const handleSendNotesSubmit = async () => {
+  if (!sendNotesForm.value.title || !sendNotesForm.value.content) {
+    message.error(trlang.value.please_input_title_and_message);
+    return;
+  }
+
+  sendNotesLoading.value = true;
+  try {
+    const userIds = sendNotesForm.value.targetUsers === 'selected' 
+      ? selectedRowKeys.value 
+      : null;
+    const sendToAll = sendNotesForm.value.targetUsers === 'all';
+
+    if (sendNotesForm.value.targetUsers === 'selected' && (!userIds || userIds.length === 0)) {
+      message.warning(trlang.value.please_select_users);
+      sendNotesLoading.value = false;
+      return;
+    }
+
+    const res = await postData(apiLink.send_notes_to_users, {
+      userIds: userIds,
+      title: sendNotesForm.value.title.trim(),
+      content: sendNotesForm.value.content.trim(),
+      sendToAll: sendToAll,
+      expire: sendNotesForm.value.expire,
+    });
+
+    if (res && res.status) {
+      message.success(res.message || trlang.value.notes_sent_successfully);
+      const wasSelected = sendNotesForm.value.targetUsers === 'selected';
+      sendNotesModalVisible.value = false;
+      sendNotesForm.value = {
+        title: '',
+        content: '',
+        targetUsers: 'selected',
+        expire: '0',
+      };
+      if (wasSelected) {
+        selectedRowKeys.value = [];
+      }
+      await fetchData();
+    }
+  } catch (error) {
+    console.error('Error sending notes:', error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    sendNotesLoading.value = false;
+  }
+};
+
 onMounted(() => {
   initOptions();
+  initExpireOptions();
   fetchPartnerList();
   fetchData();
 });
 </script>
+
+

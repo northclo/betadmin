@@ -5,6 +5,7 @@ export const apiLink = {
   member_list: 'admin/member/list',
   get_member_by_id: 'admin/member/by-id',
   delete_member: 'admin/member/list',
+  send_notes_to_users: 'admin/member/send-notes',
   game_setting: 'admin/game-setting',
   site_setting: 'admin/site-setting',
   game_partner: 'admin/partner',

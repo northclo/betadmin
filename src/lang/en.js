@@ -663,5 +663,21 @@ export default {
   partners_created: "{0} partner(s) created",
   partners_created_with_total: "{0}/{1} partners created",
   error_occurred: "An error occurred",
-  no_response_from_server: "No response from server. Please check your network."
+  no_response_from_server: "No response from server. Please check your network.",
+  update_selected_user_status_normal: "Update Selected User status (Normal)",
+  update_selected_user_status_normal_stop: "Update Selected User status (Stop)",
+  update_selected_user_status_normal_cancel: "Update Selected User status (Cancel)",
+  send_notes_to_selected_users: "Send Notes to selected users",
+  send_notes_to_all_users: "Send Notes to all users",
+  send_notes_to_users: "Send Notes to Users",
+  active_selected_user_to_consider: "Active Selected User to Consider",
+  deactive_selected_consider_user: "Deactive Selected Consider User",
+  please_select_users: "Please select users",
+  users_updated_successfully: "{count} user(s) updated successfully",
+  some_users_update_failed: "{count} user(s) update failed",
+  users_activated_successfully: "{count} user(s) activated successfully",
+  users_deactivated_successfully: "{count} user(s) deactivated successfully",
+  send_notes_feature_coming_soon: "Send notes feature coming soon",
+  please_input_title_and_message: "Please input title and message",
+  notes_sent_successfully: "Notes sent successfully"
 };

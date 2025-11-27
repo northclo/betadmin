@@ -121,6 +121,10 @@
           <template v-if="column.key === 'mobile'">
             <a-typography-text>{{ record.mobile ? 'Y' : 'N' }}</a-typography-text>
           </template>
+
+          <template v-if="column.key === 'login_time'">
+            <a-typography-text>{{ record.login_time ? dayjs(record.login_time).format('YYYY-MM-DD HH:mm') : '' }}</a-typography-text>
+          </template>
         </template>
       </a-table>
     </a-layout-content>
