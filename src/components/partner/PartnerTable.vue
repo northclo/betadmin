@@ -134,15 +134,15 @@
       <template v-if="column.key === 'benefit'">
         <a-layout class="bg-none">
           <a-typography-text>
-            {{ trlang.oeuo }}
+            {{ trlang.dapol }}
             <span class="text-dark-brown">{{ record.simpleBetRate }}%</span>
           </a-typography-text>
           <a-typography-text>
-            {{ trlang.combined }}
+            {{ trlang.danpol }}
             <span class="text-dark-brown">{{ record.combinedBetRate }}%</span>
           </a-typography-text>
           <a-typography-text>
-            {{ trlang.number }}
+            {{ trlang.number_match }}
             <span class="text-dark-brown">{{ record.matchNumberBetRate }}%</span>
           </a-typography-text>
         </a-layout>
@@ -152,9 +152,17 @@
           {{ record.members + 1 }}
         </a-typography-text>
       </template>
+      <template v-if="column.key === 'lower_money_sum'">
+        <a-layout class="bg-none text-end">
+          <a-typography-text class="text-dark-brown text-end">
+            {{ record.lowerMoneySum || 0 }}{{ trlang.global_currency }}
+          </a-typography-text>
+          <a-typography-text>{{ record.lowerPointSum || 0 }}{{ trlang.points_unit }}</a-typography-text>
+        </a-layout>
+      </template>
       <template v-if="column.key === 'function'">
         <a-layout class="bg-none flex flex-row justify-center items-center flex-wrap gap-2">
-          <a-button v-if="record.role !== 'headquater' && record.role !== 'user'" class="actions-button bg-gray text-white"
+          <a-button v-if="record.role !== 'user'" class="actions-button bg-gray text-white"
             @click="$emit('openSettingModal', record)">
             <CheckCircleOutlined /> {{ trlang.setting }}
           </a-button>

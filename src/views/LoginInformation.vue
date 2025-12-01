@@ -86,20 +86,9 @@
           <template v-if="column.key === 'no'">
             <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
-
           <template v-if="column.key === 'user_id'">
             <span>
               {{ record.user_nickname }}
-            </span>
-            <span :class="record.partner_nickname
-              ? 'bg-gray text-white p-1 radius-1'
-              : ''
-              ">
-              {{
-                record.partner_nickname
-                  ? trlang[record.partner_role]
-                  : ''
-              }}
             </span>
           </template>
           <template v-if="column.key === 'ip_address'">

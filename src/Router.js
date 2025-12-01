@@ -3,26 +3,27 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routeLink } from "./utils/route-link.js";
 
 const LoginPage = () => import("@/views/LoginPage.vue");
-const SiteSetting = () => import('@/views/SiteSetting.vue');
+const SiteSetting = () => import("@/views/SiteSetting.vue");
 const MemberList = () => import("@/views/MemberList.vue");
-const AdminAccount = () => import('@/views/AdminAccount.vue');
-const GameSetting = () => import('@/views/GameSetting.vue');
-const GamePartner = () => import('@/views/GamePartner.vue');
-const LoginInformation = () => import('@/views/LoginInformation.vue');
-const GameManagement = () => import('@/views/GameManagement.vue');
-const CurrentLoginUserPage = () => import('@/views/CurrentLoginUser.vue');
-const DashboardView = () => import('@/views/Dashboard.vue');
-const AdminMenuManagement = () => import('@/views/AdminMenuManagement.vue');
-const BettingSettlementView = () => import('@/views/BettingSettlement.vue');
-const BettingListView = () => import('@/views/BettingList.vue');
-const ChargingManagementView = () => import('@/views/ChargingManagement.vue');
-const ExchangeManagementView = () => import('@/views/ExchangeManagement.vue');
-const MoneyUsageLogView = () => import('@/views/MoneyUsageLog.vue');
-const PointUsageLogView = () => import('@/views/PointUsageLog.vue');
-const AnnouncementView = () => import('@/views/Announcement.vue');
-const CustomerServiceCenterView = () => import('@/views/CustomerServiceCenter.vue');
-const PopupManagementView = () => import('@/views/PopupManagement.vue');
-const NoticeManagementView = () => import('@/views/NoticeManagement.vue');
+const AdminAccount = () => import("@/views/AdminAccount.vue");
+const GameSetting = () => import("@/views/GameSetting.vue");
+const GamePartner = () => import("@/views/GamePartner.vue");
+const LoginInformation = () => import("@/views/LoginInformation.vue");
+const GameManagement = () => import("@/views/GameManagement.vue");
+const CurrentLoginUserPage = () => import("@/views/CurrentLoginUser.vue");
+const DashboardView = () => import("@/views/Dashboard.vue");
+const AdminMenuManagement = () => import("@/views/AdminMenuManagement.vue");
+const BettingSettlementView = () => import("@/views/BettingSettlement.vue");
+const BettingListView = () => import("@/views/BettingList.vue");
+const ChargingManagementView = () => import("@/views/ChargingManagement.vue");
+const ExchangeManagementView = () => import("@/views/ExchangeManagement.vue");
+const MoneyUsageLogView = () => import("@/views/MoneyUsageLog.vue");
+const PointUsageLogView = () => import("@/views/PointUsageLog.vue");
+const AnnouncementView = () => import("@/views/Announcement.vue");
+const CustomerServiceCenterView = () => import("@/views/CustomerServiceCenter.vue");
+const PopupManagementView = () => import("@/views/PopupManagement.vue");
+const NoticeManagementView = () => import("@/views/NoticeManagement.vue");
+const NotificationView = () => import("@/views/Notification.vue");
 
 const routes = [
   {
@@ -149,6 +150,12 @@ const routes = [
     path: routeLink.dashboard.link,
     name: routeLink.dashboard.name,
     component: DashboardView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: routeLink.notification.link,
+    name: routeLink.notification.name,
+    component: NotificationView,
     meta: { requiresAuth: true },
   }
 ];

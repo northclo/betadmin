@@ -86,25 +86,12 @@
       </a-form>
     </a-card>
 
-    <div class="flex items-center justify-end mb-4">
-      <a-button 
-        danger 
-        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
-        :loading="bulkDeleteLoading"
-        @click="handleBulkDelete"
-      >
-        <template #icon><CloseOutlined /></template>
-        {{ trlang.delete_selected_items }}
-      </a-button>
-    </div>
-
     <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
         :loading="loading"
         :pagination="paginationConfig"
-        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
         row-key="id"
         @change="handleTableChange"
       >
@@ -186,7 +173,7 @@
 <script setup>
 import { computed, inject, ref, onMounted, onBeforeUnmount } from "vue";
 import { message } from "ant-design-vue";
-import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
+import { SearchOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
 import { getData, postData, putData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
@@ -200,8 +187,6 @@ const trlang = computed(() => langState?.translations || {});
 const loading = ref(false);
 const searchLoading = ref(false);
 const actionLoading = ref({});
-const bulkDeleteLoading = ref(false);
-const selectedRowKeys = ref([]);
 const editingCommentId = ref(null);
 const editingCommentValue = ref("");
 const commentLoading = ref({});
@@ -397,37 +382,7 @@ const resetFilters = () => {
     includeSubPartners: false,
   };
   paginationConfig.value.current = 1;
-  selectedRowKeys.value = [];
   fetchData();
-};
-
-const onSelectChange = (keys) => {
-  selectedRowKeys.value = keys;
-};
-
-const handleBulkDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    message.error(trlang.value.please_select_items_to_delete);
-    return;
-  }
-
-  bulkDeleteLoading.value = true;
-  try {
-    const res = await postData(apiLink.bulk_delete_charging, {
-      ids: selectedRowKeys.value,
-    });
-
-    if (res.status) {
-      message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
-      selectedRowKeys.value = [];
-      await fetchData();
-    }
-  } catch (error) {
-    console.error("Error bulk deleting charging transactions:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    bulkDeleteLoading.value = false;
-  }
 };
 
 const handleCommentDoubleClick = (record) => {

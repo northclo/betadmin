@@ -338,22 +338,16 @@
             {{ (record.point || 0).toLocaleString() }}{{ trlang.points_unit }}
           </template>
           <template v-if="column.key === 'connect_date'">
-            <div class="flex flex-column justify-center items-center">
-              <a-typography-text class="font-bold">
-                {{ formatDate(record.login_history?.createdAt).date }}
-              </a-typography-text>
+            <div class="flex flex-column justify-center items-center" v-if="record.login_status">
               <a-typography-text>
-                {{ formatDate(record.login_history?.createdAt).time }}
+                {{ formatDate(record.login_history?.createdAt).date }} {{ formatDate(record.login_history?.createdAt).time }}
               </a-typography-text>
             </div>
           </template>
           <template v-if="column.key === 'created_date'">
             <div class="flex flex-column justify-center items-center">
-              <a-typography-text class="font-bold">
-                {{ formatDate(record.createdAt).date }}
-              </a-typography-text>
               <a-typography-text>
-                {{ formatDate(record.createdAt).time }}
+                {{ formatDate(record.createdAt).date }} {{ formatDate(record.createdAt).time }}
               </a-typography-text>
             </div>
           </template>
@@ -822,7 +816,7 @@ const fetchPartnerList = async () => {
 };
 
 const formatDate = (dateValue) => {
-  if (!dateValue) return { date: '-', time: '-' };
+  if (!dateValue) return { date: '-', time: '' };
   const dateStr = typeof dateValue === 'string' ? dateValue : dateValue.toString();
   if (!dateStr.includes('T')) return { date: dateStr, time: '-' };
   const [date, timePart] = dateStr.split('T');

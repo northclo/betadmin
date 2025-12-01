@@ -121,7 +121,6 @@ import { useStore } from "vuex";
 import router from "@/Router";
 import { routeLink } from "@/utils/route-link";
 import { menuList } from "@/utils/menu-list";
-import { useOnlineStatus } from '@/composables/useOnlineStatus';
 import { MenuOutlined, AppstoreOutlined } from "@ant-design/icons-vue";
 
 export default {
@@ -141,13 +140,12 @@ export default {
     const store = useStore();
     const currentRoute = computed(() => route.path);
 
-    useOnlineStatus(localStorage.getItem('token'));
-
     const menus = ref([]);
     const navDrawerOpen = ref(false);
 
     const logout = () => {
       localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
       localStorage.removeItem("permissions");
       localStorage.removeItem("partnerRole");
       store.commit("clearPermissions");

@@ -83,4 +83,8 @@ export const routeLink = {
     name: "NoticeManagementPage",
     link: "/notice-management"
   },
+  notification: {
+    name: "NotificationPage",
+    link: "/notification"
+  },
 };

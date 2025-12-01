@@ -55,7 +55,7 @@
         :data-source="tableData"
         :loading="loading"
         :pagination="paginationConfig"
-        row-key="transaction_id"
+        row-key="_id"
         @change="handleTableChange"
       >
         <template #bodyCell="{ column, record, index }">
@@ -76,23 +76,6 @@
               {{ trlang[record.status] || record.status }}
             </a-tag>
           </template>
-          <template v-else-if="column.key === 'action'">
-            <a-popconfirm
-              :title="trlang.confirm_delete || 'Are you sure you want to delete this transaction?'"
-              :ok-text="trlang.delete || 'Delete'"
-              :cancel-text="trlang.cancel || 'Cancel'"
-              @confirm="handleDelete(record)"
-            >
-              <a-button 
-                type="primary" 
-                danger 
-                size="small"
-                :loading="deletingIds.includes(record._id)"
-              >
-                {{ trlang.delete || 'Delete' }}
-              </a-button>
-            </a-popconfirm>
-          </template>
         </template>
       </a-table>
     </a-layout-content>
@@ -103,7 +86,7 @@
 import { computed, inject, ref, onMounted, watch } from "vue";
 import { message } from "ant-design-vue";
 import dayjs from "dayjs";
-import { getData, deleteData } from "@/helpers/Axios";
+import { getData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 import { usePagination } from "@/composables/usePagination";
 
@@ -114,7 +97,6 @@ const trlang = computed(() => langState?.translations || {});
 
 const loading = ref(false);
 const searchLoading = ref(false);
-const deletingIds = ref([]);
 const filters = ref({
   range: null,
   fund_type: "all",
@@ -128,7 +110,6 @@ const columns = computed(() => [
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
   { title: trlang.value.amount, dataIndex: "amount", key: "amount", width: 160 },
   { title: trlang.value.date, dataIndex: "processed_at", key: "processed_at", width: 200 },
-  { title: trlang.value.action, key: "action", width: 120, fixed: "right" },
 ]);
 
 const tableData = ref([]);
@@ -217,28 +198,6 @@ const resetFilters = async () => {
     await fetchData();
   } finally {
     searchLoading.value = false;
-  }
-};
-
-const handleDelete = async (record) => {
-  if (!record._id) {
-    message.error(trlang.value.transaction_id_not_found);
-    return;
-  }
-
-  deletingIds.value.push(record._id);
-  try {
-    const res = await deleteData(`${apiLink.delete_money_usage_transaction}/${record._id}`);
-    
-    if (res.status) {
-      message.success(trlang.value.transaction_deleted_successfully || res.message);
-      await fetchData();
-    }
-  } catch (error) {
-    console.error("Error deleting transaction:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    deletingIds.value = deletingIds.value.filter(id => id !== record._id);
   }
 };
 

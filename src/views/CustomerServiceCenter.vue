@@ -56,26 +56,12 @@
       </a-form>
     </a-card>
 
-    <div class="flex items-center justify-between mb-4">
-      <span class="fs-4 font-semibold">{{ trlang.customer_center }}</span>
-      <a-button 
-        danger 
-        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
-        :loading="bulkDeleteLoading"
-        @click="handleBulkDelete"
-      >
-        <template #icon><CloseOutlined /></template>
-        {{ trlang.delete_selected_items }}
-      </a-button>
-    </div>
-
     <a-layout-content>
       <a-table
         :columns="columns"
         :data-source="tableData"
         :loading="loading"
         :pagination="paginationConfig"
-        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
         row-key="id"
         @change="handleTableChange"
       >
@@ -202,7 +188,7 @@ import { computed, inject, ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
-import { getData, postData, putData, deleteData } from "@/helpers/Axios.js";
+import { getData, putData, deleteData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link.js";
 import { usePagination } from "@/composables/usePagination.js";
 
@@ -214,10 +200,8 @@ const searchLoading = ref(false);
 const resolveLoading = ref(false);
 const rejectLoading = ref(false);
 const deleteLoading = ref(false);
-const bulkDeleteLoading = ref(false);
 const viewModalVisible = ref(false);
 const viewingRecord = ref(null);
-const selectedRowKeys = ref([]);
 const answerForm = ref({
   answer: "",
 });
@@ -340,10 +324,6 @@ const resetFilters = () => {
   fetchData();
 };
 
-const onSelectChange = (keys) => {
-  selectedRowKeys.value = keys;
-};
-
 const handleView = async (record) => {
   if (!record || !record.id) {
     message.error(trlang.value.invalid_ticket_id);
@@ -445,31 +425,6 @@ const handleDelete = async (ticketId) => {
     message.error(error.message || trlang.value.operation_failed);
   } finally {
     deleteLoading.value = false;
-  }
-};
-
-const handleBulkDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    message.error(trlang.value.please_select_items_to_delete);
-    return;
-  }
-
-  bulkDeleteLoading.value = true;
-  try {
-    const res = await postData(`${apiLink.bulk_delete_support}`, {
-      ids: selectedRowKeys.value,
-    });
-
-    if (res.status) {
-      message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
-      selectedRowKeys.value = [];
-      await fetchData();
-    }
-  } catch (error) {
-    console.error("Error bulk deleting tickets:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    bulkDeleteLoading.value = false;
   }
 };
 

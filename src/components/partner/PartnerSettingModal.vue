@@ -4,7 +4,7 @@
     <PartnerMemberInformation ref="memberInfoRef" :is-edit="true" :partner-data="partnerData" />
     <CurrencyRollingSetting ref="currencyRollingRef" :partner-data="partnerData" />
     <PartnerRateSetting ref="rateSettingRef" :partner-data="partnerData" :parent-rates="parentRates" />
-    <PartnerPermissionSetting ref="permissionSettingRef" :partner-data="partnerData" />
+    <PartnerPermissionSetting v-if="partnerData && partnerData.role !== 'headquater'" ref="permissionSettingRef" :partner-data="partnerData" />
     <PartnerGameSetting ref="gameSettingRef" :partner-data="partnerData" />
   </a-modal>
 </template>
@@ -115,7 +115,9 @@ const update = async () => {
     const memberInfo = memberInfoRef.value?.getState?.() || {};
     const currencyRolling = currencyRollingRef.value?.getState?.() || {};
     const rateSetting = rateSettingRef.value?.getState?.() || {};
-    const permissionSetting = permissionSettingRef.value?.getState?.() || {};
+    const permissionSetting = partnerData.value?.role !== 'headquater' 
+      ? (permissionSettingRef.value?.getState?.() || {}) 
+      : null;
     const gameSetting = gameSettingRef.value?.getState?.() || {};
 
     const stopWithError = (key) => {

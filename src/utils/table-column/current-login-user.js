@@ -7,13 +7,7 @@ export const currentLoginUserColumn = [
         align: 'center',
     },
     {
-        title: "Disconnect",
-        dataIndex: "disconnect",
-        key: "disconnect",
-        align: 'center'
-    },
-    {
-        title: "ID",
+        title: "User ID",
         dataIndex: "id",
         key: "id",
     },
@@ -63,12 +57,6 @@ export const currentLoginUserColumn = [
         title: "Exchange Money",
         dataIndex: "exchange_money",
         key: "exchange_money",
-        align: 'end',
-    },
-    {
-        title: "User's Import",
-        dataIndex: "user_import",
-        key: "user_import",
         align: 'end',
     },
     {

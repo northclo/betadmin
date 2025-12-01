@@ -14,7 +14,7 @@ import "./css/header.css";
 import "./css/color.css";
 
 import VueLazyload from "vue3-lazyload";
-import socketPlugin from './plugins/socket';
+import socketPlugin from "./plugins/socket";
 
 const app = createApp(App);
 app.use(socketPlugin);

@@ -92,15 +92,7 @@
             {{ record.date ? formatDate(record.date) : '-' }}
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
-            <a-space>
-              <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
-              <a-popconfirm
-                :title="trlang.confirm_delete"
-                @confirm="handleDelete(record.id)"
-              >
-                <a-button type="link" danger>{{ trlang.delete }}</a-button>
-              </a-popconfirm>
-            </a-space>
+            <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
           </template>
         </template>
       </a-table>
@@ -165,7 +157,7 @@
 import { computed, inject, ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
 import dayjs from "dayjs";
-import { getData, postData, putData, deleteData } from "@/helpers/Axios";
+import { getData, postData, putData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 import { usePagination } from "@/composables/usePagination";
 
@@ -389,19 +381,6 @@ const handleCancel = () => {
     category: "system_notice",
     status: "draft",
   };
-};
-
-const handleDelete = async (announcementId) => {
-  try {
-    const res = await deleteData(`${apiLink.delete_announcement}/${announcementId}`);
-    if (res.status) {
-      message.success(res.message || trlang.value.announcement_deleted_successfully);
-      fetchData();
-    }
-  } catch (error) {
-    console.error("Error deleting announcement:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  }
 };
 
 onMounted(() => {

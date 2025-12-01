@@ -82,17 +82,6 @@
             <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
           </template>
 
-          <template v-if="column.key === 'disconnect'">
-            <a-spin v-if="logoutLoading[record.user_nickname]">
-              <LogoutOutlined class="cursor-pointer" />
-            </a-spin>
-            <LogoutOutlined
-              v-else
-              class="cursor-pointer"
-              @click="logoutUser(record.user_nickname)"
-            />
-          </template>
-
           <template v-if="column.key === 'id'">
             <a-typography-text class="me-2">{{
               record.user_nickname
@@ -150,17 +139,10 @@
             {{ record.total_exchange_amount || 0 }}{{ trlang.global_currency }}
           </template>
 
-          <template v-if="column.key === 'user_import'">
-            {{ record.user_import_amount || 0 }}{{ trlang.global_currency }}
-          </template>
-
           <template v-if="column.key === 'final_import_date'">
             <div v-if="record.last_import_date" class="flex flex-column">
-              <a-typography-text class="font-bold">
-                {{ record.last_import_date.split('T')[0] }}
-              </a-typography-text>
               <a-typography-text>
-                {{ record.last_import_date.split('T')[1]?.split('.')[0] }}
+                {{ record.last_import_date.split('T')[0] }} {{ record.last_import_date.split('T')[1]?.split('.')[0] }}
               </a-typography-text>
             </div>
             <span v-else>-</span>
@@ -168,21 +150,16 @@
 
           <template v-if="column.key === 'created_date'">
             <div class="flex flex-column">
-              <a-typography-text class="font-bold">{{
-                record.createdAt.split('T')[0]
-              }}</a-typography-text>
-              <a-typography-text>{{
-                record.createdAt.split('T')[1].split('.')[0]
-              }}</a-typography-text>
+              <a-typography-text>
+              {{record.createdAt.split('T')[0] }} {{ record.createdAt.split('T')[1].split('.')[0] }}
+              </a-typography-text>
             </div>
           </template>
 
           <template v-if="column.key === 'connect_date'">
             <div v-if="record.last_login_history?.createdAt" class="flex flex-column">
-              <a-typography-text class="font-bold">
-                {{ record.last_login_history.createdAt.split('T')[0] }}
-              </a-typography-text>
               <a-typography-text>
+                {{ record.last_login_history.createdAt.split('T')[0] }}
                 {{
                   record.last_login_history.createdAt
                     .split('T')[1]
@@ -204,10 +181,10 @@
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
-import { SearchOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { currentLoginUserColumn as baseCurrentLoginUserColumn } from '@/utils/table-column/current-login-user.js';
-import { getData, postData } from '@/helpers/Axios';
+import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -232,15 +209,13 @@ const userStatusOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
-const logoutLoading = ref({});
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
 
 const currentLoginUserColumn = computed(() => {
   const titleMap = {
     "No": trlang.value.no_column,
-    "Disconnect": trlang.value.disconnect,
-    "ID": trlang.value.id,
+    "User ID": trlang.value.user_id,
     "Partner": trlang.value.partner_column,
     "IP": trlang.value.ip,
     "Location": trlang.value.location,
@@ -249,7 +224,6 @@ const currentLoginUserColumn = computed(() => {
     "Money(Point)": trlang.value.money_point,
     "Import Money": trlang.value.import_money,
     "Exchange Money": trlang.value.exchange_money,
-    "User's Import": trlang.value.user_import,
     "Final Import Date": trlang.value.final_import_date,
     "Connect Date": trlang.value.connect_date,
     "Created Date": trlang.value.created_date,
@@ -364,25 +338,6 @@ watch(
     fetchData();
   }
 );
-
-
-const logoutUser = async (user_nickname) => {
-  logoutLoading.value[user_nickname] = true;
-  try {
-    const result = await postData(apiLink.logout_user, {
-      user_nickname,
-    });
-
-    if (result.status) {
-      fetchData();
-    }
-  } catch (error) {
-    console.error('Error logging out user:', error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    logoutLoading.value[user_nickname] = false;
-  }
-};
 
 onMounted(() => {
   initOptions();

@@ -92,26 +92,12 @@
       </a-form>
     </a-card>
 
-    <div class="flex items-center justify-between mb-4">
-      <span class="fs-4 font-semibold">{{ trlang.betting_list }}</span>
-      <a-button 
-        danger 
-        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
-        :loading="bulkDeleteLoading"
-        @click="handleBulkDelete"
-      >
-        <template #icon><CloseOutlined /></template>
-        {{ trlang.delete_selected_items }}
-      </a-button>
-    </div>
-
     <a-layout-content>
       <a-table
         :columns="bettingListColumn"
         :data-source="dataSource"
         :row-key="rowKey"
         :loading="loading"
-        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
         :expanded-row-keys="expandedRowKeys"
         class="w-100 table-transparent betting-list-table"
         :pagination="paginationConfig"
@@ -217,7 +203,7 @@
 
             <div class="detail-footer mt-3">
               <a-typography-text>
-                {{ record.user_nickname || '-' }} ({{ record.user_email || '-' }}) 
+                {{ record.user_nickname || '-' }}
               </a-typography-text>
             </div>
           </div>
@@ -229,11 +215,11 @@
 
 <script setup>
 import { ref, onMounted, computed, inject, watch } from 'vue';
-import { SearchOutlined, CloseOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { bettingListColumn as baseBettingListColumn } from '@/utils/table-column/betting-list.js';
-import { getData, postData } from '@/helpers/Axios';
+import { getData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -262,8 +248,6 @@ const sortOptions = ref([]);
 
 const dataSource = ref([]);
 const loading = ref(false);
-const bulkDeleteLoading = ref(false);
-const selectedRowKeys = ref([]);
 const expandedRowKeys = ref([]);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
@@ -430,12 +414,7 @@ const resetFilters = () => {
     sort: 'created_date:desc',
   };
   paginationConfig.value.current = 1;
-  selectedRowKeys.value = [];
   fetchData();
-};
-
-const onSelectChange = (keys) => {
-  selectedRowKeys.value = keys;
 };
 
 const formatBettingHistory = (record) => {
@@ -497,31 +476,6 @@ const formatBettingType = (bettingType) => {
 const getResultColor = (record) => {
   if (record.betting_status === 'CANCEL') return 'default';
   return record.win ? 'success' : 'error';
-};
-
-const handleBulkDelete = async () => {
-  if (selectedRowKeys.value.length === 0) {
-    message.error(trlang.value.please_select_items_to_delete);
-    return;
-  }
-
-  bulkDeleteLoading.value = true;
-  try {
-    const res = await postData(`${apiLink.bulk_delete_betting_list}`, {
-      ids: selectedRowKeys.value,
-    });
-
-    if (res.status) {
-      message.success(res.message || trlang.value.successfully_deleted_items.replace('{count}', selectedRowKeys.value.length.toString()));
-      selectedRowKeys.value = [];
-      await fetchData();
-    }
-  } catch (error) {
-    console.error("Error bulk deleting betting records:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    bulkDeleteLoading.value = false;
-  }
 };
 
 watch(

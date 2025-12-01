@@ -20,6 +20,7 @@
         <LeftLayout />
       </a-drawer>
       <a-layout class="flex-1 h-100vh overflow-y-auto main-content">
+        <NotificationBar />
         <HeaderMenu
           :show-menu-toggle="isMobile"
           @toggle-sidebar="showSidebar = true"
@@ -33,13 +34,12 @@
 </template>
 
 <script setup>
-import { reactive, provide, onMounted, computed, ref, onBeforeUnmount, watch } from "vue";
+import { reactive, provide, onMounted, onBeforeUnmount, computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { notification } from "ant-design-vue";
 import LeftLayout from "./components/LeftLayout.vue";
 import HeaderMenu from "./components/HeaderMenu.vue";
-import { socket } from "@/plugins/socket.js";
+import NotificationBar from "./components/NotificationBar.vue";
 import { getData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 
@@ -93,44 +93,6 @@ const updateViewport = () => {
   }, 150);
 };
 
-const playAlertSound = () => {
-  try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.frequency.value = 800;
-    oscillator.type = "sine";
-
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
-  } catch (error) {
-    console.error("Error playing alert sound:", error);
-  }
-};
-
-const handleNewSupportMessage = (data) => {
-  playAlertSound();
-
-  const translations = state.translations || {};
-  notification.open({
-    message: translations.new_support_message || "",
-    description: `${translations.user || ""}: ${data.user_nickname || translations.unknown || ""} - ${data.title || ""}`,
-    duration: 5,
-    placement: "topRight",
-    onClick: () => {
-      router.push("/customer-center");
-    },
-  });
-};
-
 const loadPermissions = async () => {
   const token = localStorage.getItem("token");
   if (token && !isAuthPage.value) {
@@ -155,10 +117,6 @@ onMounted(() => {
   updateViewport();
   window.addEventListener("resize", updateViewport);
   loadPermissions();
-
-  if (!isAuthPage.value) {
-    socket.on("new_support_message", handleNewSupportMessage);
-  }
 });
 
 onBeforeUnmount(() => {
@@ -166,8 +124,6 @@ onBeforeUnmount(() => {
     clearTimeout(resizeTimer);
   }
   window.removeEventListener("resize", updateViewport);
-  
-  socket.off("new_support_message", handleNewSupportMessage);
 });
 
 watch(
@@ -177,15 +133,4 @@ watch(
   }
 );
 
-watch(
-  () => isAuthPage.value,
-  (newVal) => {
-    if (!newVal) {
-      socket.on("new_support_message", handleNewSupportMessage);
-    } else {
-      socket.off("new_support_message", handleNewSupportMessage);
-    }
-  },
-  { immediate: true }
-);
 </script>

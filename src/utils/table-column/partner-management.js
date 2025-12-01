@@ -73,6 +73,12 @@ export const partnerManagementColumns = (trlang) => {
             width: "80px",
         },
         {
+            key: "lower_money_sum",
+            dataIndex: "lower_money_sum",
+            title: trlang.value.lower_money_sum,
+            width: "100px",
+        },
+        {
             key: "function",
             dataIndex: "function",
             title: trlang.value.actions,

@@ -71,15 +71,7 @@
             {{ record.date ? formatDate(record.date) : '-' }}
           </template>
           <template v-else-if="column.dataIndex === 'actions'">
-            <a-space>
-              <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
-              <a-popconfirm
-                :title="trlang.confirm_delete_popup"
-                @confirm="handleDelete(record.id)"
-              >
-                <a-button type="link" danger :loading="deleting">{{ trlang.delete }}</a-button>
-              </a-popconfirm>
-            </a-space>
+            <a-button type="link" @click="handleEdit(record)">{{ trlang.edit }}</a-button>
           </template>
         </template>
       </a-table>
@@ -129,7 +121,7 @@
 import { computed, inject, ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
 import dayjs from "dayjs";
-import { getData, postData, putData, deleteData } from "@/helpers/Axios";
+import { getData, postData, putData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
 import { usePagination } from "@/composables/usePagination";
 
@@ -141,7 +133,6 @@ const trlang = computed(() => langState?.translations || {});
 const loading = ref(false);
 const searchLoading = ref(false);
 const saving = ref(false);
-const deleting = ref(false);
 const modalVisible = ref(false);
 const editingRecord = ref(null);
 const formRef = ref(null);
@@ -321,22 +312,6 @@ const handleCancel = () => {
     content: "",
     status: "INACTIVE",
   };
-};
-
-const handleDelete = async (popupId) => {
-  deleting.value = true;
-  try {
-    const res = await deleteData(`${apiLink.delete_popup}/${popupId}`);
-    if (res.status) {
-      message.success(res.message || trlang.value.popup_deleted_successfully);
-      fetchData();
-    }
-  } catch (error) {
-    console.error("Error deleting popup:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    deleting.value = false;
-  }
 };
 
 onMounted(() => {

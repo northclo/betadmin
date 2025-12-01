@@ -19,18 +19,69 @@
             :key="bank._id || `new-${index}`"
             class="flex justify-between items-center gap-2 p-2 border rounded"
           >
-            <a-typography-text class="flex-1">
-              {{ bank.bank_name }}
-            </a-typography-text>
-            <a-button
-              type="primary"
-              danger
-              size="small"
-              @click="removeBank(index)"
-              :disabled="bankAccounts.length <= 1"
-            >
-              <DeleteOutlined />
-            </a-button>
+            <div class="flex items-center gap-2 flex-1">
+              <a-button
+                type="text"
+                size="small"
+                @click="moveUp(index)"
+                :disabled="index === 0"
+                :title="trlang.move_up"
+              >
+                <ArrowUpOutlined />
+              </a-button>
+              <a-button
+                type="text"
+                size="small"
+                @click="moveDown(index)"
+                :disabled="index === bankAccounts.length - 1"
+                :title="trlang.move_down"
+              >
+                <ArrowDownOutlined />
+              </a-button>
+              <a-input
+                v-if="editingIndex === index"
+                v-model:value="editingBankName"
+                class="flex-1"
+                :placeholder="trlang.bank_name"
+                @pressEnter="saveEdit(index)"
+                @blur="saveEdit(index)"
+                ref="editInputRef"
+              />
+              <a-typography-text
+                v-else
+                class="flex-1 cursor-pointer"
+                @click="startEdit(index)"
+              >
+                {{ bank.bank_name }}
+              </a-typography-text>
+            </div>
+            <div class="flex gap-2">
+              <a-button
+                v-if="editingIndex === index"
+                type="primary"
+                size="small"
+                @click="saveEdit(index)"
+              >
+                {{ trlang.save }}
+              </a-button>
+              <a-button
+                v-if="editingIndex === index"
+                size="small"
+                @click="cancelEdit"
+              >
+                {{ trlang.cancel }}
+              </a-button>
+              <a-button
+                v-if="editingIndex !== index"
+                type="primary"
+                danger
+                size="small"
+                @click="removeBank(index)"
+                :disabled="bankAccounts.length <= 1"
+              >
+                <DeleteOutlined />
+              </a-button>
+            </div>
           </div>
           <div class="flex gap-2">
             <a-input
@@ -54,8 +105,8 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, watch, defineExpose } from 'vue';
-import { DeleteOutlined } from '@ant-design/icons-vue';
+import { ref, computed, inject, watch, defineExpose, nextTick } from 'vue';
+import { DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 
 const props = defineProps({
@@ -67,6 +118,9 @@ const trlang = computed(() => langState?.translations || {});
 
 const bankAccounts = ref([]);
 const newBankName = ref('');
+const editingIndex = ref(-1);
+const editingBankName = ref('');
+const editInputRef = ref(null);
 
 const loadData = (data) => {
   if (!data || !data.bankAccounts) {
@@ -119,8 +173,80 @@ const addBank = () => {
 const removeBank = (index) => {
   if (bankAccounts.value.length > 1) {
     bankAccounts.value.splice(index, 1);
+    if (editingIndex.value === index) {
+      cancelEdit();
+    } else if (editingIndex.value > index) {
+      editingIndex.value--;
+    }
   } else {
     message.error(trlang.value.at_least_one_bank_required);
+  }
+};
+
+const startEdit = (index) => {
+  editingIndex.value = index;
+  editingBankName.value = bankAccounts.value[index].bank_name;
+  nextTick(() => {
+    if (editInputRef.value && editInputRef.value.length > 0) {
+      editInputRef.value[0].focus();
+    }
+  });
+};
+
+const saveEdit = (index) => {
+  if (editingIndex.value !== index) return;
+  
+  const trimmedName = editingBankName.value?.trim();
+  if (!trimmedName) {
+    message.error(trlang.value.please_input_bank_name);
+    cancelEdit();
+    return;
+  }
+  
+  const isDuplicate = bankAccounts.value.some(
+    (bank, idx) => idx !== index && bank.bank_name?.trim().toLowerCase() === trimmedName.toLowerCase()
+  );
+  
+  if (isDuplicate) {
+    message.error(trlang.value.bank_name_already_exists);
+    cancelEdit();
+    return;
+  }
+  
+  bankAccounts.value[index].bank_name = trimmedName;
+  cancelEdit();
+};
+
+const cancelEdit = () => {
+  editingIndex.value = -1;
+  editingBankName.value = '';
+};
+
+const moveUp = (index) => {
+  if (index > 0) {
+    const temp = bankAccounts.value[index];
+    bankAccounts.value[index] = bankAccounts.value[index - 1];
+    bankAccounts.value[index - 1] = temp;
+    
+    if (editingIndex.value === index) {
+      editingIndex.value = index - 1;
+    } else if (editingIndex.value === index - 1) {
+      editingIndex.value = index;
+    }
+  }
+};
+
+const moveDown = (index) => {
+  if (index < bankAccounts.value.length - 1) {
+    const temp = bankAccounts.value[index];
+    bankAccounts.value[index] = bankAccounts.value[index + 1];
+    bankAccounts.value[index + 1] = temp;
+    
+    if (editingIndex.value === index) {
+      editingIndex.value = index + 1;
+    } else if (editingIndex.value === index + 1) {
+      editingIndex.value = index;
+    }
   }
 };
 

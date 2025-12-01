@@ -235,6 +235,7 @@ const login = async () => {
 
   if (res && res.status) {
     localStorage.setItem('token', res.data.token);
+    localStorage.setItem('user_id', res.data.id);
     
     if (res.data.permissions) {
       store.commit('setPermissions', res.data.permissions);
