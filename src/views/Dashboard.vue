@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="dashboard-view">
+  <a-layout>
     <div>
       <a-typography-title :level="3">
         {{ trlang.dashboard }}
@@ -434,34 +434,34 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.dashboard-view {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  transition: gap 0.3s ease;
-}
-
 .metric-card {
-  min-height: 180px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: min-height 0.3s ease;
+}
+
+.metric-card :deep(.ant-card-head) {
+  min-height: 48px !important;
+  padding: 0 16px !important;
 }
 
 .metric-card :deep(.ant-card-head-title) {
   font-weight: 600;
   font-size: 16px;
-  transition: font-size 0.3s ease;
 }
 
 .metric-card :deep(.ant-card-body) {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   flex: 1;
+  padding: 16px !important;
+}
+
+.metric-card :deep(.ant-card-body::after),
+.metric-card :deep(.ant-card-body::before) {
+  content: none !important;
 }
 
 .metric-value {
@@ -482,7 +482,7 @@ onBeforeUnmount(() => {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   transition: gap 0.3s ease;
 }
 
@@ -512,226 +512,13 @@ onBeforeUnmount(() => {
   transition: font-size 0.3s ease;
 }
 
-/* Responsive Design */
-
-/* Large Desktop (1200px and above) */
-@media (min-width: 1200px) {
-  .dashboard-view {
-    gap: 32px;
-  }
-
-  .metric-card {
-    min-height: 200px;
-  }
-
-  .metric-value {
-    font-size: 36px;
-  }
-}
-
-/* Desktop (992px - 1199px) */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .dashboard-view {
-    gap: 28px;
-  }
-
-  .metric-card {
-    min-height: 190px;
-  }
-
-  .metric-value {
-    font-size: 32px;
-  }
-}
-
-/* Tablet / iPad Portrait (768px - 991px) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .dashboard-view {
-    gap: 24px;
-  }
-
-  .metric-card {
-    min-height: 170px;
-  }
-
-  .metric-card :deep(.ant-card-head-title) {
-    font-size: 15px;
-  }
-
-  .metric-value {
-    font-size: 28px;
-    margin: 10px 0 6px 0 !important;
-  }
-
-  .metric-description {
-    font-size: 13px;
-  }
-
-  .pending-list {
-    gap: 10px;
-  }
-
-  .pending-item {
-    padding: 6px 0;
-  }
-
-  .pending-label {
-    font-size: 13px;
-  }
-
-  .pending-value {
-    font-size: 15px;
-  }
-}
-
-/* Mobile Landscape / Small Tablet (576px - 767px) */
-@media (min-width: 576px) and (max-width: 767px) {
-  .dashboard-view {
-    gap: 20px;
-  }
-
-  .metric-card {
-    min-height: 160px;
-  }
-
-  .metric-card :deep(.ant-card-head-title) {
-    font-size: 14px;
-  }
-
-  .metric-value {
-    font-size: 26px;
-    margin: 8px 0 6px 0 !important;
-  }
-
-  .metric-description {
-    font-size: 12px;
-  }
-
-  .pending-list {
-    gap: 10px;
-  }
-
-  .pending-item {
-    padding: 8px 0;
-  }
-
-  .pending-label {
-    font-size: 13px;
-  }
-
-  .pending-value {
-    font-size: 15px;
-  }
-}
-
-/* Mobile Portrait (up to 575px) */
-@media (max-width: 575px) {
-  .dashboard-view {
-    gap: 16px;
-  }
-
-  .metric-card {
-    min-height: 150px;
-  }
-
-  .metric-card :deep(.ant-card-head-title) {
-    font-size: 14px;
-  }
-
-  .metric-card :deep(.ant-card-body) {
-    padding: 16px;
-  }
-
-  .metric-value {
-    font-size: 24px;
-    margin: 8px 0 4px 0 !important;
-  }
-
-  .metric-description {
-    font-size: 12px;
-  }
-
-  .pending-list {
-    gap: 8px;
-  }
-
-  .pending-item {
-    padding: 6px 0;
-    flex-wrap: wrap;
-  }
-
-  .pending-label {
-    font-size: 12px;
-    width: 100%;
-    margin-bottom: 4px;
-  }
-
-  .pending-value {
-    font-size: 14px;
-    width: 100%;
-    text-align: left;
-  }
-}
-
-/* Extra Small Mobile (up to 375px) */
-@media (max-width: 375px) {
-  .dashboard-view {
-    gap: 14px;
-  }
-
-  .metric-card {
-    min-height: 140px;
-  }
-
-  .metric-card :deep(.ant-card-body) {
-    padding: 14px;
-  }
-
-  .metric-value {
-    font-size: 22px;
-  }
-
-  .metric-description {
-    font-size: 11px;
-  }
-
-  .pending-list {
-    gap: 6px;
-  }
-
-  .pending-label {
-    font-size: 11px;
-  }
-
-  .pending-value {
-    font-size: 13px;
-  }
-}
-
-/* Very Small Screens (up to 320px) */
-@media (max-width: 320px) {
-  .metric-card {
-    min-height: 130px;
-  }
-
-  .metric-card :deep(.ant-card-body) {
-    padding: 12px;
-  }
-
-  .metric-value {
-    font-size: 20px;
-  }
-}
-
 /* Chart Styles */
 .dashboard-charts {
   margin-top: 24px;
-  width: 100%;
 }
 
 .chart-card {
-  min-height: 400px;
-  height: 100%;
+  min-height: 300px;
 }
 
 .chart-title {
@@ -770,49 +557,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.8);
   z-index: 10;
-}
-
-@media (max-width: 768px) {
-  .chart-wrapper {
-    height: 300px;
-    min-height: 300px;
-  }
-  
-  .chart-container {
-    height: 300px;
-    min-height: 300px;
-  }
-  
-  .chart-card {
-    min-height: 350px;
-  }
-}
-
-@media (max-width: 576px) {
-  .chart-wrapper {
-    height: 250px;
-    min-height: 250px;
-  }
-  
-  .chart-container {
-    height: 250px;
-    min-height: 250px;
-  }
-  
-  .chart-card {
-    min-height: 300px;
-  }
-}
-
-/* Landscape Orientation Adjustments */
-@media (max-height: 600px) and (orientation: landscape) {
-  .metric-card {
-    min-height: 140px;
-  }
-
-  .dashboard-view {
-    gap: 16px;
-  }
 }
 </style>
 
