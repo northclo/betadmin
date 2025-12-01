@@ -435,10 +435,10 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .metric-card {
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
 }
 
 .metric-card :deep(.ant-card-head) {

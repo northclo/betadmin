@@ -1306,12 +1306,10 @@
   box-shadow: var(--shadow-sm) !important;
   border-radius: 8px !important;
   overflow: hidden;
-  transition: box-shadow 0.25s ease;
-  margin-bottom: 24px;
 }
 
-.ant-card:hover {
-  box-shadow: var(--shadow-md) !important;
+.filters-card {
+  margin-bottom: 24px;
 }
 
 .ant-card-head {
