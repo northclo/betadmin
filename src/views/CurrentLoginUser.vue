@@ -151,7 +151,7 @@
           <template v-if="column.key === 'created_date'">
             <div class="flex flex-column">
               <a-typography-text>
-              {{record.createdAt.split('T')[0] }} {{ record.createdAt.split('T')[1].split('.')[0] }}
+              {{ record.createdAt.split('T')[0] }} {{ record.createdAt.split('T')[1].split('.')[0] }}
               </a-typography-text>
             </div>
           </template>

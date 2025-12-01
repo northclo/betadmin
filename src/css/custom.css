@@ -385,13 +385,13 @@
 
 .left-rail {
   padding: 14px 10px;
+  padding-bottom: 20px;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   color: rgba(255, 255, 255, 0.88);
   transition: padding 0.3s ease, width 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 100vh;
   position: sticky;
   top: 0;
   width: 260px !important;
@@ -466,8 +466,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-left: 10px;
-  border-left: 1px solid rgba(148, 163, 184, 0.2);
+  padding-left: 0;
 }
 
 .left-rail__label {
@@ -568,6 +567,10 @@
   font-weight: 500 !important;
 }
 
+.left-rail__section--total {
+  margin-bottom: 16px;
+}
+
 .left-rail__pillset {
   display: grid;
   gap: 6px;
@@ -619,6 +622,232 @@
   font-size: 13px;
   color: #f8fafc;
   font-weight: 600;
+}
+
+/* Balance Section (User Owned Amount & User Point) */
+.left-rail__balance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 12px;
+}
+
+.left-rail__balance-item {
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.left-rail__balance-label {
+  background-color: #22c55e;
+  color: #ffffff;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.left-rail__balance-value {
+  background-color: rgba(30, 41, 59, 0.6);
+  color: #f8fafc;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  flex: 1;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.left-rail__section--simple {
+  background-color: rgba(241, 245, 249, 0.1);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.left-rail__simple-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-rail__simple-label {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.left-rail__simple-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.left-rail__charge-header {
+  background-color: rgba(71, 85, 105, 0.8);
+  color: #ffffff;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px 4px 0 0;
+  margin: 0;
+}
+
+.left-rail__charge-content {
+  background-color: rgba(30, 41, 59, 0.6);
+  padding: 12px;
+  border-radius: 0 0 4px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.left-rail__charge-content .left-rail__select {
+  width: 100%;
+}
+
+.left-rail__charge-content .left-rail__select :deep(.ant-select-selector) {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(148, 163, 184, 0.4) !important;
+  color: #f8fafc !important;
+}
+
+.left-rail__charge-content .left-rail__select :deep(.ant-select-selection-item) {
+  color: #f8fafc !important;
+}
+
+.left-rail__charge-content .left-rail__select :deep(.ant-select-selector:hover) {
+  border-color: rgba(148, 163, 184, 0.6) !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+}
+
+.left-rail__charge-content .left-rail__select :deep(.ant-select-focused .ant-select-selector) {
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+.left-rail__charge-content .left-rail__select :deep(.ant-select-arrow) {
+  color: rgba(203, 213, 225, 0.8) !important;
+}
+
+.left-rail__charge-content .left-rail__pillset {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.left-rail__charge-content .pill {
+  flex: 1;
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-rail__charge-content .pill--deposit {
+  color: #3b82f6;
+}
+
+.left-rail__charge-content .pill--deposit span {
+  color: #3b82f6;
+  font-size: 12px;
+}
+
+.left-rail__charge-content .pill--deposit strong {
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.left-rail__charge-content .pill--withdrawal {
+  color: #ef4444;
+}
+
+.left-rail__charge-content .pill--withdrawal span {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.left-rail__charge-content .pill--withdrawal strong {
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Game Stats Section */
+.left-rail__game-stats {
+  margin-top: 8px;
+}
+
+.left-rail__game-label {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.9);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.left-rail__game-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.left-rail__game-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(203, 213, 225, 0.85);
+  padding: 4px 0;
+}
+
+.left-rail__game-list li strong {
+  font-size: 12px;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+/* Total Breakdown Section */
+.left-rail__section--total {
+  border-top: 1px solid rgba(148, 163, 184, 0.3);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.left-rail__section--total ul {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.left-rail__section--total li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.left-rail__section--total li span {
+  color: rgba(203, 213, 225, 0.85);
+}
+
+.left-rail__section--total li strong {
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 13px;
 }
 
 /* ============================================
@@ -675,7 +904,6 @@
   }
 
   .left-rail__section {
-    padding-left: 10px;
     gap: 10px;
   }
 
@@ -737,7 +965,6 @@
   }
 
   .left-rail__section {
-    padding-left: 8px;
     gap: 8px;
   }
 
@@ -823,7 +1050,6 @@
   }
 
   .left-rail__section {
-    padding-left: 8px;
     gap: 8px;
   }
 
