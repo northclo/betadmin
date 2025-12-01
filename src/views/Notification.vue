@@ -15,7 +15,7 @@
       </div>
       <a-row :gutter="[24, 16]">
         <a-col :xs="24" :md="8" v-for="alarm in alarmItems" :key="alarm.key">
-          <div class="alarm-item">
+          <div>
             <div class="alarm-label">{{ trlang[alarm.label] || alarm.label }}</div>
             <div class="alarm-controls">
               <a-form-item class="mb-2">
@@ -28,7 +28,7 @@
                   :filter-option="filterSoundOption"
                 />
               </a-form-item>
-              <a-form-item class="mb-2">
+              <a-form-item class="mb-6">
                 <div class="volume-control">
                   <span class="volume-label">{{ trlang.volume }}:</span>
                   <a-slider
@@ -57,7 +57,7 @@
 
     <!-- Notification Counters -->
     <a-row :gutter="[16, 16]" class="notification-counters" justify="center">
-      <a-col :xs="12" :sm="6" v-for="counter in notificationCounters" :key="counter.key">
+      <a-col :xs="12" :sm="4" v-for="counter in notificationCounters" :key="counter.key">
         <div class="counter-circle" :class="counter.colorClass">
           <div class="counter-label">{{ trlang[counter.label] || counter.label }}</div>
           <div class="counter-value" :class="counter.colorClass">
@@ -198,14 +198,11 @@ onMounted(() => {
 
 <style scoped>
 .alarm-settings-card {
-  background: #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 8px !important;
 }
 
 .alarm-settings-header {
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .alarm-settings-title {
@@ -213,13 +210,6 @@ onMounted(() => {
   font-size: 18px;
   font-weight: 600;
   color: #1f2937;
-}
-
-.alarm-item {
-  background: white;
-  padding: 16px;
-  border-radius: 6px;
-  margin-bottom: 16px;
 }
 
 .alarm-label {
@@ -274,8 +264,6 @@ onMounted(() => {
   border: 4px solid;
   background: white;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
 }
 
 .counter-yellow {

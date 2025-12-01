@@ -7,7 +7,7 @@
             {{ trlang.charge }}
           </td>
           <td class="notification-bar-table-value" :class="{ 'has-new': chargeData.new > 0 }">
-            <div class="new-notification" :class="{ 'cursor-pointer': chargeData.new > 0 }" @click="navigateTo('/charge-management', chargeData.new)">
+            <div class="new-notification cursor-pointer" @click="navigateTo('/charge-management')">
               <div class="star-icon-wrapper" v-if="chargeData.new > 0">
                 <svg class="star-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white" />
@@ -17,16 +17,20 @@
             </div>
           </td>
           <td class="notification-bar-table-value">
-            {{ trlang.waiting }}: {{ chargeData.waiting }}
+            <div class="cursor-pointer" @click="navigateTo('/charge-management')">
+              {{ trlang.waiting }}: {{ chargeData.waiting }}
+            </div>
           </td>
           <td class="notification-bar-table-value">
-            {{ trlang.completed }}: {{ chargeData.completed }}
+            <div class="cursor-pointer" @click="navigateTo('/charge-management')">
+              {{ trlang.completed }}: {{ chargeData.completed }}
+            </div>
           </td>
           <td class="notification-bar-table-title">
             {{ trlang.exchange }}
           </td>
           <td class="notification-bar-table-value" :class="{ 'has-new': exchangeData.new > 0 }">
-            <div class="new-notification" :class="{ 'cursor-pointer': exchangeData.new > 0 }" @click="navigateTo('/exchange-management', exchangeData.new)">
+            <div class="new-notification cursor-pointer" @click="navigateTo('/exchange-management')">
               <div class="star-icon-wrapper" v-if="exchangeData.new > 0">
                 <svg class="star-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white" />
@@ -36,16 +40,20 @@
             </div>
           </td>
           <td class="notification-bar-table-value">
-            {{ trlang.waiting }}: {{ exchangeData.waiting }}
+            <div class="cursor-pointer" @click="navigateTo('/exchange-management')">
+              {{ trlang.waiting }}: {{ exchangeData.waiting }}
+            </div>
           </td>
           <td class="notification-bar-table-value">
-            {{ trlang.completed }}: {{ exchangeData.completed }}
+            <div class="cursor-pointer" @click="navigateTo('/exchange-management')">
+              {{ trlang.completed }}: {{ exchangeData.completed }}
+            </div>
           </td>
           <td class="notification-bar-table-title">
             {{ trlang.custom }}
           </td>
           <td class="notification-bar-table-value" :class="{ 'has-new': customData.new > 0 }">
-            <div class="new-notification" :class="{ 'cursor-pointer': customData.new > 0 }" @click="navigateTo('/customer-center', customData.new)">
+            <div class="new-notification cursor-pointer" @click="navigateTo('/customer-center')">
               <div class="star-icon-wrapper" v-if="customData.new > 0">
                 <svg class="star-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white" />
@@ -55,10 +63,14 @@
             </div>
           </td>
           <td class="notification-bar-table-value">
-            {{ trlang.waiting }}: {{ customData.waiting }}
+            <div class="cursor-pointer" @click="navigateTo('/customer-center')">
+              {{ trlang.waiting }}: {{ customData.waiting }}
+            </div>
           </td>
           <td class="notification-bar-table-value">
-            {{ trlang.completed }}: {{ customData.completed }}
+            <div class="cursor-pointer" @click="navigateTo('/customer-center')">
+              {{ trlang.completed }}: {{ customData.completed }}
+            </div>
           </td>
           <td>
             <div class="notification-bar-table-button cursor-pointer" @click="navigateTo('/notification', 1)">{{ trlang.view_all }}</div>
@@ -90,10 +102,8 @@ const router = useRouter();
 const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
-const navigateTo = (path, newCount) => {
-  if (newCount > 0) {
-    router.push(path);
-  }
+const navigateTo = (path) => {
+  router.push(path);
 };
 
 const chargeData = ref({
