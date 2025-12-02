@@ -57,10 +57,7 @@ export default {
   points: "Points",
   available: "Available",
   user_points: "User Points",
-  user_owned_amount: "User Owned Amount",
   current_site_users: "Current site users",
-  current_site_login_user: "Current Site Login User",
-  today_charge_and_withdraw_amount: "Today Charge and Withdraw amount",
   deposit: "Deposit",
   withdrawal: "Exchange",
   entire: "Entire",
@@ -192,11 +189,7 @@ export default {
   last_import_date: "Last Import Date",
   password_changed_date: "Password Changed Date",
   all: 'All',
-  new: "New",
   wait: "Wait",
-  waiting: "Waiting",
-  view_all: "View All",
-  custom: "Custom",
   normal: "Normal",
   stop: "Stop",
   danger: "Danger",
@@ -263,8 +256,6 @@ export default {
   deposit_bank_setting: "Deposit Bank Setting",
   deposit_bank_list: "Deposit Bank List",
   add_bank: "Add Bank",
-  move_up: "Move Up",
-  move_down: "Move Down",
   use_membership_registration: "Use membership registration",
   use: "Use",
   no_use: "No use",
@@ -689,20 +680,29 @@ export default {
   send_notes_feature_coming_soon: "Send notes feature coming soon",
   please_input_title_and_message: "Please input title and message",
   notes_sent_successfully: "Notes sent successfully",
-  notification: "Notification",
-  set_alarm: "Set alarm",
-  user_alert: "User Alert",
-  withdrawal_alarm: "Withdrawal alarm",
-  attention_user_login_alarm: "Attention user login alarm",
-  deposit_alarm: "Deposit alarm",
-  customer_alert: "Customer Alert",
-  alarm_selection: "Alarm selection",
-  volume: "Volume",
-  preview: "Preview",
-  apply: "apply",
-  select_sound_file: "Please select a sound file",
-  failed_to_play_sound: "Failed to play sound",
-  alarm_setting_saved: "Alarm setting saved successfully",
-  lower_money_sum: "Lower money sum",
-  remove_sound: "Remove Sound",
+  move_up: "Move Up",         // TODO: Translate
+  move_down: "Move Down",         // TODO: Translate
+  new: "New",      // TODO: Translate
+  waiting: "Waiting",      // TODO: Translate
+  view_all: "View All",      // TODO: Translate
+  custom: "Custom",        // TODO: Translate
+  user_owned_amount: "User Owned Amount",      // TODO: Translate
+  current_site_login_user: "Current Site Login User",      // TODO: Translate
+  today_charge_and_withdraw_amount: "Today Charge and Withdraw amount",      // TODO: Translate
+  notification: "Notification",        // TODO: Translate
+  set_alarm: "Set alarm",        // TODO: Translate
+  user_alert: "User Alert",        // TODO: Translate
+  withdrawal_alarm: "Withdrawal alarm",        // TODO: Translate
+  attention_user_login_alarm: "Attention user login alarm",        // TODO: Translate
+  deposit_alarm: "Deposit alarm",        // TODO: Translate
+  customer_alert: "Customer Alert",        // TODO: Translate
+  alarm_selection: "Alarm selection",        // TODO: Translate
+  volume: "Volume",        // TODO: Translate
+  preview: "Preview",        // TODO: Translate
+  apply: "apply",        // TODO: Translate
+  select_sound_file: "Please select a sound file",        // TODO: Translate
+  failed_to_play_sound: "Failed to play sound",        // TODO: Translate
+  alarm_setting_saved: "Alarm setting saved successfully",        // TODO: Translate
+  lower_money_sum: "Lower money sum",        // TODO: Translate
+  remove_sound: "Remove Sound",        // TODO: Translate
 };
