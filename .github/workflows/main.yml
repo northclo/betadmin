@@ -28,32 +28,14 @@ jobs:
           aws-region: us-east-2
       
       # ===================================================================
-      # BUILD FOR BUCKET 1
-      # ===================================================================
-
-      - name: Build frontend for bucket 1
-        run: npm run build
-
-      - name: Upload to AWS bucket 1
-        run: |
-          aws s3 rm s3://${{ secrets.BUCKET_NAME }}/ --recursive
-          aws s3 cp dist s3://${{ secrets.BUCKET_NAME }}/ --recursive
-
-      - name: Deploy to Bucket 1
-        uses: lbertenasco/s3-deploy@v1
-        with:
-          folder: dist
-          bucket: ${{ secrets.BUCKET_NAME }}
-          dist-id: ${{ secrets.CLOUDFRONT_ID }}
-          invalidation: / *
-      
-      # ===================================================================
       # BUILD FOR BUCKET 2
       # ===================================================================
 
       - name: Fetch latest lang/en.js from S3
-        run: aws s3 cp s3://${{ secrets.STORAGE_BUCKET }}/lang-admin.js src/lang/en.js
-      
+        run: |
+          aws s3 cp s3://${{ secrets.STORAGE_BUCKET }}/lang-admin.js src/lang/en.js
+          aws s3 cp s3://${{ secrets.STORAGE_BUCKET }}/config-betadmin.js src/config/index.js
+
       - name: Build frontend for bucket 2
         run: npm run build
         
