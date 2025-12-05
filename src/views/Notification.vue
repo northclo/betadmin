@@ -81,8 +81,8 @@ const langState = inject("langState");
 const trlang = computed(() => langState?.translations || {});
 
 const alarmItems = [
-  { key: "withdrawalAlarm", label: "withdrawal_alarm" },
   { key: "depositAlarm", label: "deposit_alarm" },
+  { key: "withdrawalAlarm", label: "exchange_alarm" },
   { key: "customerAlert", label: "customer_alert" },
 ];
 

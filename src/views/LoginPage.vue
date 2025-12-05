@@ -69,7 +69,7 @@
               </a-typography-text>
             </div>
 
-            <div class="w-100 login-options">
+            <div class="w-100">
               <a-checkbox v-model:checked="remember" class="remember-checkbox">
                 {{ trlang.remember_me }}
               </a-checkbox>
@@ -265,13 +265,13 @@ const login = async () => {
 .login-row {
   margin: 0 !important;
   min-height: 100vh;
+  padding: 16px 0;
 }
 
 /* Login Form Column */
 .login-form-col {
-  padding: 20px;
+  padding: 16px;
   background: var(--page-bg-color);
-  transition: padding 0.3s ease;
 }
 
 .login-card {
@@ -279,35 +279,22 @@ const login = async () => {
   width: 100%;
   background: var(--glass-bg) !important;
   border: 1px solid var(--glass-border-light) !important;
-  box-shadow: var(--glass-shadow-strong) !important;
-  border-radius: 24px !important;
-  transition: all 0.3s ease;
-  transform: none !important;
-}
-
-.login-card:hover {
-  transform: none !important;
-  translate: none !important;
-  position: relative !important;
+  border-radius: 12px !important;
 }
 
 .login-card :deep(.ant-card-body) {
   padding: 32px;
 }
 
-.login-card :deep(.ant-card-head) {
-  display: none;
-}
-
 .login-header {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .login-title {
   color: var(--text-primary-color) !important;
   margin-bottom: 8px !important;
   font-weight: 700;
-  transition: font-size 0.3s ease;
+  font-size: 28px;
 }
 
 .login-subtitle {
@@ -323,8 +310,8 @@ const login = async () => {
   color: var(--text-primary-color) !important;
   font-weight: 500;
   font-size: 14px;
-  display: block;
-  margin-bottom: 6px;
+  padding-left: 4px;
+  margin-bottom: 4px;
 }
 
 .login-input {
@@ -352,10 +339,6 @@ const login = async () => {
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-.login-options {
-  width: 100%;
-}
-
 .remember-checkbox {
   color: var(--text-secondary-color) !important;
   font-size: 14px;
@@ -374,240 +357,4 @@ const login = async () => {
 }
 
 
-/* Responsive Design */
-
-/* Large Desktop (1200px and above) */
-@media (min-width: 1200px) {
-  .login-card {
-    max-width: 520px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 40px;
-  }
-
-  .login-title {
-    font-size: 32px;
-  }
-}
-
-/* Desktop (992px - 1199px) */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .login-card {
-    max-width: 480px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 36px;
-  }
-
-  .login-title {
-    font-size: 28px;
-  }
-}
-
-/* Tablet / iPad Portrait (768px - 991px) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .login-form-col {
-    padding: 24px;
-  }
-
-  .login-card {
-    max-width: 460px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 32px;
-  }
-
-  .login-title {
-    font-size: 26px;
-  }
-
-  .login-subtitle {
-    font-size: 13px;
-  }
-}
-
-/* Mobile Landscape / Small Tablet (576px - 767px) */
-@media (min-width: 576px) and (max-width: 767px) {
-  .login-form-col {
-    padding: 20px;
-  }
-
-  .login-card {
-    max-width: 100%;
-    border-radius: 20px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 28px;
-  }
-
-  .login-title {
-    font-size: 24px;
-  }
-
-  .login-subtitle {
-    font-size: 13px;
-  }
-
-  .login-button {
-    height: 46px;
-    font-size: 15px;
-  }
-}
-
-/* Mobile Portrait (up to 575px) */
-@media (max-width: 575px) {
-  .login-form-col {
-    padding: 16px;
-  }
-
-  .login-card {
-    max-width: 100%;
-    border-radius: 16px;
-    box-shadow: var(--glass-shadow) !important;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 24px 20px;
-  }
-
-  .login-header {
-    margin-bottom: 16px;
-  }
-
-  .login-title {
-    font-size: 22px;
-    margin-bottom: 6px !important;
-  }
-
-  .login-subtitle {
-    font-size: 12px;
-  }
-
-  .login-label {
-    font-size: 13px;
-  }
-
-  .login-input :deep(.ant-input),
-  .login-input :deep(.ant-input-password) {
-    height: 42px;
-    font-size: 14px;
-  }
-
-  .login-button {
-    height: 44px;
-    font-size: 15px;
-    border-radius: 8px;
-  }
-
-  .remember-checkbox {
-    font-size: 13px;
-  }
-
-  .retry-message {
-    padding: 10px;
-    font-size: 12px;
-  }
-
-  .captcha-container {
-    margin-bottom: 10px;
-  }
-}
-
-/* Extra Small Mobile (up to 375px) */
-@media (max-width: 375px) {
-  .login-form-col {
-    padding: 12px;
-  }
-
-  .login-card {
-    border-radius: 14px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 20px 16px;
-  }
-
-  .login-title {
-    font-size: 20px;
-  }
-
-  .login-subtitle {
-    font-size: 11px;
-  }
-
-  .login-button {
-    height: 42px;
-    font-size: 14px;
-  }
-}
-
-/* Landscape Orientation Adjustments */
-@media (max-height: 600px) and (orientation: landscape) {
-  .login-page-container {
-    min-height: auto;
-    height: auto;
-  }
-
-  .login-row {
-    min-height: auto;
-    height: auto;
-    padding: 16px 0;
-  }
-
-  .login-form-col {
-    padding: 16px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 20px;
-  }
-
-  .login-header {
-    margin-bottom: 12px;
-  }
-
-  .login-title {
-    font-size: 20px;
-    margin-bottom: 4px !important;
-  }
-
-  .login-subtitle {
-    font-size: 11px;
-  }
-}
-
-/* Very Small Screens (up to 320px) */
-@media (max-width: 320px) {
-  .login-form-col {
-    padding: 10px;
-  }
-
-  .login-card :deep(.ant-card-body) {
-    padding: 18px 14px;
-  }
-
-  .login-title {
-    font-size: 18px;
-  }
-}
-
-/* Print Styles */
-@media print {
-  .login-form-col {
-    width: 100%;
-  }
-}
-
-/* High DPI Displays - handled by inline style */
-
-/* Accessibility - Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .login-card {
-    transition: none;
-  }
-}
 </style>
