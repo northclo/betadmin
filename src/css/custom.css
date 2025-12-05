@@ -837,19 +837,6 @@
   background-color: var(--light-pink-color) !important;
 }
 
-.partner-chart {
-  width: 100%;
-  height: 300px;
-  border: 1px solid var(--border-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--surface-muted-color);
-  margin-top: 20px;
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-}
-
 .ant-input-password input {
   border-radius: 0 !important;
 }
