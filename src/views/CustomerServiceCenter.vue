@@ -16,6 +16,7 @@
                 style="width: 100%"
                 format="YYYY-MM-DD"
                 value-format="YYYY-MM-DD"
+                :placeholder="[trlang.start_date, trlang.end_date]"
               />
             </a-form-item>
           </a-col>
@@ -145,7 +146,7 @@
             type="primary" 
             class="bg-main text-white" 
             :loading="resolveLoading"
-            :disabled="rejectLoading || deleteLoading"
+            :disabled="rejectLoading"
             @click="handleResolve"
           >
             <template #icon><CheckOutlined /></template>
@@ -154,26 +155,17 @@
           <a-button 
             type="default" 
             :loading="rejectLoading"
-            :disabled="resolveLoading || deleteLoading"
+            :disabled="resolveLoading"
             @click="handleReject"
           >
             <template #icon><CloseOutlined /></template>
             {{ trlang.reject }}
           </a-button>
           <a-button 
-            :disabled="resolveLoading || rejectLoading || deleteLoading"
+            :disabled="resolveLoading || rejectLoading"
             @click="handleBack"
           >
             {{ trlang.back }}
-          </a-button>
-          <a-button 
-            danger 
-            :loading="deleteLoading"
-            :disabled="resolveLoading || rejectLoading"
-            @click="handleDelete(viewingRecord.id)"
-          >
-            <template #icon><DeleteOutlined /></template>
-            {{ trlang.delete }}
           </a-button>
         </div>
       </div>
@@ -186,9 +178,9 @@ defineOptions({ name: "CustomerServiceCenterView" });
 
 import { computed, inject, ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
-import { CheckOutlined, CloseOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons-vue";
+import { CheckOutlined, CloseOutlined, ArrowLeftOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
-import { getData, putData, deleteData } from "@/helpers/Axios.js";
+import { getData, putData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link.js";
 import { usePagination } from "@/composables/usePagination.js";
 
@@ -199,7 +191,6 @@ const loading = ref(false);
 const searchLoading = ref(false);
 const resolveLoading = ref(false);
 const rejectLoading = ref(false);
-const deleteLoading = ref(false);
 const viewModalVisible = ref(false);
 const viewingRecord = ref(null);
 const answerForm = ref({
@@ -214,16 +205,16 @@ const filters = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no, key: "no", width: 80 },
+  { title: trlang.value.no, key: "no", width: 80, align: "center" },
   { title: trlang.value.title, dataIndex: "title", key: "title", width: 200 },
-  { title: trlang.value.id, dataIndex: "userId", key: "userId", width: 200 },
-  { title: trlang.value.parent_partner, dataIndex: "parentPartner", key: "parentPartner", width: 150 },
-  { title: trlang.value.first_message_date, dataIndex: "firstMessageDate", key: "firstMessageDate", width: 180 },
-  { title: trlang.value.message_send_date, dataIndex: "messageSendDate", key: "messageSendDate", width: 180 },
-  { title: trlang.value.ip, dataIndex: "ipAddress", key: "ipAddress", width: 150 },
-  { title: trlang.value.answer_date, dataIndex: "answerDate", key: "answerDate", width: 180 },
-  { title: trlang.value.status, dataIndex: "status", key: "status", width: 120 },
-  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 100 },
+  { title: trlang.value.id, dataIndex: "userId", key: "userId", width: 150, align: "center" },
+  { title: trlang.value.parent_partner, dataIndex: "parentPartner", key: "parentPartner", width: 150, align: "center" },
+  { title: trlang.value.first_message_date, dataIndex: "firstMessageDate", key: "firstMessageDate", width: 180, align: "center" },
+  { title: trlang.value.message_send_date, dataIndex: "messageSendDate", key: "messageSendDate", width: 180, align: "center" },
+  { title: trlang.value.ip, dataIndex: "ipAddress", key: "ipAddress", width: 150, align: "center" },
+  { title: trlang.value.answer_date, dataIndex: "answerDate", key: "answerDate", width: 180, align: "center" },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 120, align: "center" },
+  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 100, align: "center" },
 ]);
 
 const tableData = ref([]);
@@ -405,27 +396,6 @@ const handleBack = () => {
   viewModalVisible.value = false;
   viewingRecord.value = null;
   answerForm.value.answer = "";
-};
-
-const handleDelete = async (ticketId) => {
-  if (!ticketId) return;
-  
-  deleteLoading.value = true;
-  try {
-    const res = await deleteData(`${apiLink.delete_support_ticket}/${ticketId}`);
-    if (res.status) {
-      message.success(res.message || trlang.value.ticket_deleted_successfully);
-      viewModalVisible.value = false;
-      viewingRecord.value = null;
-      answerForm.value.answer = "";
-      await fetchData();
-    }
-  } catch (error) {
-    console.error("Error deleting ticket:", error);
-    message.error(error.message || trlang.value.operation_failed);
-  } finally {
-    deleteLoading.value = false;
-  }
 };
 
 onMounted(() => {

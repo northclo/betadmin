@@ -16,6 +16,7 @@
                 style="width: 100%"
                 format="YYYY-MM-DD"
                 value-format="YYYY-MM-DD"
+                :placeholder="[trlang.start_date, trlang.end_date]"
               />
             </a-form-item>
           </a-col>

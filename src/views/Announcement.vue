@@ -16,6 +16,7 @@
                 style="width: 100%"
                 format="YYYY-MM-DD"
                 value-format="YYYY-MM-DD"
+                :placeholder="[trlang.start_date, trlang.end_date]"
               />
             </a-form-item>
           </a-col>
@@ -188,13 +189,13 @@ const formData = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no_column, key: "no", width: 80 },
+  { title: trlang.value.no_column, key: "no", width: 80, align: "center" },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
-  { title: trlang.value.category, dataIndex: "category", key: "category", width: 140 },
-  { title: trlang.value.author, dataIndex: "author", key: "author", width: 160 },
-  { title: trlang.value.date, dataIndex: "date", key: "date", width: 180 },
-  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
-  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200 },
+  { title: trlang.value.category, dataIndex: "category", key: "category", width: 140, align: "center" },
+  { title: trlang.value.author, dataIndex: "author", key: "author", width: 160, align: "center" },
+  { title: trlang.value.date, dataIndex: "date", key: "date", width: 180, align: "center" },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140, align: "center" },
+  { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200, align: "center" },
 ]);
 
 const tableData = ref([]);
