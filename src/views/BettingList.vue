@@ -46,8 +46,8 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.keyword">
+          <a-col class="flex" :xs="24" :md="4">
+            <a-form-item class="mb-0 flex items-end">
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"

@@ -40,9 +40,19 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.keyword">
-              <a-input v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" />
+          <a-col class="flex" :xs="24" :md="4">
+            <a-form-item class="mb-0 flex items-end">
+              <a-input
+                v-model:value="filters.keyword"
+                class="search-input"
+                :placeholder="trlang.search_placeholder"
+                allow-clear
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="4" class="actions">
@@ -178,7 +188,7 @@ defineOptions({ name: "CustomerServiceCenterView" });
 
 import { computed, inject, ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
-import { CheckOutlined, CloseOutlined, ArrowLeftOutlined } from "@ant-design/icons-vue";
+import { CheckOutlined, CloseOutlined, ArrowLeftOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
 import { getData, putData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link.js";

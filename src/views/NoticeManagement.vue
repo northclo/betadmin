@@ -28,9 +28,19 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="4">
-            <a-form-item class="mb-0" :label="trlang.keyword_filter">
-              <a-input class="search-input" v-model:value="filters.keyword" :placeholder="trlang.search_placeholder" allow-clear />
+          <a-col class="flex" :xs="24" :md="4">
+            <a-form-item class="mb-0 flex items-end">
+              <a-input
+                v-model:value="filters.keyword"
+                class="search-input"
+                :placeholder="trlang.search_placeholder"
+                allow-clear
+                @press-enter="handleFilterChange"
+              >
+                <template #prefix>
+                  <SearchOutlined />
+                </template>
+              </a-input>
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="4">
@@ -140,6 +150,7 @@
 <script setup>
 import { computed, inject, ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
+import { SearchOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
 import { getData, postData, putData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
