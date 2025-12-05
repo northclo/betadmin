@@ -61,7 +61,7 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'amount'">
             {{ formatPoints(record[column.dataIndex]) }}
@@ -105,12 +105,12 @@ const filters = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no_column, key: "no", width: 80 },
-  { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", width: 160 },
-  { title: trlang.value.type, dataIndex: "type", key: "type", width: 140 },
-  { title: trlang.value.status, dataIndex: "status", key: "status", width: 140 },
-  { title: trlang.value.points, dataIndex: "amount", key: "amount", width: 160 },
-  { title: trlang.value.date, dataIndex: "processed_at", key: "processed_at", width: 200 },
+  { title: trlang.value.no_column, key: "no", width: 60, align: "center" },
+  { title: trlang.value.member, dataIndex: "member_nickname", key: "member_nickname", align: "end" },
+  { title: trlang.value.type, dataIndex: "type", key: "type", align: "center" },
+  { title: trlang.value.status, dataIndex: "status", key: "status", align: "center" },
+  { title: trlang.value.points, dataIndex: "amount", key: "amount", align: "end" },
+  { title: trlang.value.date, dataIndex: "processed_at", key: "processed_at", align: "center" },
 ]);
 
 const tableData = ref([]);

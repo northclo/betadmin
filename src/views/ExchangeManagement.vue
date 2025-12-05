@@ -39,7 +39,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.keyword"
                 class="search-input"
@@ -88,17 +88,36 @@
     </a-card>
 
     <a-layout-content>
+      <div class="mb-4 flex items-center justify-end gap-2 flex-wrap">
+        <a-button
+          type="primary"
+          :disabled="selectedRowKeys.length === 0 || bulkActionLoading === 'approve'"
+          :loading="bulkActionLoading === 'approve'"
+          @click="handleBulkAction('approve')"
+        >
+          {{ trlang.approve_selected_items }}
+        </a-button>
+        <a-button
+          danger
+          :disabled="selectedRowKeys.length === 0 || bulkActionLoading === 'reject'"
+          :loading="bulkActionLoading === 'reject'"
+          @click="handleBulkAction('reject')"
+        >
+          {{ trlang.reject_selected_items }}
+        </a-button>
+      </div>
       <a-table
         :columns="columns"
         :data-source="tableData"
         :loading="loading"
         :pagination="paginationConfig"
-        row-key="id"
+        :row-key="(record) => record._id || record.id"
+        :row-selection="rowSelection"
         @change="handleTableChange"
       >
       <template #bodyCell="{ column, record, index }">
         <template v-if="column.key === 'no'">
-          <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+          <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
         </template>
         <template v-else-if="column.dataIndex === 'user_id'">
           <div>
@@ -106,7 +125,7 @@
           </div>
         </template>
         <template v-else-if="column.dataIndex === 'amount'">
-          {{ record.amount }}{{ trlang.global_currency }}
+          {{ (record.amount || 0).toLocaleString() }}{{ trlang.global_currency }}
         </template>
         <template v-else-if="column.dataIndex === 'account_amount'">
           {{ record.account_amount ? record.account_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
@@ -193,6 +212,8 @@ const editingCommentValue = ref("");
 const commentLoading = ref({});
 const commentInputRefs = ref({});
 const partnerTreeOptions = ref([]);
+const selectedRowKeys = ref([]);
+const bulkActionLoading = ref('');
 const filters = ref({
   range: null,
   status: "all",
@@ -203,24 +224,35 @@ const filters = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no_column, key: "no", width: 80 },
-  { title: trlang.value.user_id, dataIndex: "user_id", key: "user_id" },
-  { title: trlang.value.request_amount, dataIndex: "amount", key: "amount" },
-  { title: trlang.value.request_username, dataIndex: "member_nickname", key: "member_nickname" },
-  { title: trlang.value.status, dataIndex: "status", key: "status" },
-  { title: trlang.value.request_date, dataIndex: "submitted_at", key: "submitted_at" },
-  { title: trlang.value.process_date, dataIndex: "processed_at", key: "processed_at" },
-  { title: trlang.value.account_amount, dataIndex: "account_amount", key: "account_amount" },
+  { title: trlang.value.no_column, key: "no", width: 60, align: "center" },
+  { title: trlang.value.user_id, dataIndex: "user_id", key: "user_id", width: 140, align: "end" },
+  { title: trlang.value.request_amount, dataIndex: "amount", key: "amount", width: 140, align: "end" },
+  { title: trlang.value.request_username, dataIndex: "member_nickname", key: "member_nickname", width: 140, align: "end" },
+  { title: trlang.value.status, dataIndex: "status", key: "status", width: 120, align: "center" },
+  { title: trlang.value.request_date, dataIndex: "submitted_at", key: "submitted_at", width: 180, align: "center" },
+  { title: trlang.value.process_date, dataIndex: "processed_at", key: "processed_at", width: 180, align: "center" },
+  { title: trlang.value.account_amount, dataIndex: "account_amount", key: "account_amount", width: 140, align: "end" },
   { title: trlang.value.comment, dataIndex: "comment", key: "comment" },
-  { title: trlang.value.action, dataIndex: "action", key: "action" },
+  { title: trlang.value.action, dataIndex: "action", key: "action", width: 140, align: "center" },
 ]);
 
 const tableData = ref([]);
 const { paginationConfig, setTotal } = usePagination(10);
 
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys) => {
+    selectedRowKeys.value = keys;
+  },
+  getCheckboxProps: (record) => ({
+    disabled: record.status !== 'pending',
+  }),
+}));
+
 const handleTableChange = (pagination) => {
   paginationConfig.value.current = pagination.current;
   paginationConfig.value.pageSize = pagination.pageSize;
+  selectedRowKeys.value = [];
   fetchData();
 };
 
@@ -359,6 +391,64 @@ const handleAction = async (record, action) => {
     message.error(error.message || trlang.value.operation_failed);
   } finally {
     delete actionLoading.value[recordId];
+  }
+};
+
+const handleBulkAction = async (action) => {
+  if (selectedRowKeys.value.length === 0) {
+    message.error(trlang.value.please_select_items);
+    return;
+  }
+
+  const pendingRecords = tableData.value.filter(record => {
+    const recordId = record._id || record.id;
+    return selectedRowKeys.value.includes(recordId) && record.status === 'pending';
+  });
+
+  if (pendingRecords.length === 0) {
+    message.error(trlang.value.no_pending_items_selected);
+    selectedRowKeys.value = [];
+    return;
+  }
+
+  bulkActionLoading.value = action;
+
+  try {
+    const transactionIds = pendingRecords.map(record => {
+      const recordId = record._id || record.id;
+      if (typeof recordId === 'string' && recordId.startsWith('EX-')) {
+        return recordId.replace("EX-", "");
+      }
+      return recordId;
+    }).filter(id => id);
+
+    if (transactionIds.length === 0) {
+      message.error(trlang.value.no_valid_transaction_ids);
+      selectedRowKeys.value = [];
+      return;
+    }
+
+    const res = await postData(apiLink.bulk_update_exchange_status, {
+      transactionIds,
+      action,
+    });
+
+    if (res.status) {
+      const updatedCount = res.data?.updatedCount || transactionIds.length;
+      const successMessage = res.message || (action === 'approve' 
+        ? trlang.value.transactions_approved_successfully.replace('{count}', updatedCount.toString())
+        : trlang.value.transactions_rejected_successfully.replace('{count}', updatedCount.toString()));
+      message.success(successMessage);
+      selectedRowKeys.value = [];
+      await fetchData();
+    } else {
+      message.error(res.message || trlang.value.operation_failed);
+    }
+  } catch (error) {
+    console.error("Error bulk updating transactions:", error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    bulkActionLoading.value = '';
   }
 };
 

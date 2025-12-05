@@ -30,7 +30,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
@@ -57,15 +57,25 @@
 
     <div class="flex items-center justify-between mb-4">
       <span class="fs-4 font-semibold">{{ trlang.login_information }}</span>
-      <a-button 
-        danger 
-        :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading"
-        :loading="bulkDeleteLoading"
-        @click="handleBulkDelete"
-      >
-        <template #icon><CloseOutlined /></template>
-        {{ trlang.delete_selected_items }}
-      </a-button>
+      <div class="flex gap-2">
+        <a-button 
+          type="primary"
+          :disabled="selectedRowKeys.length === 0 || blockIpLoading || bulkDeleteLoading"
+          :loading="blockIpLoading"
+          @click="handleBlockSelectedIps"
+        >
+          {{ trlang.block_selected_ips }}
+        </a-button>
+        <a-button 
+          danger 
+          :disabled="selectedRowKeys.length === 0 || bulkDeleteLoading || blockIpLoading"
+          :loading="bulkDeleteLoading"
+          @click="handleBulkDelete"
+        >
+          <template #icon><CloseOutlined /></template>
+          {{ trlang.delete_selected_items }}
+        </a-button>
+      </div>
     </div>
 
     <a-layout-content>
@@ -85,7 +95,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
           <template v-if="column.key === 'user_id'">
             <span>
@@ -127,7 +137,7 @@ import { SearchOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { loginInformationColumn as baseLoginInformationColumn } from '@/utils/table-column/login-information';
-import { getData, postData } from '@/helpers/Axios';
+import { getData, postData, putData } from '@/helpers/Axios';
 import { apiLink } from '@/utils/api-link';
 import { routeLink } from '@/utils/route-link';
 import { usePagination } from '@/composables/usePagination';
@@ -150,6 +160,7 @@ const searchFieldOptions = ref([]);
 const dataSource = ref([]);
 const loading = ref(false);
 const bulkDeleteLoading = ref(false);
+const blockIpLoading = ref(false);
 const selectedRowKeys = ref([]);
 
 const { paginationConfig, handleTableChange, setTotal } = usePagination(10);
@@ -254,6 +265,74 @@ const resetFilters = () => {
 
 const onSelectChange = (keys) => {
   selectedRowKeys.value = keys;
+};
+
+const handleBlockSelectedIps = async () => {
+  if (selectedRowKeys.value.length === 0) {
+    message.error(trlang.value.please_select_items_to_delete);
+    return;
+  }
+
+  const selectedRecords = dataSource.value.filter(record => 
+    selectedRowKeys.value.includes(record.key)
+  );
+  
+  const uniqueIps = [...new Set(
+    selectedRecords
+      .map(record => record.ip_address)
+      .filter(ip => ip && ip.trim() !== '')
+  )];
+
+  if (uniqueIps.length === 0) {
+    message.error(trlang.value.no_valid_ip_addresses_found_in_selected_items);
+    return;
+  }
+
+  blockIpLoading.value = true;
+  let successCount = 0;
+  let errorCount = 0;
+
+  try {
+    const blockPromises = uniqueIps.map(async (ip) => {
+      try {
+        const res = await putData(apiLink.block_ip, {
+          ip: ip.trim(),
+          block: true,
+        });
+
+        if (res.status) {
+          successCount++;
+        } else {
+          errorCount++;
+        }
+      } catch (error) {
+        console.error(`Error blocking IP ${ip}:`, error);
+        errorCount++;
+      }
+    });
+
+    await Promise.all(blockPromises);
+
+    if (successCount > 0) {
+      const successMessage = successCount === 1 
+        ? trlang.value.ip_blocked_successfully 
+        : trlang.value.ips_blocked_successfully.replace('{count}', successCount.toString());
+      message.success(successMessage);
+      selectedRowKeys.value = [];
+      await fetchData();
+    }
+
+    if (errorCount > 0) {
+      message.error(
+        trlang.value.failed_to_block_ips.replace('{count}', errorCount.toString())
+      );
+    }
+  } catch (error) {
+    console.error('Error blocking selected IPs:', error);
+    message.error(error.message || trlang.value.operation_failed);
+  } finally {
+    blockIpLoading.value = false;
+  }
 };
 
 const handleBulkDelete = async () => {

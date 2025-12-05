@@ -59,7 +59,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2">
           <a-typography-text class="text-dark-brown">
-            {{ dataSource.money }}$
+            {{ dataSource.money ? dataSource.money.toLocaleString() : 0 }}{{ trlang.global_currency }}
           </a-typography-text>
         </a-layout-content>
       </a-layout>
@@ -72,7 +72,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2">
           <a-typography-text
-            >{{ dataSource.subs }} {{ trlang.num }}</a-typography-text
+            >{{ dataSource.subs ? dataSource.subs.toLocaleString() : 0 }} {{ trlang.num }}</a-typography-text
           >
         </a-layout-content>
       </a-layout>
@@ -85,7 +85,7 @@
         </a-layout-sider>
         <a-layout-content class="p-2">
           <a-typography-text>
-            {{ dataSource.members }}
+            {{ dataSource.members ? dataSource.members.toLocaleString() : 0 }}
             {{ dataSource.members > 1 ? trlang.people : trlang.person }}
           </a-typography-text>
         </a-layout-content>

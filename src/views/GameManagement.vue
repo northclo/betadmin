@@ -26,7 +26,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
@@ -73,24 +73,21 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
 
           <template v-else-if="column.key === 'round_id'">
             <a-layout class="bg-none">
               <a-typography-text class="text-main font-bold">
-                {{ record.total_no }}
+                {{ record.total_no.toLocaleString() }}
               </a-typography-text>
-              <a-typography-text>{{ record.today_no }}</a-typography-text>
+              <a-typography-text>{{ record.today_no.toLocaleString() }}</a-typography-text>
             </a-layout>
           </template>
 
           <template v-else-if="column.key === 'game_time'">
             <a-layout class="bg-none">
               <a-typography-text>{{ record.startTime }}</a-typography-text>
-              <a-typography-text class="text-red">
-                {{ loadRemainedTime(record.remainedTime) }}
-              </a-typography-text>
             </a-layout>
           </template>
 
@@ -310,21 +307,6 @@ const resetFilters = () => {
   };
   paginationConfig.value.current = 1;
   fetchData();
-};
-
-
-const loadRemainedTime = (time) => {
-  if (time < 0) return '';
-  const parts = [];
-  const days = Math.floor(time / 86400000);
-  const hours = Math.floor((time / 3600000) % 24);
-  const mins = Math.floor((time / 60000) % 60);
-  const secs = Math.floor((time / 1000) % 60);
-  if (days) parts.push(`${days}${trlang.value.day}`);
-  if (hours) parts.push(`${hours}${trlang.value.hour}`);
-  if (mins) parts.push(`${mins}${trlang.value.min}`);
-  if (secs) parts.push(`${secs}${trlang.value.sec}`);
-  return `${trlang.value.remain} ${parts.join(' ')}`;
 };
 
 onMounted(() => {

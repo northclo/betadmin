@@ -41,7 +41,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.keyword"
                 class="search-input"
@@ -78,7 +78,7 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'title'">
             <div>{{ record.title }}</div>
@@ -215,7 +215,7 @@ const filters = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no, key: "no", width: 80, align: "center" },
+  { title: trlang.value.no, key: "no", width: 60, align: "center" },
   { title: trlang.value.title, dataIndex: "title", key: "title", width: 200 },
   { title: trlang.value.id, dataIndex: "userId", key: "userId", width: 150, align: "center" },
   { title: trlang.value.parent_partner, dataIndex: "parentPartner", key: "parentPartner", width: 150, align: "center" },

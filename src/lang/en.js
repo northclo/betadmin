@@ -706,4 +706,16 @@ export default {
   lower_money_sum: "Lower money sum",        // TODO: Translate
   remove_sound: "Remove Sound",        // TODO: Translate
   exchange_alarm: "Exchange alarm",
+  customer: "Customer",
+  block_selected_ips: "Block Selected IPs",
+  no_valid_ip_addresses_found_in_selected_items: "No valid IP addresses found in selected items",
+  ips_blocked_successfully: "{count} IP(s) blocked successfully",
+  failed_to_block_ips: "Failed to block {count} IP(s)",
+  transactions_approved_successfully: "Successfully approved {count} transaction(s)",
+  transactions_rejected_successfully: "Successfully rejected {count} transaction(s)",
+  approve_selected_items: "Approve selected items",
+  reject_selected_items: "Reject selected items",
+  please_select_items: "Please select items",
+  no_pending_items_selected: "No waiting items selected",
+  no_valid_transaction_ids: "No valid transaction IDs",
 };

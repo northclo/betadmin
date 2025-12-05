@@ -31,8 +31,8 @@
         </a-layout-sider>
         <a-layout-content class="p-2 flex items-center justify-end gap-2">
           <a-spin v-if="loadingBalance" size="small" />
-          <a-typography-text v-else>{{ currentBalance }}</a-typography-text>
-          <a-typography-text>USD</a-typography-text>
+          <a-typography-text v-else>{{ currentBalance.toLocaleString() }}</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
 
@@ -45,7 +45,7 @@
         <a-layout-content class="p-2 flex items-center justify-end gap-2">
           <a-radio-group v-model:value="amountRange" :options="amountRangeOption" />
           <a-input-number v-model:value="amount" class="input-md" :min="0" :precision="2" />
-          <a-typography-text>USD</a-typography-text>
+          <a-typography-text>{{ trlang.global_currency }}</a-typography-text>
         </a-layout-content>
       </a-layout>
     </a-layout>

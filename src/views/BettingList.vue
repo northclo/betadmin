@@ -47,7 +47,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
@@ -111,7 +111,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
           <template v-if="column.key === 'user_id'">
             <a-typography-text>{{ record.user_nickname || '-' }}</a-typography-text>
@@ -143,7 +143,7 @@
           </template>
           <template v-if="column.key === 'betting_time'">
             <a-typography-text>
-              {{ formatBettingTime(record.createdAt) }}
+              {{ formatTime(record.createdAt) }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'result'">
@@ -165,35 +165,32 @@
           <div class="betting-detail-expanded">
             <a-descriptions :column="4" bordered size="small" class="detail-descriptions">
               <a-descriptions-item :label="trlang.game_end_time" :span="2">
-                {{ formatGameEndTime(record.game_start_time) }}
+                {{ formatTime(record.game_start_time) }}
+              </a-descriptions-item>
+              <a-descriptions-item :label="trlang.betting_time" :span="2">
+                {{ formatTime(record.createdAt) }}
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.round_by_total_no" :span="2">
-                {{ record.total_no || '-' }}
+                {{ record.total_no ? Number(record.total_no).toLocaleString() : '-' }}
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.choose_betting_type" :span="2">
                 {{ formatBettingType(record.betting_type) }}
               </a-descriptions-item>
-              <a-descriptions-item :label="trlang.betting_rate" :span="2">
-                {{ record.betting_rate || '-' }}
-              </a-descriptions-item>
-              <a-descriptions-item :label="trlang.betting_time" :span="2">
-                {{ formatBettingTime(record.createdAt) }}
-              </a-descriptions-item>
               <a-descriptions-item :label="trlang.bet_amount" :span="2">
                 <a-typography-text class="text-main">
-                  {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}
+                  {{ record.bet_amount ? record.bet_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
                 </a-typography-text>
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.betting_rate" :span="2">
-                {{ record.betting_rate ? record.betting_rate.toLocaleString() : '-' }}
+                {{ record.betting_rate ? record.betting_rate.toLocaleString() : '-' }}%
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.win_amount" :span="2">
                 <a-typography-text :class="(record.earning_amount || 0) > 0 ? 'text-red' : ''">
-                  {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}
+                  {{ record.earning_amount ? record.earning_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
                 </a-typography-text>
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.real_getting_amount" :span="2">
-                {{ record.final_amount ? record.final_amount.toLocaleString() : 0 }}
+                {{ record.final_amount ? record.final_amount.toLocaleString() : 0 }}{{ trlang.global_currency }}
               </a-descriptions-item>
               <a-descriptions-item :label="trlang.result" :span="2">
                 <a-tag :color="getResultColor(record)">
@@ -432,7 +429,7 @@ const formatBettingHistory = (record) => {
   return `${formattedType}-${winStatus}`;
 };
 
-const formatBettingTime = (dateString) => {
+const formatTime = (dateString) => {
   if (!dateString) return '-';
   return dayjs(dateString).format('YYYY-MM-DD HH:mm');
 };
@@ -440,10 +437,10 @@ const formatBettingTime = (dateString) => {
 const formatRound = (totalNo, todayNo) => {
   if (totalNo === null && todayNo === null) return '-';
   if (totalNo !== null && todayNo !== null) {
-    return `${totalNo} / ${todayNo}`;
+    return `${Number(totalNo).toLocaleString()} / ${Number(todayNo).toLocaleString()}`;
   }
-  if (totalNo !== null) return `${totalNo}`;
-  if (todayNo !== null) return `${todayNo}`;
+  if (totalNo !== null) return `${Number(totalNo).toLocaleString()}`;
+  if (todayNo !== null) return `${Number(todayNo).toLocaleString()}`;
   return '-';
 };
 
@@ -461,10 +458,10 @@ const handleViewDetail = (record) => {
   expandedRowKeys.value = currentKeys;
 };
 
-const formatGameEndTime = (dateString) => {
-  if (!dateString) return '-';
-  return dayjs(dateString).format('MM/DD(ddd) HH:mm');
-};
+// const formatGameEndTime = (dateString) => {
+//   if (!dateString) return '-';
+//   return dayjs(dateString).format('MM/DD(ddd) HH:mm');
+// };
 
 const formatBettingType = (bettingType) => {
   if (!bettingType) return '-';

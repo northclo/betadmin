@@ -56,3 +56,7 @@ table tbody > tr > td:has(> .no-padding) {
   line-height: normal !important;
   height: auto !important;
 }
+
+.ant-form-item-row {
+  width: 100%;
+}

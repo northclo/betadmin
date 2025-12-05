@@ -29,7 +29,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.keyword"
                 class="search-input"
@@ -82,7 +82,7 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
           <template v-else-if="column.dataIndex === 'partner'">
             {{ record.partner || trlang.all_partners }}
@@ -183,9 +183,9 @@ const formData = ref({
 });
 
 const columns = computed(() => [
-  { title: trlang.value.no_column, dataIndex: "no", key: "no", width: 80, align: "center" },
+  { title: trlang.value.no_column, dataIndex: "no", key: "no", width: 60, align: "center" },
   { title: trlang.value.title, dataIndex: "title", key: "title", ellipsis: true },
-  { title: trlang.value.partner, dataIndex: "partner", key: "partner", width: 150, align: "center" },
+  { title: trlang.value.partner, dataIndex: "partner", key: "partner", width: 180, align: "center" },
   { title: trlang.value.date, dataIndex: "date", key: "date", width: 180, align: "center" },
   { title: trlang.value.actions, dataIndex: "actions", key: "actions", width: 200, align: "center" },
 ]);

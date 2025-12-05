@@ -65,7 +65,7 @@
       <template #bodyCell="{ column, record, index }">
         <template v-if="column.key === 'no'">
           <a-typography-text>
-            {{ record.isSum ? '' : (paginationConfig.current - 1) * paginationConfig.pageSize + index }}
+            {{ record.isSum ? '' : ((paginationConfig.current - 1) * paginationConfig.pageSize + index).toLocaleString() }}
           </a-typography-text>
         </template>
         <template v-else-if="column.key === 'date'">
@@ -82,7 +82,7 @@
         </template>
         <template v-else-if="column.key === 'betting_p'">
           <a-typography-text>
-            {{ formatNumber(record.betting_p) }} P
+            {{ record.betting_p ? record.betting_p.toLocaleString() : 0 }} {{ trlang.points_unit }}
           </a-typography-text>
         </template>
         <template v-else-if="column.key === 'partner_rate'">
@@ -130,64 +130,56 @@ const columns = computed(() => [
     title: trlang.value.no_column, 
     dataIndex: "no", 
     key: "no", 
-    width: 80, 
+    width: 60, 
     align: "center",
-    fixed: "left"
   },
   { 
     title: trlang.value.date, 
     dataIndex: "date", 
     key: "date", 
-    width: 120,
-    fixed: "left"
+    width: 100,
+    align: "center",
   },
   { 
     title: trlang.value.total_betting_amount, 
     dataIndex: "total_betting_amount", 
     key: "total_betting_amount", 
-    width: 150,
     align: "right"
   },
   { 
     title: trlang.value.win_betting_amount, 
     dataIndex: "win_betting_amount", 
     key: "win_betting_amount", 
-    width: 150,
     align: "right"
   },
   { 
     title: trlang.value.losing_amount, 
     dataIndex: "losing_amount", 
     key: "losing_amount", 
-    width: 150,
     align: "right"
   },
   { 
     title: trlang.value.betting_profit, 
     dataIndex: "betting_profit", 
     key: "betting_profit", 
-    width: 150,
     align: "right"
   },
   { 
     title: trlang.value.betting_p, 
     dataIndex: "betting_p", 
     key: "betting_p", 
-    width: 120,
     align: "right"
   },
   { 
     title: trlang.value.partner_rate, 
     dataIndex: "partner_rate", 
     key: "partner_rate", 
-    width: 120,
     align: "right"
   },
   { 
     title: trlang.value.company_profit, 
     dataIndex: "company_profit", 
     key: "company_profit", 
-    width: 150,
     align: "right"
   },
   {
@@ -198,21 +190,18 @@ const columns = computed(() => [
         title: trlang.value.charge_total_amount, 
         dataIndex: "charge_total_amount", 
         key: "charge_total_amount", 
-        width: 150,
         align: "right"
       },
       { 
         title: trlang.value.charge_amount, 
         dataIndex: "charge_amount", 
         key: "charge_amount", 
-        width: 150,
         align: "right"
       },
       { 
         title: trlang.value.partner_increase, 
         dataIndex: "partner_increase", 
         key: "partner_increase", 
-        width: 150,
         align: "right"
       },
     ],
@@ -225,21 +214,18 @@ const columns = computed(() => [
         title: trlang.value.exchange_total_amount, 
         dataIndex: "exchange_total_amount", 
         key: "exchange_total_amount", 
-        width: 150,
         align: "right"
       },
       { 
         title: trlang.value.withdraw, 
         dataIndex: "withdraw", 
         key: "withdraw", 
-        width: 150,
         align: "right"
       },
       { 
         title: trlang.value.partner_decrease, 
         dataIndex: "partner_decrease", 
         key: "partner_decrease", 
-        width: 150,
         align: "right"
       },
     ],
@@ -255,17 +241,9 @@ const formatAmount = (value, record, key) => {
   
   const count = getCountForField(record, key);
   if (count !== null && count > 0 && numericValue !== 0) {
-    return `${formatted} (${count})`;
+    return `${formatted} (${count.toLocaleString()})`;
   }
   return `${formatted}`;
-};
-
-const formatNumber = (value) => {
-  if (value == null || value === undefined) return "0";
-  const numericValue = Number.isFinite(value) ? Number(value) : 0;
-  return Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 0,
-  }).format(numericValue);
 };
 
 const formatPercentage = (value) => {

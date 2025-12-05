@@ -64,7 +64,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="search"
                 class="search-input"
@@ -109,7 +109,7 @@
         <SmileOutlined class="text-gray-500" />
         <span class="text-sm">
           {{ trlang.all_users }} :
-          <span class="font-bold text-blue-600">{{ statusCounts.all }}</span>
+          <span class="font-bold text-blue-600">{{ statusCounts.all.toLocaleString() }}</span>
         </span>
       </div>
       <div
@@ -119,7 +119,7 @@
         <CheckCircleOutlined class="text-green-600" />
         <span class="text-sm">
           {{ trlang.normal }} :
-          <span class="font-bold text-green-600">{{ statusCounts.normal }}</span>
+          <span class="font-bold text-green-600">{{ statusCounts.normal.toLocaleString() }}</span>
         </span>
       </div>
       <div
@@ -129,7 +129,7 @@
         <MinusCircleOutlined class="text-gray-500" />
         <span class="text-sm">
           {{ trlang.wait }} :
-          <span class="font-bold text-gray-500">{{ statusCounts.wait }}</span>
+          <span class="font-bold text-gray-500">{{ statusCounts.wait.toLocaleString() }}</span>
         </span>
       </div>
       <div
@@ -139,7 +139,7 @@
         <QuestionCircleOutlined class="text-red-600" />
         <span class="text-sm">
           {{ trlang.stop }} :
-          <span class="font-bold text-red-600">{{ statusCounts.stop }}</span>
+          <span class="font-bold text-red-600">{{ statusCounts.stop.toLocaleString() }}</span>
         </span>
       </div>
       <div
@@ -149,7 +149,7 @@
         <CloseCircleOutlined class="text-red-600" />
         <span class="text-sm">
           {{ trlang.cancel }} :
-          <span class="font-bold text-red-600">{{ statusCounts.cancel }}</span>
+          <span class="font-bold text-red-600">{{ statusCounts.cancel.toLocaleString() }}</span>
         </span>
       </div>
       <div
@@ -159,7 +159,7 @@
         <UserDeleteOutlined class="text-red-600" />
         <span class="text-sm">
           {{ trlang.danger }} :
-          <span class="font-bold text-red-600">{{ statusCounts.danger }}</span>
+          <span class="font-bold text-red-600">{{ statusCounts.danger.toLocaleString() }}</span>
         </span>
       </div>
       <div class="flex-1" />
@@ -254,7 +254,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
           <template v-if="column.key === 'login'">
             <div
@@ -323,7 +323,7 @@
           </template>
           <template v-if="column.key === 'total_win_number'">
             <a-typography-text class="text-red">
-              {{ record.totalWinCount ? record.totalWinCount : 0 }}
+              {{ record.totalWinCount ? record.totalWinCount.toLocaleString() : 0 }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'total_earning_money'">
@@ -423,7 +423,7 @@
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'no'">
-              <a-typography-text>{{ (blockedIpPaginationConfig.current - 1) * blockedIpPaginationConfig.pageSize + index + 1 }}</a-typography-text>
+              <a-typography-text>{{ ((blockedIpPaginationConfig.current - 1) * blockedIpPaginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
             </template>
             <template v-if="column.key === 'ip'">
               {{ record.ip_address }}
@@ -497,7 +497,7 @@
       <a-layout-content class="p-2 flex items-center gap-2">
         <a-typography-text>
           {{ sendNotesForm.targetUsers === 'selected' 
-            ? `${trlang.send_notes_to_selected_users} (${selectedRowKeys.length} ${trlang.people})`
+            ? `${trlang.send_notes_to_selected_users} (${selectedRowKeys.length.toLocaleString()} ${trlang.people})`
             : trlang.send_notes_to_all_users }}
         </a-typography-text>
       </a-layout-content>
@@ -625,23 +625,28 @@ const blockedIpColumns = computed(() => [
     title: trlang.value.no_column,
     dataIndex: 'no',
     key: 'no',
-    width: 80,
+    width: 60,
     align: 'center',
   },
   {
     title: trlang.value.ip,
     dataIndex: 'ip_address',
     key: 'ip',
+    width: 120,
+    align: 'center',
   },
   {
     title: trlang.value.registration_date,
     dataIndex: 'registration_date',
     key: 'registration_date',
+    width: 120,
+    align: 'center',
   },
   {
     title: trlang.value.remove,
     key: 'remove',
     align: 'center',
+    width: 60,
   },
 ]);
 
@@ -1111,7 +1116,7 @@ const handleSaveEdit = async () => {
 
 const handleBulkUpdateStatus = async (status) => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_users);
+    message.error(trlang.value.please_select_users);
     return;
   }
 
@@ -1134,7 +1139,7 @@ const handleBulkUpdateStatus = async (status) => {
       await fetchData();
     }
     if (failCount > 0) {
-      message.warning(trlang.value.some_users_update_failed.replace('{count}', failCount.toString()));
+      message.error(trlang.value.some_users_update_failed.replace('{count}', failCount.toString()));
     }
   } catch (error) {
     console.error('Error bulk updating users:', error);
@@ -1146,7 +1151,7 @@ const handleBulkUpdateStatus = async (status) => {
 
 const handleSendNotesToSelected = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_users);
+    message.error(trlang.value.please_select_users);
     return;
   }
   sendNotesForm.value.targetUsers = 'selected';
@@ -1172,7 +1177,7 @@ const handleCancelSendNotes = () => {
 
 const handleActiveConsiderUser = async () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_users);
+    message.error(trlang.value.please_select_users);
     return;
   }
 
@@ -1203,7 +1208,7 @@ const handleActiveConsiderUser = async () => {
 
 const handleDeactiveConsiderUser = async () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning(trlang.value.please_select_users);
+    message.error(trlang.value.please_select_users);
     return;
   }
 
@@ -1246,7 +1251,7 @@ const handleSendNotesSubmit = async () => {
     const sendToAll = sendNotesForm.value.targetUsers === 'all';
 
     if (sendNotesForm.value.targetUsers === 'selected' && (!userIds || userIds.length === 0)) {
-      message.warning(trlang.value.please_select_users);
+      message.error(trlang.value.please_select_users);
       sendNotesLoading.value = false;
       return;
     }

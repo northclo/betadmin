@@ -5,7 +5,7 @@
     </template>
     <template #bodyCell="{ column, record, index }">
       <template v-if="column.key === 'no'">
-        <a-typography-text>{{ index + 1 }}</a-typography-text>
+        <a-typography-text>{{ (index + 1).toLocaleString() }}</a-typography-text>
       </template>
       <template v-if="column.key === 'headquater'">
         <a-layout v-if="record.role === 'headquater'" class="bg-light-pink flex items-center gap-2">
@@ -18,7 +18,7 @@
           >
             <MinusOutlined v-if="isExpanded(record.id)" />
             <PlusOutlined v-else />
-            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ record.subs + record.members }})
+            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ (record.subs + record.members).toLocaleString() }})
           </a-tag>
         </a-layout>
       </template>
@@ -33,11 +33,11 @@
           >
             <MinusOutlined v-if="isExpanded(record.id)" />
             <PlusOutlined v-else />
-            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ record.subs + record.members }})
+            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ (record.subs + record.members).toLocaleString() }})
           </a-tag>
         </a-layout>
         <a-typography-text v-if="record.role === 'headquater'" class="text-main">
-          {{ record.subs === 0 ? '' : record.subs }}
+          {{ record.subs === 0 ? '' : record.subs.toLocaleString() }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'regional_office' && record.role !== 'user'">
@@ -51,11 +51,11 @@
           >
             <MinusOutlined v-if="isExpanded(record.id)" />
             <PlusOutlined v-else />
-            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ record.subs + record.members }})
+            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ (record.subs + record.members).toLocaleString() }})
           </a-tag>
         </a-layout>
         <a-typography-text v-if="record.role === 'branch_office'" class="text-main">
-          {{ record.subs === 0 ? '' : record.subs }}
+          {{ record.subs === 0 ? '' : record.subs.toLocaleString() }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'agency' && record.role !== 'user'">
@@ -69,11 +69,11 @@
           >
             <MinusOutlined v-if="isExpanded(record.id)" />
             <PlusOutlined v-else />
-            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ record.subs + record.members }})
+            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ (record.subs + record.members).toLocaleString() }})
           </a-tag>
         </a-layout>
         <a-typography-text v-if="record.role === 'regional_office'" class="text-main">
-          {{ record.subs === 0 ? '' : record.subs }}
+          {{ record.subs === 0 ? '' : record.subs.toLocaleString() }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'distributor' && record.role !== 'user'">
@@ -87,11 +87,11 @@
           >
             <MinusOutlined v-if="isExpanded(record.id)" />
             <PlusOutlined v-else />
-            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ record.subs + record.members }})
+            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ (record.subs + record.members).toLocaleString() }})
           </a-tag>
         </a-layout>
         <a-typography-text v-if="record.role === 'agency'" class="text-main">
-          {{ record.subs === 0 ? '' : record.subs }}
+          {{ record.subs === 0 ? '' : record.subs.toLocaleString() }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'store' && record.role !== 'user'">
@@ -105,11 +105,11 @@
           >
             <MinusOutlined v-if="isExpanded(record.id)" />
             <PlusOutlined v-else />
-            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ record.subs + record.members }})
+            {{ isExpanded(record.id) ? trlang.close : trlang.expand }} ({{ (record.subs + record.members).toLocaleString() }})
           </a-tag>
         </a-layout>
         <a-typography-text v-if="record.role === 'distributor'" class="text-main">
-          {{ record.subs === 0 ? '' : record.subs }}
+          {{ record.subs ? record.subs.toLocaleString() : '' }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'users'">
@@ -117,7 +117,7 @@
           <a-typography-text>{{ record.id }}</a-typography-text>
         </a-layout>
         <a-typography-text v-else class="text-dark-brown">
-          {{ record.members === 0 ? '' : record.members }}
+          {{ record.members ? record.members.toLocaleString() : '' }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'nickname'">
@@ -126,9 +126,9 @@
       <template v-if="column.key === 'money'">
         <a-layout class="bg-none text-end">
           <a-typography-text class="text-dark-brown text-end">
-            {{ record.money }}{{ trlang.global_currency }}
+            {{ record.money ? record.money.toLocaleString() : 0 }}{{ trlang.global_currency }}
           </a-typography-text>
-          <a-typography-text>{{ record.point }}{{ trlang.points_unit }}</a-typography-text>
+          <a-typography-text>{{ record.point ? record.point.toLocaleString() : 0 }}{{ trlang.points_unit }}</a-typography-text>
         </a-layout>
       </template>
       <template v-if="column.key === 'benefit'">
@@ -149,15 +149,15 @@
       </template>
       <template v-if="column.key === 'number_of_members'">
         <a-typography-text>
-          {{ record.members + 1 }}
+          {{ (record.members + 1).toLocaleString() }}
         </a-typography-text>
       </template>
       <template v-if="column.key === 'lower_money_sum'">
         <a-layout class="bg-none text-end">
           <a-typography-text class="text-dark-brown text-end">
-            {{ record.lowerMoneySum || 0 }}{{ trlang.global_currency }}
+            {{ (record.lowerMoneySum || 0).toLocaleString() }}{{ trlang.global_currency }}
           </a-typography-text>
-          <a-typography-text>{{ record.lowerPointSum || 0 }}{{ trlang.points_unit }}</a-typography-text>
+          <a-typography-text>{{ (record.lowerPointSum || 0).toLocaleString() }}{{ trlang.points_unit }}</a-typography-text>
         </a-layout>
       </template>
       <template v-if="column.key === 'function'">

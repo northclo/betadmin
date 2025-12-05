@@ -302,7 +302,8 @@ const initChargeExchangeChart = (data) => {
       formatter: function(params) {
         let result = params[0].name + '<br/>';
         params.forEach(param => {
-          result += param.marker + param.seriesName + ': ' + param.value.toLocaleString() + '<br/>';
+          const value = typeof param.value === 'number' ? param.value : Number(param.value) || 0;
+          result += param.marker + param.seriesName + ': ' + value.toLocaleString() + '<br/>';
         });
         return result;
       }

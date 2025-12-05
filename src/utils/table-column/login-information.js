@@ -3,13 +3,14 @@ export const loginInformationColumn = [
         title: "No",
         dataIndex: 'no',
         key: "no",
-        width: '20px',
+        width: 60,
         align: 'center',
     },
     {
         title: "id",
         dataIndex: "user_id",
         key: "user_id",
+        align: 'end',
     },
     {
         title: "IP",

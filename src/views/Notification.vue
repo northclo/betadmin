@@ -59,9 +59,9 @@
     <a-row :gutter="[16, 16]" class="notification-counters" justify="center">
       <a-col :xs="12" :sm="4" v-for="counter in notificationCounters" :key="counter.key">
         <div class="counter-circle" :class="counter.colorClass">
-          <div class="counter-label">{{ trlang[counter.label] || counter.label }}</div>
+          <div class="counter-label">{{ trlang[counter.label] }}</div>
           <div class="counter-value" :class="counter.colorClass">
-            {{ notificationData[counter.key] || 0 }}
+            {{ (notificationData[counter.key] || 0).toLocaleString() }}
           </div>
         </div>
       </a-col>
@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, onMounted } from "vue";
+import { ref, computed, inject, onMounted, onBeforeUnmount } from "vue";
 import { message } from "ant-design-vue";
 import { getData, postData } from "@/helpers/Axios";
 import { apiLink } from "@/utils/api-link";
@@ -112,6 +112,8 @@ const notificationCounters = [
   { key: "customer", label: "customer", colorClass: "counter-green" },
 ];
 
+const currentAudio = ref(null);
+
 const filterSoundOption = (input, option) => {
   return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 };
@@ -119,20 +121,35 @@ const filterSoundOption = (input, option) => {
 const previewSound = (alarmKey) => {
   const setting = alarmSettings.value[alarmKey];
   if (!setting.soundFile) {
-    message.warning(trlang.value.select_sound_file || "Please select a sound file");
+    message.error(trlang.value.select_sound_file || "Please select a sound file");
     return;
+  }
+
+  if (currentAudio.value) {
+    currentAudio.value.pause();
+    currentAudio.value.currentTime = 0;
+    currentAudio.value = null;
   }
 
   try {
     const audio = new Audio(`/audio/${setting.soundFile}`);
     audio.volume = setting.volume / 100;
+    
+    currentAudio.value = audio;
+    
+    audio.addEventListener('ended', () => {
+      currentAudio.value = null;
+    });
+    
     audio.play().catch((error) => {
       console.error("Error playing sound:", error);
       message.error(trlang.value.failed_to_play_sound || "Failed to play sound");
+      currentAudio.value = null;
     });
   } catch (error) {
     console.error("Error creating audio:", error);
     message.error(trlang.value.failed_to_play_sound || "Failed to play sound");
+    currentAudio.value = null;
   }
 };
 
@@ -193,6 +210,14 @@ const fetchAlarmSettings = async () => {
 onMounted(() => {
   fetchNotificationData();
   fetchAlarmSettings();
+});
+
+onBeforeUnmount(() => {
+  if (currentAudio.value) {
+    currentAudio.value.pause();
+    currentAudio.value.currentTime = 0;
+    currentAudio.value = null;
+  }
 });
 </script>
 

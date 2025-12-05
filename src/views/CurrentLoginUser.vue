@@ -29,7 +29,7 @@
             </a-form-item>
           </a-col>
           <a-col class="flex" :xs="24" :md="4">
-            <a-form-item class="mb-0 flex items-end">
+            <a-form-item class="mb-0 flex items-end w-100">
               <a-input
                 v-model:value="filters.search"
                 :placeholder="trlang.search_placeholder"
@@ -80,7 +80,7 @@
 
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'no'">
-            <a-typography-text>{{ (paginationConfig.current - 1) * paginationConfig.pageSize + index + 1 }}</a-typography-text>
+            <a-typography-text>{{ ((paginationConfig.current - 1) * paginationConfig.pageSize + index + 1).toLocaleString() }}</a-typography-text>
           </template>
 
           <template v-if="column.key === 'id'">
@@ -124,26 +124,26 @@
           <template v-if="column.key === 'money_point'">
             <div class="flex flex-column">
               <a-typography-text class="text-red"
-                >{{ record.own_money.toLocaleString() }}{{ trlang.global_currency }}</a-typography-text
+                >{{ (record.own_money || 0).toLocaleString() }}{{ trlang.global_currency }}</a-typography-text
               >
               <a-typography-text
-                >{{ record.point.toLocaleString() }}{{ trlang.points_unit }}</a-typography-text
+                >{{ (record.point || 0).toLocaleString() }}{{ trlang.points_unit }}</a-typography-text
               >
             </div>
           </template>
 
           <template v-if="column.key === 'import_money'">
-            {{ record.total_import_amount || 0 }}{{ trlang.global_currency }}
+            {{ (record.total_import_amount || 0).toLocaleString() }}{{ trlang.global_currency }}
           </template>
 
           <template v-if="column.key === 'exchange_money'">
-            {{ record.total_exchange_amount || 0 }}{{ trlang.global_currency }}
+            {{ (record.total_exchange_amount || 0).toLocaleString() }}{{ trlang.global_currency }}
           </template>
 
           <template v-if="column.key === 'final_import_date'">
             <div v-if="record.last_import_date" class="flex flex-column">
               <a-typography-text>
-                {{ record.last_import_date.split('T')[0] }} {{ record.last_import_date.split('T')[1]?.split('.')[0] }}
+                {{ dayjs(record.last_import_date).format('YYYY-MM-DD HH:mm') }}
               </a-typography-text>
             </div>
             <span v-else>-</span>
@@ -152,7 +152,7 @@
           <template v-if="column.key === 'created_date'">
             <div class="flex flex-column">
               <a-typography-text>
-              {{ record.createdAt.split('T')[0] }} {{ record.createdAt.split('T')[1].split('.')[0] }}
+                {{ dayjs(record.createdAt).format('YYYY-MM-DD HH:mm') }}
               </a-typography-text>
             </div>
           </template>
@@ -160,12 +160,7 @@
           <template v-if="column.key === 'connect_date'">
             <div v-if="record.last_login_history?.createdAt" class="flex flex-column">
               <a-typography-text>
-                {{ record.last_login_history.createdAt.split('T')[0] }}
-                {{
-                  record.last_login_history.createdAt
-                    .split('T')[1]
-                    ?.split('.')[0]
-                }}
+                {{ dayjs(record.last_login_history.createdAt).format('YYYY-MM-DD HH:mm') }}
               </a-typography-text>
             </div>
             <span v-else>-</span>

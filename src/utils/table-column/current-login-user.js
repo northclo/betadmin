@@ -3,19 +3,20 @@ export const currentLoginUserColumn = [
         title: "No",
         dataIndex: 'no',
         key: "no",
-        width: '20px',
+        width: 60,
         align: 'center',
     },
     {
         title: "User ID",
         dataIndex: "id",
         key: "id",
+        align: 'end',
     },
     {
         title: "Partner",
         dataIndex: "partner",
         key: "partner",
-        align: 'center'
+        align: 'end',
     },
     {
         title: "IP",
