@@ -705,4 +705,5 @@ export default {
   alarm_setting_saved: "Alarm setting saved successfully",        // TODO: Translate
   lower_money_sum: "Lower money sum",        // TODO: Translate
   remove_sound: "Remove Sound",        // TODO: Translate
+  exchange_alarm: "Exchange alarm",
 };

@@ -25,16 +25,17 @@
       <section class="left-rail__section left-rail__section--charge-withdraw">
         <header class="left-rail__charge-header">{{ trlang.today_charge_and_withdraw_amount }}</header>
         <div class="left-rail__charge-content">
-          <a-select
+          <a-tree-select
             class="left-rail__select"
-            v-model:value="activeOption"
+            v-model:value="selectedPartnerId"
+            :tree-data="partnerTreeOptions"
+            :placeholder="trlang.select_partner"
+            allow-clear
+            tree-default-expand-all
+            :field-names="{ children: 'children', label: 'title', value: 'value' }"
             size="small"
             :loading="loading"
-          >
-            <a-select-option v-for="item in options" :key="item.value" :value="item.value">
-              {{ item.label }}
-            </a-select-option>
-          </a-select>
+          />
 
           <div class="left-rail__pillset">
             <div class="pill pill--deposit">
@@ -83,7 +84,7 @@
 </template>
 
 <script>
-import { ref, inject, computed, onMounted } from "vue";
+import { ref, inject, computed, onMounted, watch } from "vue";
 import { message } from "ant-design-vue";
 import { getData } from "@/helpers/Axios.js";
 import { apiLink } from "@/utils/api-link.js";
@@ -94,13 +95,9 @@ export default {
     const langState = inject("langState");
     const trlang = computed(() => langState.translations);
 
-    const activeOption = ref('entire');
+    const selectedPartnerId = ref(null);
+    const partnerTreeOptions = ref([]);
     const loading = ref(false);
-    
-    const options = computed(() => [
-      { value: 'entire', label: trlang.value.entire },
-      { value: 'minigames', label: trlang.value.minigames },
-    ]);
     const summaryData = ref({
       bettingSettlementProfit: 0,
       userOwnedAmount: 0,
@@ -130,10 +127,56 @@ export default {
       return Number(num).toLocaleString('en-US');
     };
 
+    const convertPartnerToTree = (partner) => {
+      if (!partner || !partner.id) return null;
+      
+      const node = {
+        title: `${partner.nickname} (${partner.partner_id || partner.id})`,
+        value: partner.id,
+        children: []
+      };
+
+      if (partner.subs && Array.isArray(partner.subs) && partner.subs.length > 0) {
+        node.children = partner.subs
+          .map(sub => convertPartnerToTree(sub))
+          .filter(Boolean);
+      }
+
+      return node;
+    };
+
+    const fetchPartnerList = async () => {
+      try {
+        const res = await getData(apiLink.get_game_partner);
+        if (res.status && res.data) {
+          if (Array.isArray(res.data)) {
+            partnerTreeOptions.value = res.data
+              .map(partner => convertPartnerToTree(partner))
+              .filter(Boolean);
+          } else if (res.data.id) {
+            const tree = convertPartnerToTree(res.data);
+            partnerTreeOptions.value = tree ? [tree] : [];
+          } else {
+            partnerTreeOptions.value = [];
+          }
+        } else {
+          partnerTreeOptions.value = [];
+        }
+      } catch (error) {
+        console.error("Error fetching partner list:", error);
+        message.error(error.message || trlang.value.failed_to_fetch_data);
+        partnerTreeOptions.value = [];
+      }
+    };
+
     const fetchSidebarSummary = async () => {
       try {
         loading.value = true;
-        const result = await getData(apiLink.get_sidebar_summary);
+        let url = apiLink.get_sidebar_summary;
+        if (selectedPartnerId.value) {
+          url += `?partnerId=${selectedPartnerId.value}&includeSubPartners=true`;
+        }
+        const result = await getData(url);
         if (result.status && result.data) {
           summaryData.value = {
             bettingSettlementProfit: result.data.bettingSettlementProfit || 0,
@@ -168,49 +211,59 @@ export default {
     };
 
     const summaryBlocks = computed(() => {
-      const gameData = activeOption.value === 'entire' 
-        ? summaryData.value.entireGame 
-        : summaryData.value.minigames;
+      const entireGameData = summaryData.value.entireGame || {
+        battingGan: 0,
+        betting: 0,
+        hit: 0,
+        bettingP: 0,
+        revenue: 0,
+      };
 
-      if (activeOption.value === 'entire') {
-        return [
-          {
-            key: 'entire',
-            title: trlang.value.the_entire_game,
-            items: [
-              { label: trlang.value.batting_gan, value: formatNumber(gameData.battingGan) },
-              { label: trlang.value.betting, value: formatNumber(gameData.betting) },
-              { label: trlang.value.hit, value: formatNumber(gameData.hit) },
-              { label: trlang.value.betting_p, value: formatNumber(gameData.bettingP) },
-              { label: trlang.value.revenue, value: formatNumber(gameData.revenue) },
-            ],
-          },
-        ];
-      } else {
-        return [
-          {
-            key: 'mini',
-            title: trlang.value.minigames,
-            items: [
-              { label: trlang.value.batting_gan, value: formatNumber(gameData.battingGan) },
-              { label: trlang.value.hit, value: formatNumber(gameData.hit) },
-              { label: trlang.value.betting_p, value: formatNumber(gameData.bettingP) },
-              { label: trlang.value.revenue, value: formatNumber(gameData.revenue) },
-            ],
-          },
-        ];
-      }
+      const minigamesData = summaryData.value.minigames || {
+        battingGan: 0,
+        hit: 0,
+        bettingP: 0,
+        revenue: 0,
+      };
+
+      return [
+        {
+          key: 'entire',
+          title: trlang.value.the_entire_game,
+          items: [
+            { label: trlang.value.batting_gan, value: formatNumber(entireGameData.battingGan) },
+            { label: trlang.value.betting, value: formatNumber(entireGameData.betting) },
+            { label: trlang.value.hit, value: formatNumber(entireGameData.hit) },
+            { label: trlang.value.betting_p, value: formatNumber(entireGameData.bettingP) },
+            { label: trlang.value.revenue, value: formatNumber(entireGameData.revenue) },
+          ],
+        },
+        {
+          key: 'mini',
+          title: trlang.value.minigames,
+          items: [
+            { label: trlang.value.batting_gan, value: formatNumber(minigamesData.battingGan) },
+            { label: trlang.value.hit, value: formatNumber(minigamesData.hit) },
+            { label: trlang.value.betting_p, value: formatNumber(minigamesData.bettingP) },
+            { label: trlang.value.revenue, value: formatNumber(minigamesData.revenue) },
+          ],
+        },
+      ];
     });
 
+    watch(selectedPartnerId, () => {
+      fetchSidebarSummary();
+    });
 
     onMounted(() => {
+      fetchPartnerList();
       fetchSidebarSummary();
     });
 
     return {
       trlang,
-      options,
-      activeOption,
+      selectedPartnerId,
+      partnerTreeOptions,
       summaryBlocks,
       summaryData,
       formatNumber,

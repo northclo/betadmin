@@ -73,7 +73,7 @@
             </div>
           </td>
           <td>
-            <div class="notification-bar-table-button cursor-pointer" @click="navigateTo('/notification', 1)">{{ trlang.view_all }}</div>
+            <a-button type="primary" @click="navigateTo('/notification', 1)">{{ trlang.view_all }}</a-button>
           </td>
           <td>
             <div>
@@ -331,11 +331,14 @@ onBeforeUnmount(() => {
 .notification-bar {
   background: #1c2336;
   padding: 12px 24px;
+  width: 100%;
 }
 
 .notification-bar-table {
   border-collapse: collapse;
   margin: 0;
+  width: 100%;
+  table-layout: auto;
 }
 
 .notification-bar-table td {
@@ -348,10 +351,15 @@ onBeforeUnmount(() => {
   vertical-align: middle;
   font-size: 14px;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
 .notification-bar-table td:first-child {
   border-left: 1px solid #cbd5e1d9;
+}
+
+.notification-bar-table td.notification-bar-table-value:hover {
+  background-color: rgba(203, 213, 225, 0.1);
 }
 
 .remove-sound-checkbox {
@@ -362,6 +370,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   background-color: #cbd5e1d9;
   color: #1c2336 !important;
+  white-space: nowrap;
 }
 
 .notification-bar-table-value.has-new {
@@ -372,6 +381,7 @@ onBeforeUnmount(() => {
 .new-notification {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 

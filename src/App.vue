@@ -8,23 +8,10 @@
       class="app-shell h-100vh flex flex-row"
       style="position: relative; z-index: 1;"
     >
-      <LeftLayout v-if="!isMobile" class="flex-0 h-100vh" />
-      <a-drawer
-        v-else
-        placement="left"
-        :open="showSidebar"
-        :width="320"
-        @close="showSidebar = false"
-        class="mobile-sider"
-      >
-        <LeftLayout />
-      </a-drawer>
+      <LeftLayout class="flex-0 h-100vh" />
       <a-layout class="flex-1 h-100vh overflow-y-auto main-content">
         <NotificationBar />
-        <HeaderMenu
-          :show-menu-toggle="isMobile"
-          @toggle-sidebar="showSidebar = true"
-        />
+        <HeaderMenu />
         <a-layout-content class="w-100 min-w-100 max-w-fit p-5 content-wrapper">
           <router-view />
         </a-layout-content>
@@ -34,7 +21,7 @@
 </template>
 
 <script setup>
-import { reactive, provide, onMounted, onBeforeUnmount, computed, ref, watch } from "vue";
+import { reactive, provide, onMounted, computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import LeftLayout from "./components/LeftLayout.vue";
@@ -64,10 +51,6 @@ const state = reactive({
   translations: {},
 });
 
-const isMobile = ref(false);
-const showSidebar = ref(false);
-const windowWidth = ref(window.innerWidth);
-
 async function loadLanguage(lang) {
   try {
     const langmodule = await import(`@/lang/${lang}.js`);
@@ -78,20 +61,6 @@ async function loadLanguage(lang) {
 }
 
 provide("langState", state);
-
-let resizeTimer = null;
-const updateViewport = () => {
-  if (resizeTimer) {
-    clearTimeout(resizeTimer);
-  }
-  resizeTimer = setTimeout(() => {
-    windowWidth.value = window.innerWidth;
-    isMobile.value = window.innerWidth <= 992;
-    if (!isMobile.value) {
-      showSidebar.value = false;
-    }
-  }, 150);
-};
 
 const loadPermissions = async () => {
   const token = localStorage.getItem("token");
@@ -114,23 +83,6 @@ const loadPermissions = async () => {
 
 onMounted(() => {
   loadLanguage(state.currentLang);
-  updateViewport();
-  window.addEventListener("resize", updateViewport);
   loadPermissions();
 });
-
-onBeforeUnmount(() => {
-  if (resizeTimer) {
-    clearTimeout(resizeTimer);
-  }
-  window.removeEventListener("resize", updateViewport);
-});
-
-watch(
-  () => route.path,
-  () => {
-    showSidebar.value = false;
-  }
-);
-
 </script>

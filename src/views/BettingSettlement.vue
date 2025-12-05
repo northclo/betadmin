@@ -53,10 +53,6 @@
       </a-form>
     </a-card>
 
-    <div class="flex items-center justify-between mb-4">
-      <span class="fs-4 font-semibold">{{ trlang.betting_settlement_profit }}</span>
-    </div>
-
     <a-table
       :columns="columns"
       :data-source="tableData"

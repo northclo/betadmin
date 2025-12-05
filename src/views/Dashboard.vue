@@ -9,7 +9,7 @@
       </a-typography-text>
     </div>
 
-    <a-row :gutter="[16, 16]">
+    <!-- <a-row :gutter="[16, 16]">
       <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
         <a-card :loading="loading" class="metric-card">
           <template #title>{{ trlang.total_members }}</template>
@@ -43,7 +43,7 @@
           </ul>
         </a-card>
       </a-col>
-    </a-row>
+    </a-row> -->
 
     <a-row :gutter="[16, 16]" class="dashboard-charts">
       <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
@@ -115,11 +115,11 @@ const chartInitStatus = ref({
   chargeExchange: false
 });
 
-const titleLevel = computed(() => {
-  if (windowWidth.value <= 480) return 4;
-  if (windowWidth.value <= 768) return 3;
-  return 2;
-});
+// const titleLevel = computed(() => {
+//   if (windowWidth.value <= 480) return 4;
+//   if (windowWidth.value <= 768) return 3;
+//   return 2;
+// });
 
 let resizeTimer = null;
 const updateWindowWidth = () => {
@@ -229,7 +229,7 @@ const initLoggedInChart = (data) => {
       }
     },
     legend: {
-      data: [trlang.value.all_loggedin, trlang.value.partner_loggedin],
+      data: [trlang.value.all_loggedin],
       bottom: 0
     },
     grid: {
@@ -259,14 +259,6 @@ const initLoggedInChart = (data) => {
         data: data.allLoggedIn,
         itemStyle: {
           color: '#5B9BD5'
-        }
-      },
-      {
-        name: trlang.value.partner_loggedin,
-        type: 'bar',
-        data: data.partnerLoggedIn,
-        itemStyle: {
-          color: '#9B59B6'
         }
       }
     ]
@@ -510,11 +502,6 @@ onBeforeUnmount(() => {
   color: var(--main-color);
   font-size: 16px;
   transition: font-size 0.3s ease;
-}
-
-/* Chart Styles */
-.dashboard-charts {
-  margin-top: 24px;
 }
 
 .chart-card {
