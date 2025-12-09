@@ -227,7 +227,6 @@ const columns = computed(() => [
   { title: trlang.value.no_column, key: "no", width: 60, align: "center" },
   { title: trlang.value.user_id, dataIndex: "user_id", key: "user_id", width: 140, align: "end" },
   { title: trlang.value.request_amount, dataIndex: "amount", key: "amount", width: 140, align: "end" },
-  { title: trlang.value.request_username, dataIndex: "member_nickname", key: "member_nickname", width: 140, align: "end" },
   { title: trlang.value.status, dataIndex: "status", key: "status", width: 120, align: "center" },
   { title: trlang.value.request_date, dataIndex: "submitted_at", key: "submitted_at", width: 180, align: "center" },
   { title: trlang.value.process_date, dataIndex: "processed_at", key: "processed_at", width: 180, align: "center" },

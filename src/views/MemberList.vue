@@ -288,7 +288,7 @@
           </template>
           <template v-if="column.key === 'owned_money'">
             <a-typography-text class="text-red">
-              {{ (record.own_money || 0).toLocaleString() }}
+              {{ (record.own_money || 0).toLocaleString() }}{{ trlang.global_currency }}
             </a-typography-text>
           </template>
           <template v-if="column.key === 'all_import_money'">
